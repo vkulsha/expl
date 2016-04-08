@@ -59,5 +59,5 @@
 			jsTable.queryWhere.set(" and o2 in ("+data.selected.join(",")+")");
 		});
 	});
-	
+
 </script>
