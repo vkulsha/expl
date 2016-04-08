@@ -1,0 +1,52 @@
+<NotepadPlus>
+    <Project name="expl">
+        <Folder name="css">
+            <File name="css\expl.css" />
+            <File name="css\jsTable.css" />
+            <File name="css\leaflet.css" />
+        </Folder>
+        <Folder name="benchmark">
+            <File name="benchmark\bench.js" />
+            <File name="benchmark\index.php" />
+        </Folder>
+        <Folder name="test">
+            <Folder name="testdir">
+                <File name="test\testdir\1.bmp" />
+                <File name="test\testdir\1.jpg" />
+                <File name="test\testdir\1.pdf" />
+                <File name="test\testdir\2.bmp" />
+                <File name="test\testdir\2.jpg" />
+                <File name="test\testdir\2.pdf" />
+                <File name="test\testdir\3.bmp" />
+                <File name="test\testdir\3.jpg" />
+                <File name="test\testdir\3.pdf" />
+            </Folder>
+            <File name="test\test.js" />
+            <File name="test\index.php" />
+        </Folder>
+        <Folder name="js">
+            <File name="js\uService.js" />
+            <File name="js\JsTable.js" />
+            <File name="js\Filter.js" />
+            <File name="js\uodb.js" />
+            <File name="js\Column.js" />
+            <File name="js\GetSet.js" />
+            <File name="js\domtree.js" />
+        </Folder>
+        <File name="index.php" />
+        <File name="iMap.php" />
+        <File name="iTable.php" />
+        <File name="iCard.php" />
+        <File name="iPower.php" />
+        <File name="iMainMenu.php" />
+        <File name="iControl.php" />
+        <File name="conn.php" />
+        <File name="auth.php" />
+        <File name="scanDir.php" />
+        <File name="upload.php" />
+        <File name="delete.php" />
+        <File name="blank.php" />
+        <File name="sql2json.php" />
+        <File name="iObjectLink.php" />
+    </Project>
+</NotepadPlus>

@@ -1,0 +1,72 @@
+body, table, a {
+	font-family: Arial;
+	font-size: 12px;
+	color: #746a55;/*#b4aa95;*/
+}
+
+body {
+	background-color: #f8f1da;/*#f4f1ec;#fffff5*/
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;	
+}
+
+.highlight, input, select {
+	background-color: #fffff0;
+	
+}
+
+input, select{
+	border: 1px solid #c4baa5;
+	
+}
+
+.menubutton {
+    background-color: #f8f1da;
+	border: 1px solid #f8f1da;
+	border-radius: 3px;
+    color: #948a75;
+	box-shadow: none;
+	cursor : pointer;
+}
+
+button {
+    background-color: #e4dac5;
+    -webkit-transition-duration: 1s; /* Safari */
+    transition-duration: 1s;
+	border: 1px solid #c4baa5;
+	border-radius: 3px;
+	box-shadow: 0 2px 2px 0 rgba(50,50,50,0.19);
+    color: #948a75;
+	cursor : pointer;
+}
+
+button:hover {
+    background-color: #f8f1da;
+    /*color: #c4baa5;*/
+}
+
+a {
+	text-decoration: none;
+	
+}
+
+img, .tMenu, #mainCaption {
+	-webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;	
+	
+}
+
+.tMenu {
+	width : 50%;
+	height : 90%;
+	color : #999;
+}
+
+.tMenu  img {
+	height : 150px;
+}
