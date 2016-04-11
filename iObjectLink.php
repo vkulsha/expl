@@ -1,7 +1,7 @@
 <table>
 	<tr>
 		<td>
-			<div id="jstree_demo_div" style="position:absolute; text-align:left; background-color:#fffff0"></div>
+			<div id="jstree" style="position:absolute; text-align:left; background-color:#fffff0"></div>
 		</td>
 	</tr>
 	<tr>
@@ -50,14 +50,17 @@
 ///classes
 	$(function () {
 		var data = getOrmObject(objectlink.gC().result, "rows2object");
-		$('#jstree_demo_div').jstree( 
+		$('#jstree').jstree( 
 			{
 				'core' : { 'data' : data }	//,"checkbox" : { "keep_selected_style" : false } //,"plugins" : [ "wholerow", "checkbox" ] 
 			}
 		);
-		$('#jstree_demo_div').on("changed.jstree", function (e, data) {
-			jsTable.queryWhere.set(" and o2 in ("+data.selected.join(",")+")");
+		$('#jstree').on("changed.jstree", function (e, data) {
+			var selectedClasses = data.selected;
+			jsTable.queryWhere.set(" and o2 in ("+selectedClasses.join(",")+")");
 		});
 	});
+	
+	
 
 </script>
