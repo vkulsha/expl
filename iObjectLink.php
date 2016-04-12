@@ -21,25 +21,8 @@
 		where:" and o2 is null ",
 		order:" order by id "
 	};
-	var colors = [
-/*		new RowColorMarker({
-			color: "#ffeeee",
-			conditions: [new FieldCondition({field: "tu", compareType: "=", value: "УЭИ", condType: "and"})]
-		}),
-		new RowColorMarker({
-			color: "#eeeeff",
-			conditions: [new FieldCondition({field: "tu", compareType: "=", value: "СЗТП", condType: "and"})]
-		}),
-		new RowColorMarker({
-			color: "#eeffee",
-			conditions: [new FieldCondition({field: "tu", compareType: "=", value: "СиДВ", condType: "and"})]
-		}),*/
-	];
-	var colsOpts = [
-		new Column({'id' : 0, 'name' : 'id', 'caption' : '№', 			'width' : 40, 	'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 1, 'name' : 'n',  'caption' : 'Наменование', 'width' : 500, 	'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 2, 'name' : 'o2', 'caption' : 'Связь', 		'width' : 40, 	'visible' : true, 'class' : currentClass}),
-	];
+	var colors;
+	var colsOpts;
 	currentUser.classes[currentClass].columns = colsOpts;
 	var tbHeight = windowHeight() * (380/699);
 	var opts = {tableWidth:1200, tableHeight:tbHeight, columns: colsOpts, rowsColor: colors};
@@ -60,7 +43,6 @@
 			jsTable.queryWhere.set(" and o2 in ("+selectedClasses.join(",")+")");
 		});
 	});
-	
 	
 
 </script>
