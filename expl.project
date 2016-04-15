@@ -24,6 +24,10 @@
             <File name="test\test.js" />
             <File name="test\index.php" />
         </Folder>
+        <Folder name="alg">
+            <File name="alg\createRule.txt" />
+            <File name="alg\doing.txt" />
+        </Folder>
         <Folder name="js">
             <File name="js\uService.js" />
             <File name="js\JsTable.js" />
