@@ -26,7 +26,7 @@
         </Folder>
         <Folder name="alg">
             <File name="alg\createRule.txt" />
-            <File name="alg\doing.txt" />
+            <File name="alg\rule.txt" />
         </Folder>
         <Folder name="js">
             <File name="js\uService.js" />
