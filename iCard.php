@@ -42,18 +42,18 @@
 		</td>
 	</tr>	
 	<tr height="100%">
-		<td valign="top">
+		<td valign="top" align="left">
 			<div id="domtreecontainer" style="overflow:scroll; height:398px; width:525px" ><div class="domtree"></div></div>
 		</td>
-		<td align="center" valign="top" width="100%" id="imagesContainer">
-			<div id="imgContainer" style="border: 1px dashed #999; padding: 10px; height:500px;" hidden>
-				<table width="100%" class="highlight">
+		<td align="left" valign="top" width="100%" id="imagesContainer">
+			<div id="imgContainer" style="border: 1px dashed #999; padding: 10px; height:500px" hidden>
+				<table width="100%">
 					<tr>
-						<td align="center"><button id="bImgPrev"><<</button></td>
+						<td align="center" valign="top"><button id="bImgPrev"><<</button></td>
 						<td align="center" width="100%">
 							<img id="imgObject" />
 						</td>
-						<td align="center"><button id="bImgNext">>></button></td>
+						<td align="center" valign="top"><button id="bImgNext">>></button></td>
 					</tr>
 				</table>
 			</div>
@@ -109,7 +109,8 @@
 			});
 						
 			imgContainer
-				.css("height", windowHeight()-imgContainer.offset().top-80+"px")
+				.css("height", windowHeight()-imgContainer.parent().offset().top-80+"px")
+				.css("width", windowWidth()-imgContainer.parent().offset().left-50+"px")
 				.attr("title", "открыть в полный размер");
 			imgObject.css("max-width", "100%");
 			imgObject.css("max-height", "100%");
@@ -120,10 +121,12 @@
 			
 			var tableFileContainer = fileContainer.find("table");
 			
-			var allFiles = splitObjectArray(files, {"images" : ["jpg", "png", "gif", "tif", "bmp"], "other" : []} );
-			imageFiles = allFiles.images;
-			otherFiles = allFiles.other;
+			fileContainer.css("width", imgContainer.css("width"));
+			fileContainer.css("height", "120px");
 			
+			var allFiles = splitObjectArray(files, {"images" : ["jpg", "png", "gif", "tif", "bmp"], "other" : []} );
+			imageFiles = allFiles.images.sort();
+			otherFiles = allFiles.other;
 			//imagesContainer
 			/*
 			$(".isPhoto").each(function(){
@@ -154,7 +157,7 @@
 						domain+objectPath+otherFiles[i]+
 					"\")' title='скачать файл' >"+
 					"<table><tr align='middle'><td><img src='images/"+iconFile+"' width='32'/></td></tr>"+
-					"<tr align='middle'><td>"+otherFiles[i]+"</td></tr></table></a></td>"
+					"<tr align='middle'><td style='font-size:11px; width:10px'>"+otherFiles[i]+"</td></tr></table></a></td>"
 				);
 			}
 			tableFileContainer.append(filesHtml.join(""));
@@ -163,17 +166,20 @@
 			var imgInd = 0;
 			if (imgIndMax) {
 				imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+				imgContainer.attr("title", imageFiles[imgInd]);
 				bImgPrev.get()[0].hidden = true;
 				bImgNext.get()[0].hidden = !(imageFiles[imgInd+1] != undefined);
 			} else {
 				imgContainer.html("ФОТОМАТЕРИАЛ ОТСУТСТВУЕТ");
 			}
+			imgContainer.get()[0].hidden = false;
 			
 			bImgPrev
 				.unbind("click")
 				.bind("click", function(){
 					imgInd -= 1;
 					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+					imgContainer.attr("title", imageFiles[imgInd]);
 					if (imgInd == 0)
 						this.hidden = true;
 					bImgNext.get()[0].hidden = false;
@@ -183,6 +189,7 @@
 				.bind("click", function(){
 					imgInd += 1;
 					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+					imgContainer.attr("title", imageFiles[imgInd]);
 					if (imgInd == imgIndMax-1)
 						this.hidden = true;
 					bImgPrev.get()[0].hidden = false;
@@ -242,7 +249,7 @@
 		domPanelFileUpload = document.createElement("DIV");
 		domPanelFileUpload.style.position = "absolute";
 		domPanelFileUpload.hidden = true;
-		domPanelFileUpload.style.backgroundColor = "#fff";
+		domPanelFileUpload.style.backgroundColor = "#fffff0";
 		domPanelFileUpload.style.border = "1px solid #ccc";
 		domPanelFileUpload.innerHTML = "<table cellspacing=5><tr><td>"+
 			"<form enctype='multipart/form-data' action='upload.php' method='POST'>"+
@@ -255,7 +262,7 @@
 		domPanelFileDelete = document.createElement("DIV");
 		domPanelFileDelete.style.position = "absolute";
 		domPanelFileDelete.hidden = true;
-		domPanelFileDelete.style.backgroundColor = "#fff";
+		domPanelFileDelete.style.backgroundColor = "#fffff0";
 		domPanelFileDelete.style.border = "1px solid #ccc";
 		domPanelFileDelete.innerHTML = "";
 		
