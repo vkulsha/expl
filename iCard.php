@@ -49,11 +49,11 @@
 			<div id="imgContainer" style="border: 1px dashed #999; padding: 10px; height:500px" hidden>
 				<table width="100%">
 					<tr>
-						<td align="center" valign="top"><button id="bImgPrev"><<</button></td>
+						<td align="center" valign="top"><button id="bImgPrev"><<</button><br><br><label id='currImgNum'></label></td>
 						<td align="center" width="100%">
 							<img id="imgObject" />
 						</td>
-						<td align="center" valign="top"><button id="bImgNext">>></button></td>
+						<td align="center" valign="top"><button id="bImgNext">>></button><br><br><label id='imgCount'></label></td>
 					</tr>
 				</table>
 			</div>
@@ -79,6 +79,8 @@
 	var bToCadastr = $("#bToCadastr");
 	var bPhoto = $("#bPhoto");
 	var bFiles = $("#bFiles");
+	var currImgNum = $("#currImgNum");
+	var imgCount = $("#imgCount");
 	var objectPath = getObjectsDir()+"/"+objectId+"/";
 	
 	var uri = getQueryObject(objectId);
@@ -163,10 +165,12 @@
 			tableFileContainer.append(filesHtml.join(""));
 						
 			var imgIndMax = imageFiles.length;
+			imgCount.html(imgIndMax);
 			var imgInd = 0;
 			if (imgIndMax) {
 				imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
 				imgContainer.attr("title", imageFiles[imgInd]);
+				currImgNum.html(imgInd+1);
 				bImgPrev.get()[0].hidden = true;
 				bImgNext.get()[0].hidden = !(imageFiles[imgInd+1] != undefined);
 			} else {
@@ -180,6 +184,7 @@
 					imgInd -= 1;
 					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
 					imgContainer.attr("title", imageFiles[imgInd]);
+					currImgNum.html(imgInd+1);
 					if (imgInd == 0)
 						this.hidden = true;
 					bImgNext.get()[0].hidden = false;
@@ -190,6 +195,7 @@
 					imgInd += 1;
 					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
 					imgContainer.attr("title", imageFiles[imgInd]);
+					currImgNum.html(imgInd+1);
 					if (imgInd == imgIndMax-1)
 						this.hidden = true;
 					bImgPrev.get()[0].hidden = false;
