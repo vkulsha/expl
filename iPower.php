@@ -1,6 +1,6 @@
 <table>
 	<tr>
-		<td align="center">Контроль исполнения</td>
+		<td align="center">Мощности</td>
 	</tr>
 	<tr>
 		<td class="jsTableContainer">

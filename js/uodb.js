@@ -299,11 +299,11 @@ var objectlink = {
 		return {q:"init database", result: "true"};
 	},
 	
-	cO : function(n){
+	cO : function(n){//return created object.id
 		this.sql.iT(this.oo, "(n)", "select "+n);
 		return this.sql.sT(table, "max(id)");
 	},
-	cL : function(o1, o2){
+	cL : function(o1, o2){//return created/count of updated link.id
 		var count = this.sql.sT(table, "count(*)", this.o1o2)
 		count = count.result.data[0][0];
 		if (count > 0) {
@@ -312,36 +312,52 @@ var objectlink = {
 			return this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
 		}
 	},
-	gO : function(id){//return object.n
+	gO : function(n){//return object.id from name
+		return this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1");
+	},
+	gN : function(id){//return object.n
 		return this.sql.sT(this.oo, "n", " and id="+id);
 	},
 	gL : function(o1, o2){//return link.id
 		return this.sql.sT(this.ll, "id", this.o1o2);
 	},
-	gC : function(){//return view `class`
-		/*
-		var cc = this.sql.sT(this.ll, "o1", " and o2 is null ", "", "limit 1");
-		cc = cc.result.data[0][0];
-		var classes = this.sql.sT(this.ll, "o1", " and o2 = "+cc);
-		if (!classes.result.data[0][0]) return undefined;
-		classes = getOrmObject(classes.result, "col2array");
-		return classes;
-		//return this.sql.sT(this.oo, "*", " and id in ("+classes.join(",")+") ");
-		*/
-		return this.sql.sT(this.cc, "*");
-		
-	},
-	uO : function(id, n){
+	uO : function(id, n){//return count of updated objects
 		return this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id);
 
 	},
-	gOL : function(c){
-		c = " and o2 in ("+c+")" || "";
+	
+	gC : function(){//return view `class`
+		return this.sql.sT(this.cc, "*");
+		
+	},
+	gOL : function(c){//return objects linked with any object from list c
+		c = " and o2 in ("+c+")" || " and 1=2 ";
 		return this.sql.sT(this.ol, "*", c);
 		
 	},
-	
-	
-	
+	gOLL : function(c){//return objects linked with every object from list c
+		c = " and o2 in ("+c+") group by id having count(id) > 1 " || " and 1=2 ";
+		return this.sql.sT(this.ol, "*", c);
+	},
+	cR : function(ruleName, executor, condObjectFrom, condObjTo, subjectFrom, subjectTo){//return created object-rule
+		var result = this.cO(ruleName);
+		
+		var cond = gO(condObjTo);
+		cond = cond || cO(condObjTo);
+		
+		var subject = gO(subjectTo);
+		subject = subject || cO(subjectTo);
+		
+		cL(subjectFrom, subject);		
+		cL(condObjectFrom, cond);		
+
+		cL(result, executor);		
+		cL(result, condObjectFrom);		
+		cL(result, cond);		
+		cL(result, subjectFrom);		
+		cL(result, subject);		
+		
+		return result;
+	},
 	
 }

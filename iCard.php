@@ -45,12 +45,12 @@
 		<td valign="top" align="left">
 			<div id="domtreecontainer" style="overflow:scroll; height:398px; width:525px" ><div class="domtree"></div></div>
 		</td>
-		<td align="left" valign="top" width="100%" id="imagesContainer">
+		<td align="left" width="100%" id="imagesContainer">
 			<div id="imgContainer" style="border: 1px dashed #999; padding: 10px; height:500px" hidden>
 				<table width="100%">
 					<tr>
 						<td align="center" valign="top"><button id="bImgPrev"><<</button><br><br><label id='currImgNum'></label></td>
-						<td align="center" width="100%">
+						<td align="center" width="100%" valign="middle">
 							<img id="imgObject" />
 						</td>
 						<td align="center" valign="top"><button id="bImgNext">>></button><br><br><label id='imgCount'></label></td>
