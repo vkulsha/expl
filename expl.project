@@ -10,17 +10,6 @@
             <File name="benchmark\index.php" />
         </Folder>
         <Folder name="test">
-            <Folder name="testdir">
-                <File name="test\testdir\1.bmp" />
-                <File name="test\testdir\1.jpg" />
-                <File name="test\testdir\1.pdf" />
-                <File name="test\testdir\2.bmp" />
-                <File name="test\testdir\2.jpg" />
-                <File name="test\testdir\2.pdf" />
-                <File name="test\testdir\3.bmp" />
-                <File name="test\testdir\3.jpg" />
-                <File name="test\testdir\3.pdf" />
-            </Folder>
             <File name="test\test.js" />
             <File name="test\index.php" />
         </Folder>

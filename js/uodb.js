@@ -301,7 +301,7 @@ var objectlink = {
 	
 	cO : function(n){//return created object.id
 		this.sql.iT(this.oo, "(n)", "select "+n);
-		return this.sql.sT(table, "max(id)");
+		return this.sql.sT(table, "max(id)").result.data[0][0];
 	},
 	cL : function(o1, o2){//return created/count of updated link.id
 		var count = this.sql.sT(table, "count(*)", this.o1o2)
@@ -313,31 +313,33 @@ var objectlink = {
 		}
 	},
 	gO : function(n){//return object.id from name
-		return this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1");
+		return this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1").result.data[0][0];
 	},
 	gN : function(id){//return object.n
-		return this.sql.sT(this.oo, "n", " and id="+id);
+		return this.sql.sT(this.oo, "n", " and id="+id).result.data[0][0];
 	},
 	gL : function(o1, o2){//return link.id
-		return this.sql.sT(this.ll, "id", this.o1o2);
+		return this.sql.sT(this.ll, "id", this.o1o2).result.data[0][0];
 	},
 	uO : function(id, n){//return count of updated objects
-		return this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id);
+		var result = this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id);
+		//chRs(id);
+		return result;
 
 	},
-	
+
 	gC : function(){//return view `class`
 		return this.sql.sT(this.cc, "*");
 		
 	},
-	gOL : function(c){//return objects linked with any object from list c
-		c = " and o2 in ("+c+")" || " and 1=2 ";
-		return this.sql.sT(this.ol, "*", c);
+	gOR : function(arr){//return objects linked with any object from list arr //analog OR logic
+		var cond = " and o2 in ("+arr.join(",")+")" || " and 1=2 ";
+		return this.sql.sT(this.ol, "*", cond);
 		
 	},
-	gOLL : function(c){//return objects linked with every object from list c
-		c = " and o2 in ("+c+") group by id having count(id) > 1 " || " and 1=2 ";
-		return this.sql.sT(this.ol, "*", c);
+	gAND : function(arr){//return objects linked with every object from list arr //analog AND logic
+		var cond = " and o2 in ("+arr.join(",")+") group by id having count(id) = "+arr.length || " and 1=2 ";
+		return this.sql.sT(this.ol, "*", cond);
 	},
 	cR : function(ruleName, executor, condObjectFrom, condObjTo, subjectFrom, subjectTo){//return created object-rule
 		var result = this.cO(ruleName);
@@ -348,16 +350,63 @@ var objectlink = {
 		var subject = gO(subjectTo);
 		subject = subject || cO(subjectTo);
 		
-		cL(subjectFrom, subject);		
-		cL(condObjectFrom, cond);		
-
-		cL(result, executor);		
-		cL(result, condObjectFrom);		
-		cL(result, cond);		
-		cL(result, subjectFrom);		
-		cL(result, subject);		
+		cL(subjectFrom, subject);
+		cL(condObjectFrom, cond);
+		
+		cL(result, executor);
+		cL(result, condObjectFrom);
+		cL(result, cond);
+		cL(result, subjectFrom);
+		cL(result, subject);
 		
 		return result;
 	},
-	
+	chRs : function(id, currentUser){//checked rules with condition=id
+		if (id) {
+			var isRuleCond = gL(id, gO("правило условие"));
+			if (isRuleCond) {
+				var rules = gAND([id, gO("правило")/*, gO("справочник")*/]).result.data;
+				for (var i=0; i < rules.length-1; i++) {
+					chR(rules[i], currentUser);
+				}
+			}
+		}
+		
+	},
+	chR : function(rule, currentUser){//checked or execute rule, return rule execution result or undefined
+		var result;
+		var executor = gAND([rule, gO("правило исполнитель")]).result.data[0][0];
+		if (executor == currentUser) {
+			result = gO("правило исполнено");
+			if (!result) {
+				result = cO("правило исполнено")
+			};
+			
+			if (!isObjectHasLink(result)) {
+				var condition = gAND([rule, gO("правило условие")]).result.data[0][0];
+				var conditionCopy = gAND([rule, gO("правило условие сравнение")]).result.data[0][0];
+				if (condition == conditionCopy) {
+					if (gAND([executor, gO("система")]).result.data[0][0]) {
+						var subject = gAND([rule, gO("правило субъект")]).result.data[0][0];
+						var subjectCopy = gAND([rule, gO("правило субъект состояние")]).result.data[0][0];
+						if (subject) {
+							uO(subject, gN(subjectCopy));
+							chRs(subject, currentUser);
+						} else {
+							//cO(subjectCopy);
+						}
+						cL(rule, result);
+						
+					} else {
+						result = gO("правило не исполнено") || cO("правило не исполнено");
+						if (!result) {
+							result = cO("правило не исполнено");
+						};
+						cL(rule, result);
+					}
+				}
+			}
+		}
+		return result;
+	}
 }
