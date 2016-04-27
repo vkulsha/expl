@@ -253,7 +253,8 @@ var uodb = {
 var SQL = {
 	sql	: function(query){ 
 		var res = sql(query);//func sql from uService.js
-		//console.log(query + " ["+res.data[0][0]+"]");
+		//console.log(query + " ["+res.data+"]");
+		//console.log(res);
  		return {q:query, result: res} 
 	},
 	pD	: "",
@@ -286,7 +287,8 @@ var objectlink = {
 		this.cT(this.oo, "id bigint not null auto_increment, n char(255), d timestamp, /*x float, y float, z float, */primary key(id), index(n);");
 		this.cT(this.ll, "id bigint not null auto_increment, o1 bigint, o2 bigint, c bigint, primary key(id), index(o1), index(o2), index(c)");
 		this.cV(this.cc, 
-			"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 is null))o1 "+
+			"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 is null) )o1 "+ //classes without objects
+			//"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object )o1 "+ //classes with objects
 			"left join link on o2 is not null and o1 = o1.id"
 		);
 		this.cV(this.ol, 
@@ -300,29 +302,42 @@ var objectlink = {
 	},
 	
 	cO : function(n){//return created object.id
-		this.sql.iT(this.oo, "(n)", "select "+n);
-		return this.sql.sT(table, "max(id)").result.data[0][0];
+		this.sql.iT(this.oo, "(n)", "select "+ifns(n));
+		return this.sql.sT(this.oo, "max(id)").result.data[0][0];
 	},
 	cL : function(o1, o2){//return created/count of updated link.id
-		var count = this.sql.sT(table, "count(*)", this.o1o2)
-		count = count.result.data[0][0];
-		if (count > 0) {
-			return this.sql.uT(this.ll, "c = c+1", this.o1o2);
+		var lid = this.sql.sT(this.ll, "id", this.o1o2(o1, o2))
+		lid = lid.result.data.length ? lid.result.data[0][0] : undefined;
+		if (lid) {
+			this.sql.uT(this.ll, "c = c+1", this.o1o2(o1, o2));
+			return lid;
 		} else {
-			return this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
+			this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
+			return this.sql.sT(this.ll, "max(id)").result.data[0][0];
 		}
 	},
 	gO : function(n){//return object.id from name
-		return this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1").result.data[0][0];
+		var result = this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1").result.data;
+		result = result.length ? result[0][0] : undefined;
+		return result;
 	},
 	gN : function(id){//return object.n
-		return this.sql.sT(this.oo, "n", " and id="+id).result.data[0][0];
+		var result = this.sql.sT(this.oo, "n", " and id="+id).result.data;
+		result = result.length ? result[0][0] : undefined;
+		return result;
+	},
+	gD : function(id){
+		var result = this.sql.sT(this.oo, "d", " and id="+id).result.data;
+		result = result.length ? result[0][0] : undefined;
+		return result;
 	},
 	gL : function(o1, o2){//return link.id
-		return this.sql.sT(this.ll, "id", this.o1o2).result.data[0][0];
+		var result = this.sql.sT(this.ll, "id", this.o1o2(o1, o2)).result.data;
+		result = result.length ? result[0][0] : undefined;
+		return result;
 	},
 	uO : function(id, n){//return count of updated objects
-		var result = this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id);
+		var result = this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id).result.data[0][0];
 		//chRs(id);
 		return result;
 
@@ -333,41 +348,69 @@ var objectlink = {
 		
 	},
 	gOR : function(arr){//return objects linked with any object from list arr //analog OR logic
-		var cond = " and o2 in ("+arr.join(",")+")" || " and 1=2 ";
-		return this.sql.sT(this.ol, "*", cond);
+		//var cond = " and ( o2 in ("+arr.join(",")+") ) " || " and 1=2 ";
+		//return this.sql.sT(this.ol, "*", cond);
+		return getOrmObject(
+			this.sql.sql(
+				"select o1 from link where o2 in ("+arr.join(",")+") and o2 is not null "+
+				"union all "+
+				"select o2 from link where o1 in ("+arr.join(",")+") and o1 is not null "+
+				"order by o1"
+			).result
+			, "col2array"
+		);
 		
 	},
 	gAND : function(arr){//return objects linked with every object from list arr //analog AND logic
-		var cond = " and o2 in ("+arr.join(",")+") group by id having count(id) = "+arr.length || " and 1=2 ";
-		return this.sql.sT(this.ol, "*", cond);
+//		var cond = " and o2 in ("+arr.join(",")+") group by id having count(id) = "+arr.length || " and 1=2 ";
+//		return this.sql.sT(this.ol, "*", cond);
+		return getOrmObject(
+			this.sql.sql(
+				"select o1 from ( "+
+				"	select o1 from link where o2 in ("+arr.join(",")+") and o1 is not null "+
+				"	union all "+
+				"	select o2 from link where o1 in ("+arr.join(",")+") and o2 is not null "+
+				")o "+
+				"group by o1 "+
+				"having count(*) = "+arr.length+" "+
+				"order by o1"
+			).result
+			, "col2array"
+		);
+
+	},
+	gT : function(){
+		return this.gAND([this.gO("время")])[0]
 	},
 	cR : function(ruleName, executor, condObjectFrom, condObjTo, subjectFrom, subjectTo){//return created object-rule
 		var result = this.cO(ruleName);
 		
-		var cond = gO(condObjTo);
-		cond = cond || cO(condObjTo);
+		var cond = this.gO(condObjTo);
+		cond = cond || this.cO(condObjTo);
 		
-		var subject = gO(subjectTo);
-		subject = subject || cO(subjectTo);
+		var subject = this.gO(subjectTo);
+		subject = subject || this.cO(subjectTo);
 		
-		cL(subjectFrom, subject);
-		cL(condObjectFrom, cond);
+		this.cL(subjectFrom, subject);
+		this.cL(condObjectFrom, cond);
 		
-		cL(result, executor);
-		cL(result, condObjectFrom);
-		cL(result, cond);
-		cL(result, subjectFrom);
-		cL(result, subject);
+		this.cL(result, executor);
+		this.cL(result, condObjectFrom);
+		this.cL(result, cond);
+		this.cL(result, subjectFrom);
+		this.cL(result, subject);
 		
 		return result;
 	},
 	chRs : function(id, currentUser){//checked rules with condition=id
 		if (id) {
-			var isRuleCond = gL(id, gO("правило условие"));
+			var isRuleCond = this.gL(id, this.gO("правило условие"));
 			if (isRuleCond) {
-				var rules = gAND([id, gO("правило")/*, gO("справочник")*/]).result.data;
-				for (var i=0; i < rules.length-1; i++) {
-					chR(rules[i], currentUser);
+				var rules = this.gAND([id, this.gO("правило"), this.gO("справочник")]);
+				if (rules && rules.length) {
+					for (var i=0; i < rules.length-1; i++) {
+						this.chR(rules[i], currentUser);
+					}
 				}
 			}
 		}
@@ -375,38 +418,32 @@ var objectlink = {
 	},
 	chR : function(rule, currentUser){//checked or execute rule, return rule execution result or undefined
 		var result;
-		var executor = gAND([rule, gO("правило исполнитель")]).result.data[0][0];
+		var executor = this.gAND([rule, this.gO("правило исполнитель"), this.gO("справочник")])[0];
 		if (executor == currentUser) {
-			result = gO("правило исполнено");
-			if (!result) {
-				result = cO("правило исполнено")
-			};
+			result = this.gO("правило исполнено") || this.cO("правило исполнено");
 			
-			if (!isObjectHasLink(result)) {
-				var condition = gAND([rule, gO("правило условие")]).result.data[0][0];
-				var conditionCopy = gAND([rule, gO("правило условие сравнение")]).result.data[0][0];
-				if (condition == conditionCopy) {
-					if (gAND([executor, gO("система")]).result.data[0][0]) {
-						var subject = gAND([rule, gO("правило субъект")]).result.data[0][0];
-						var subjectCopy = gAND([rule, gO("правило субъект состояние")]).result.data[0][0];
+			if (!gL(rule, result)) {
+				var condition = this.gAND([rule, this.gO("правило условие"), this.gO("справочник")])[0];
+				var conditionCopy = this.gAND([rule, this.gO("правило условие сравнение"), this.gO("справочник")])[0];
+				if (this.gN(condition) == this.gN(conditionCopy)) {
+					if (executor == this.gO("система")) {
+						var subject = this.gAND([rule, this.gO("правило субъект"), this.gO("справочник")])[0];
+						var subjectCopy = this.gAND([rule, this.gO("правило субъект состояние"), this.gO("справочник")])[0];
 						if (subject) {
-							uO(subject, gN(subjectCopy));
-							chRs(subject, currentUser);
+							this.uO(subject, this.gN(subjectCopy));
+							this.chRs(subject, currentUser);
 						} else {
-							//cO(subjectCopy);
+							//this.cO(subjectCopy);
 						}
-						cL(rule, result);
+						this.cL(rule, result);
 						
 					} else {
-						result = gO("правило не исполнено") || cO("правило не исполнено");
-						if (!result) {
-							result = cO("правило не исполнено");
-						};
-						cL(rule, result);
+						result = this.gO("правило не исполнено") || this.cO("правило не исполнено");
+						this.cL(rule, result);
 					}
 				}
 			}
 		}
 		return result;
-	}
+	},
 }

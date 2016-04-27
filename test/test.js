@@ -604,8 +604,48 @@ QUnit.test( "uodb test", function( a ) {
 	}
 	
 	
-	console.log(objectlink.gC());
+});
 
+QUnit.test( "objectlink test", function( a ) {
+	a.ok( 1 == 1, "test" );
+	
+	if (false) {
+		var o1 = objectlink.cO("тест1");
+		var o2 = objectlink.cO("тест2");
+		var o3 = objectlink.cO("тест3");
+		var l1 = objectlink.cL(o1, o2);
+		l1 = objectlink.cL(o1, o2);
+		var l2 = objectlink.cL(o1, o3);
 
-
+		a.ok( objectlink.gO("тест1") == o1 && objectlink.gO("тест2") == o2 && objectlink.gO("тест3") == o3, "cO, cL, gO" );
+		a.ok( objectlink.gL(o1, o2) == l1 && objectlink.gL(o1, o3) == l2, "gL");
+		a.ok(
+			objectlink.uO(o1, "тест11") == 1 && 
+			objectlink.gN(o1) == "тест11" && 
+			objectlink.uO(o1, "тест1") == 1
+			, "uO, gN" 
+		);
+		
+		var arr = objectlink.gAND([o2,o3]);
+		a.ok( arr.length && arr[0] == o1, "gAND" );
+		var arr = objectlink.gAND([o1,o3]);
+		a.ok( !arr.length, "gAND 2" );
+		
+		var arr = objectlink.gOR([o2,o3]);
+		a.ok( arr.length && arr[0] == o1, "gOR" );
+		var arr = objectlink.gOR([o2]);
+		a.ok( arr.length && arr[0] == o1, "gOR 2" );
+		var arr = objectlink.gOR([o1]);
+		a.ok( arr.length == 2, "gOR 3" );
+		var arr = objectlink.gAND([o1,o3]);
+		a.ok( !arr.length, "gOR 4" );
+		
+		objectlink.sql.sql( "delete from link where o1 in (select id from object where n in ('тест1', 'тест2', 'тест3') )" );
+		objectlink.sql.sql( "delete from link where o2 in (select id from object where n in ('тест1', 'тест2', 'тест3') )" );
+		objectlink.sql.sql( "delete from object where n in ('тест1', 'тест2', 'тест3')" );
+	}
+	
+	console.log(objectlink.gN(objectlink.gT()));
+	
+	
 });
