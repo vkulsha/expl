@@ -433,7 +433,7 @@ var objectlink = {
 							this.uO(subject, this.gN(subjectCopy));
 							this.chRs(subject, currentUser);
 						} else {
-							//this.cO(subjectCopy);
+							this.cO(this.gN(subjectCopy));
 						}
 						this.cL(rule, result);
 						

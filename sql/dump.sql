@@ -359,12 +359,12 @@ CREATE TABLE `link` (
   KEY `o1` (`o1`),
   KEY `o2` (`o2`),
   KEY `c` (`c`)
-) ENGINE=InnoDB AUTO_INCREMENT=63 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `link` WRITE;
 /*!40000 ALTER TABLE `link` DISABLE KEYS */;
-INSERT INTO `link` VALUES (1,1,NULL,1,'2016-04-27 12:04:00'),(2,2,1,1,'2016-04-27 06:06:02'),(3,3,NULL,1,'2016-04-27 12:04:00'),(4,4,NULL,1,'2016-04-27 12:03:59'),(5,5,NULL,1,'2016-04-27 12:03:59'),(6,6,NULL,1,'2016-04-27 12:03:59'),(7,7,NULL,1,'2016-04-27 12:03:59'),(8,20,1,1,'2016-04-27 06:11:50'),(9,21,1,1,'2016-04-27 06:11:51'),(10,3,2,1,'2016-04-27 06:12:13'),(11,4,2,1,'2016-04-27 06:12:13'),(12,5,2,1,'2016-04-27 06:12:13'),(13,6,2,1,'2016-04-27 06:12:13'),(14,7,2,1,'2016-04-27 06:12:49'),(15,8,2,1,'2016-04-27 06:12:52'),(16,9,8,1,'2016-04-27 10:28:22'),(17,10,8,1,'2016-04-27 06:13:09'),(18,11,8,1,'2016-04-27 06:13:09'),(19,12,8,1,'2016-04-27 06:13:09'),(20,13,8,1,'2016-04-27 06:13:09'),(21,15,14,1,'2016-04-27 06:13:37'),(22,16,14,1,'2016-04-27 06:13:38'),(23,17,14,1,'2016-04-27 06:13:38'),(24,18,14,1,'2016-04-27 06:13:39'),(25,19,14,1,'2016-04-27 06:13:39'),(26,3,20,1,'2016-04-27 06:14:04'),(27,4,20,1,'2016-04-27 06:14:06'),(28,5,20,1,'2016-04-27 06:14:07'),(29,6,20,1,'2016-04-27 06:14:08'),(30,7,20,1,'2016-04-27 06:14:08'),(31,8,21,1,'2016-04-27 06:14:36'),(32,9,21,1,'2016-04-27 06:14:36'),(33,10,21,1,'2016-04-27 06:14:37'),(34,11,21,1,'2016-04-27 06:14:37'),(35,12,21,1,'2016-04-27 06:14:38'),(36,13,21,1,'2016-04-27 06:14:38'),(37,14,21,1,'2016-04-27 06:14:38'),(38,15,21,1,'2016-04-27 06:14:39'),(39,16,21,1,'2016-04-27 06:14:40'),(40,17,21,1,'2016-04-27 06:14:41'),(41,18,21,1,'2016-04-27 06:14:41'),(42,19,21,1,'2016-04-27 06:14:42'),(43,9,3,1,'2016-04-27 06:15:59'),(44,10,4,1,'2016-04-27 06:15:59'),(45,11,5,1,'2016-04-27 06:16:00'),(46,12,6,1,'2016-04-27 06:16:00'),(47,13,7,1,'2016-04-27 06:16:00'),(48,15,3,1,'2016-04-27 06:16:20'),(49,16,4,1,'2016-04-27 06:16:21'),(50,17,5,1,'2016-04-27 06:16:21'),(51,18,6,1,'2016-04-27 06:16:21'),(52,19,7,1,'2016-04-27 06:16:22'),(53,14,2,1,'2016-04-27 10:27:28'),(54,22,NULL,1,'2016-04-27 12:03:58'),(55,23,NULL,1,'2016-04-27 12:03:58'),(56,22,2,1,'2016-04-27 10:33:12'),(57,23,2,1,'2016-04-27 10:33:12'),(58,8,22,1,'2016-04-27 10:43:44'),(59,2,NULL,1,'2016-04-27 12:04:00'),(60,20,NULL,1,'2016-04-27 12:03:57'),(61,21,NULL,1,'2016-04-27 12:03:58'),(62,25,24,1,'2016-04-27 12:41:08');
+INSERT INTO `link` VALUES (1,1,NULL,1,'2016-04-27 12:04:00'),(10,3,2,1,'2016-04-28 12:28:36'),(11,4,2,1,'2016-04-27 06:12:13'),(12,5,2,1,'2016-04-27 06:12:13'),(13,6,2,1,'2016-04-27 06:12:13'),(14,7,2,1,'2016-04-27 06:12:49'),(15,8,2,1,'2016-04-27 06:12:52'),(18,11,8,1,'2016-04-27 06:13:09'),(19,12,8,1,'2016-04-27 06:13:09'),(20,13,8,1,'2016-04-27 06:13:09'),(23,17,14,1,'2016-04-28 08:43:12'),(24,18,14,1,'2016-04-27 06:13:39'),(25,19,14,1,'2016-04-27 06:13:39'),(26,3,20,1,'2016-04-27 06:14:04'),(27,4,20,1,'2016-04-27 06:14:06'),(28,5,20,1,'2016-04-27 06:14:07'),(29,6,20,1,'2016-04-27 06:14:08'),(30,7,20,1,'2016-04-27 06:14:08'),(31,8,21,1,'2016-04-27 06:14:36'),(34,11,21,1,'2016-04-27 06:14:37'),(35,12,21,1,'2016-04-27 06:14:38'),(36,13,21,1,'2016-04-27 06:14:38'),(37,14,21,1,'2016-04-27 06:14:38'),(40,17,21,1,'2016-04-27 06:14:41'),(41,18,21,1,'2016-04-27 06:14:41'),(42,19,21,1,'2016-04-27 06:14:42'),(45,11,5,1,'2016-04-27 06:16:00'),(46,12,6,1,'2016-04-27 06:16:00'),(47,13,7,1,'2016-04-27 06:16:00'),(50,17,5,1,'2016-04-27 06:16:21'),(51,18,6,1,'2016-04-27 06:16:21'),(52,19,7,1,'2016-04-27 06:16:22'),(53,14,2,1,'2016-04-27 10:27:28'),(56,22,2,1,'2016-04-27 10:33:12'),(57,23,2,1,'2016-04-27 10:33:12'),(62,25,24,1,'2016-04-27 12:41:08'),(67,25,4,1,'2016-04-28 08:42:37'),(68,25,21,1,'2016-04-28 08:25:29'),(69,25,14,1,'2016-04-28 08:25:30'),(72,25,8,1,'2016-04-28 13:02:26'),(76,1,3,1,'2016-04-28 12:27:51'),(77,8,1,1,'2016-04-28 13:01:38'),(78,14,1,1,'2016-04-28 12:28:58'),(79,1,21,1,'2016-04-28 12:33:44');
 /*!40000 ALTER TABLE `link` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `link_copy`;
@@ -397,12 +397,12 @@ CREATE TABLE `object` (
   `d` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `n` (`n`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 LOCK TABLES `object` WRITE;
 /*!40000 ALTER TABLE `object` DISABLE KEYS */;
-INSERT INTO `object` VALUES (1,'классы','2016-04-27 05:56:56'),(2,'правило','2016-04-27 05:57:00'),(3,'правило исполнитель','2016-04-27 05:57:15'),(4,'правило условие','2016-04-27 05:57:20'),(5,'правило условие сравнение','2016-04-27 10:59:26'),(6,'правило субъект','2016-04-27 05:57:50'),(7,'правило субъект состояние','2016-04-27 05:57:58'),(8,'правило 1','2016-04-27 06:00:02'),(9,'исполнитель 1','2016-04-27 06:00:02'),(10,'условие 1','2016-04-27 06:00:03'),(11,'условие сравнения 1','2016-04-27 11:02:33'),(12,'субъект 1','2016-04-27 06:00:05'),(13,'субъект состояние 1','2016-04-27 06:00:06'),(14,'правило 2','2016-04-27 06:00:18'),(15,'исполнитель 2','2016-04-27 06:00:22'),(16,'условие 2','2016-04-27 06:00:25'),(17,'условие сравнения 2','2016-04-27 06:00:33'),(18,'субъект 2','2016-04-27 06:00:37'),(19,'субъект сравнения 2','2016-04-27 06:00:43'),(20,'свойство','2016-04-27 06:02:02'),(21,'справочник','2016-04-27 06:01:59'),(22,'правило исполнено','2016-04-27 10:32:17'),(23,'правило не исполнено','2016-04-27 10:32:21'),(24,'время','2016-04-27 12:24:46'),(25,'2016-04-27 16:39:00','2016-04-27 13:39:00');
+INSERT INTO `object` VALUES (1,'система','2016-04-28 11:55:46'),(2,'правило','2016-04-27 05:57:00'),(3,'правило исполнитель','2016-04-27 05:57:15'),(4,'правило условие','2016-04-27 05:57:20'),(5,'правило условие сравнение','2016-04-27 10:59:26'),(6,'правило субъект','2016-04-27 05:57:50'),(7,'правило субъект состояние','2016-04-27 05:57:58'),(8,'правило 1','2016-04-27 06:00:02'),(11,'2016-04-28 15:41:00','2016-04-28 12:40:19'),(12,'субъект 1','2016-04-28 12:41:54'),(13,'субъект состояние 1','2016-04-27 06:00:06'),(14,'правило 2','2016-04-27 06:00:18'),(17,'2016-04-28 15:41:00','2016-04-28 12:40:22'),(18,'субъект 2','2016-04-28 12:41:51'),(19,'субъект сравнения 2','2016-04-27 06:00:43'),(20,'свойство','2016-04-27 06:02:02'),(21,'справочник','2016-04-27 06:01:59'),(22,'правило исполнено','2016-04-27 10:32:17'),(23,'правило не исполнено','2016-04-27 10:32:21'),(24,'время','2016-04-27 12:24:46'),(25,'2016-04-28 16:50:00','2016-04-28 13:50:00');
 /*!40000 ALTER TABLE `object` ENABLE KEYS */;
 UNLOCK TABLES;
 DROP TABLE IF EXISTS `object_copy`;
@@ -487,6 +487,447 @@ LOCK TABLES `ttt` WRITE;
 /*!40000 ALTER TABLE `ttt` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ttt` ENABLE KEYS */;
 UNLOCK TABLES;
+/*!50106 SET @save_time_zone= @@TIME_ZONE */ ;
+/*!50106 DROP EVENT IF EXISTS `eventObjectTime` */;
+DELIMITER ;;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;;
+/*!50003 SET character_set_client  = utf8 */ ;;
+/*!50003 SET character_set_results = utf8 */ ;;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;;
+/*!50003 SET @saved_time_zone      = @@time_zone */ ;;
+/*!50003 SET time_zone             = 'SYSTEM' */ ;;
+/*!50106 CREATE*/ /*!50117 DEFINER=`root`@`localhost`*/ /*!50106 EVENT `eventObjectTime` ON SCHEDULE EVERY 1 MINUTE STARTS '2016-04-28 13:44:00' ON COMPLETION NOT PRESERVE ENABLE DO begin
+	call cT();
+
+end */ ;;
+/*!50003 SET time_zone             = @saved_time_zone */ ;;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;;
+/*!50003 SET character_set_results = @saved_cs_results */ ;;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;;
+DELIMITER ;
+/*!50106 SET TIME_ZONE= @save_time_zone */ ;
+/*!50003 DROP FUNCTION IF EXISTS `cO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `cO`(val char(255)) RETURNS bigint(20)
+begin
+insert into object (n) value(val);
+	return (select max(id) from object);
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gAND` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gAND`(oid1 bigint, oid2 bigint, oid3 bigint) RETURNS bigint(20)
+return (
+	select o1 from ( 
+		select o1 from link where o2 in (oid1, oid2, oid3) and o1 is not null 
+		union all 
+		select o2 from link where o1 in (oid1, oid2, oid3) and o2 is not null 
+	)o 
+	group by o1 
+	having count(*) = case when oid2 is null then 1 when oid3 is null then 2 else 3 end
+	order by o1
+	limit 1
+) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gC` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gC`(cid bigint) RETURNS text CHARSET utf8
+BEGIN
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE o bigint;
+  DECLARE cc text DEFAULT '';
+  DECLARE cur1 CURSOR FOR select distinct o1 from link where o2 = cid;
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+  OPEN cur1;
+  read_loop: LOOP
+    FETCH cur1 INTO o;
+
+    IF done THEN
+      LEAVE read_loop;
+    END IF;
+
+		set cc = concat(cc, o, ',');
+
+  END LOOP;
+  CLOSE cur1;
+	
+	set cc = SUBSTR(cc,1,LENGTH(cc)-1);
+	return cc;
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gCC` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gCC`() RETURNS text CHARSET utf8
+BEGIN
+ return gC((select o1 from link where o2 is null limit 1));
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gL` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gL`(oid1 bigint,oid2 bigint) RETURNS bigint(20)
+return (select id from link where (o1=oid1 and o2=oid2) or (o1=oid2 and o2=oid1) limit 1) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gN` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gN`(name char(255)) RETURNS bigint(20)
+return (select id from object where n = name limit 1) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gO`(oid bigint) RETURNS char(255) CHARSET utf8
+return (select n from object where id = oid limit 1) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP FUNCTION IF EXISTS `gT` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` FUNCTION `gT`() RETURNS bigint(20)
+return (select o1 from link where o2 = gN('время') limit 1) ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `cD` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cD`()
+BEGIN
+	start TRANSACTION;
+
+	create table if not exists object (
+		id bigint not null auto_increment,
+		n char(255),
+		d timestamp,
+		/*x float,
+		y float,
+		z float,*/
+		primary key(id),
+		index(n)
+	);
+
+	create table if not exists link (
+		id bigint not null auto_increment,
+		o1 bigint,
+		o2 bigint,
+		c bigint,
+		d timestamp,
+		primary key(id),
+		index(o1),
+		index(o2),
+		index(c)
+
+	);
+
+	insert into object (n) select 'Classes';
+
+	set @o = (select LAST_INSERT_ID());
+
+	insert into link (o1, o2, c) values (@o, null, 1);
+
+	COMMIT;
+
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `chR` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `chR`(rule bigint)
+begin
+	declare executor bigint;
+	declare cond bigint;
+	declare condCopy bigint;
+	declare subj bigint;
+	declare subjCopy bigint;
+	declare result bigint;
+	declare newO bigint;
+
+	set executor = gAND(rule,gN('правило исполнитель'),gN('справочник'));
+	set result = gN('правило исполнено');
+	if result is null then set result = cO('правило исполнено'); end if;
+	
+	if gL(rule, result) is null then
+		set cond = gAND(rule,gN('правило условие'),gN('справочник'));
+		set condCopy = gAND(rule,gN('правило условие сравнение'),gN('справочник'));
+		if gO(cond) = gO(condCopy) then
+			if executor = gN('система') then
+				set subj = gAND(rule, gN('правило субъект'), gN('справочник'));
+				set subjCopy = gAND(rule, gN('правило субъект состояние'), gN('справочник'));
+				if subj is not null then
+					call uO(subj, gO(subjCopy));
+					call chRs(subj);
+				else
+					set newO = cO(gO(subjCopy));
+				end if;
+				call cL(rule, result);
+				
+			else
+				set result = gN('правило не исполнено');
+				if result is null then set result = cO('правило не исполнено'); end if;
+				call cL(rule, result);
+			end if;
+		end if;
+	end if;
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `chRs` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `chRs`(condId bigint)
+BEGIN
+  DECLARE done INT DEFAULT FALSE;
+  DECLARE rule BIGINT DEFAULT 0;
+  DECLARE cur1 CURSOR FOR 
+		select o1 from ( 
+			select o1 from link where o2 in (gN('правило'), gN('справочник'), condId) and o1 is not null 
+			union all 
+			select o2 from link where o1 in (gN('правило'), gN('справочник'), condId) and o2 is not null 
+		)o 
+		group by o1 
+		having count(*) = 3
+		order by o1;
+
+  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+	if gL(condId, gN('правило условие')) is not null then
+		OPEN cur1;
+		read_loop: LOOP
+			FETCH cur1 INTO rule;
+
+			IF done THEN
+				LEAVE read_loop;
+			END IF;
+
+			call chR(rule);
+
+		END LOOP;
+		CLOSE cur1;
+	end if;
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `cL` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cL`(oid1 int, oid2 int)
+BEGIN
+	if ( select count(*) from link where (o1=oid1 and o2=oid2) or (o1=oid2 and o2=oid1) ) > 0 then
+		update link set c = c+1 where (o1=oid1 and o2=oid2) or (o1=oid2 and o2=oid1);
+
+	else
+		insert into link (o1, o2, c) values (oid1, oid2, 1);
+
+	end if;	
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `cT` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cT`()
+BEGIN
+	update object set n = CURRENT_TIMESTAMP() where id = gT();
+	call chRs(gT());
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `gCO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `gCO`(className char(255))
+begin
+	select * from object where id in (
+		select o1 from link where o2 = (
+			select id from object where n=className limit 1
+		)
+	);
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `uO` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `uO`(oid bigint, val char(255))
+BEGIN
+	update object set n = val where id = oid;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50001 DROP VIEW IF EXISTS `class`*/;
 /*!50001 SET @saved_cs_client          = @@character_set_client */;
 /*!50001 SET @saved_cs_results         = @@character_set_results */;
@@ -495,6 +936,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `class` AS select `o1`.`id` AS `id`,ifnull(`expl`.`link`.`o2`,'#') AS `parent`,`o1`.`n` AS `text` from (((select `expl`.`object`.`id` AS `id`,`expl`.`object`.`n` AS `n`,`expl`.`object`.`d` AS `d` from `expl`.`object` where `expl`.`object`.`id` in (select `expl`.`link`.`o1` from `expl`.`link` where isnull(`expl`.`link`.`o2`)))) `o1` left join `expl`.`link` on(((`expl`.`link`.`o2` is not null) and (`expl`.`link`.`o1` = `o1`.`id`)))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -507,6 +949,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsclass` AS select `explclass`.`rowid` AS `rowid`,`explclass`.`name` AS `name`,`explclass`.`translate` AS `translate`,`explclass`.`interface` AS `interface` from `explclass` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -519,6 +962,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsclassprop` AS select `explclassprop`.`rowid` AS `rowid`,`explclassprop`.`cid` AS `cid`,`explclassprop`.`pid` AS `pid`,`explclassprop`.`name` AS `name`,`explclassprop`.`translate` AS `translate` from `explclassprop` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -531,6 +975,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explscontrolnf` AS select `explcontrolnf`.`rowid` AS `rowid`,`explcontrolnf`.`number` AS `number`,`explcontrolnf`.`date` AS `date`,`explcontrolnf`.`summary` AS `summary`,`explcontrolnf`.`applicant` AS `applicant`,`explcontrolnf`.`responsible` AS `responsible`,`explcontrolnf`.`stage` AS `stage`,`explcontrolnf`.`status` AS `status`,`explcontrolnf`.`cause` AS `cause` from `explcontrolnf` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -543,6 +988,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsmainmenu` AS select `explmainmenu`.`rowid` AS `rowid`,`explmainmenu`.`name` AS `name`,`explmainmenu`.`caption` AS `caption`,`explmainmenu`.`src` AS `src`,`explmainmenu`.`classes` AS `classes` from `explmainmenu` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -555,6 +1001,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsobject` AS select `explobject`.`rowid` AS `rowid`,`explobject`.`tu` AS `tu`,`explobject`.`ik` AS `ik`,`explobject`.`manager` AS `manager`,`explobject`.`name` AS `name`,`explobject`.`address` AS `address`,`explobject`.`comment` AS `comment`,`explobject`.`cadastr` AS `cadastr`,`explobject`.`lat` AS `lat`,`explobject`.`lon` AS `lon` from `explobject` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -567,6 +1014,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsobjectmanager` AS select `explobjectmanager`.`rowid` AS `rowid`,`explobjectmanager`.`name` AS `name`,`explobjectmanager`.`phone` AS `phone`,`explobjectmanager`.`email` AS `email`,`explobjectmanager`.`tu` AS `tu`,`explobjectmanager`.`ik` AS `ik`,`explobjectmanager`.`fio` AS `fio` from `explobjectmanager` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -579,6 +1027,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsobjectpower` AS select `op`.`objectId` AS `rowid`,`o`.`tu` AS `tu`,`o`.`ik` AS `ik`,`o`.`name` AS `name`,`o`.`address` AS `address`,`op`.`contract` AS `contract`,`op`.`agreement` AS `agreement`,`op`.`maxAuthorizedPower` AS `maxAuthorizedPower`,`op`.`maxConsumptionPower` AS `maxConsumptionPower`,`op`.`powerConsumption` AS `powerConsumption`,`op`.`excess` AS `excess`,`op`.`powerPoint` AS `powerPoint`,`op`.`rowid` AS `powerId` from (`explobjectpower` `op` left join `explsobject` `o` on((`op`.`objectId` = `o`.`rowid`))) where (`o`.`rowid` is not null) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -591,6 +1040,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsterritorialdepartment` AS select `explterritorialdepartment`.`rowid` AS `rowid`,`explterritorialdepartment`.`name` AS `name`,`explterritorialdepartment`.`manager` AS `manager` from `explterritorialdepartment` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -603,6 +1053,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `explsuser` AS select `expluser`.`rowid` AS `rowid`,`expluser`.`fio` AS `fio`,`expluser`.`ip` AS `ip`,`expluser`.`email` AS `email`,`expluser`.`policy` AS `policy`,`expluser`.`login` AS `login`,`expluser`.`password` AS `password` from `expluser` */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
@@ -615,6 +1066,7 @@ UNLOCK TABLES;
 /*!50001 SET character_set_results     = utf8 */;
 /*!50001 SET collation_connection      = utf8_general_ci */;
 /*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
 /*!50001 VIEW `objectlink` AS select `o`.`id` AS `id`,`o`.`n` AS `n`,`expl`.`link`.`o2` AS `o2` from (((select `expl`.`object`.`id` AS `id`,`expl`.`object`.`n` AS `n`,`expl`.`object`.`d` AS `d` from `expl`.`object`)) `o` left join `expl`.`link` on(((`expl`.`link`.`o2` is not null) and (`expl`.`link`.`o1` = `o`.`id`)))) */;
 /*!50001 SET character_set_client      = @saved_cs_client */;
 /*!50001 SET character_set_results     = @saved_cs_results */;
