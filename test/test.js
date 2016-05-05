@@ -644,8 +644,16 @@ QUnit.test( "objectlink test", function( a ) {
 		objectlink.sql.sql( "delete from link where o2 in (select id from object where n in ('тест1', 'тест2', 'тест3') )" );
 		objectlink.sql.sql( "delete from object where n in ('тест1', 'тест2', 'тест3')" );
 	}
-	
-	console.log(objectlink.gN(objectlink.gT()));
+
+	//console.log(objectlink.gN(objectlink.gT()));
+	//var tb = sql("select * from transexplobject");
+	//var tb = sql("select * from transexplterritorialdepartment");
+	//var tb = sql("select * from transexplobjectmanager");
+	var tb = sql("select * from transexplik");
+	var func = function(val){
+		console.log(val);
+	};
+	//objectlink.importSQL(tb, func);
 	
 	
 });

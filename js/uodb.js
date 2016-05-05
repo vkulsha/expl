@@ -446,4 +446,67 @@ var objectlink = {
 		}
 		return result;
 	},
+	importSQL : function(params, fDebug){//import data from sql table to object-link //params={"table" : "", "id" : 1, "columns" : [], "data" : [][]}
+		/*if (fDebug) fDebug("создание таблицы");
+		var oTable = this.cO(params.table);*/
+		var oClass = this.gO("класс") || this.cO("класс");
+		var keyFieldIndex = params.id ? params.id : 0;
+
+		if (fDebug) fDebug("создание полей");
+		var oColumns = [];
+		for (var i=0; i < params.columns.length; i++){
+			oColumns.push(this.cO(params.columns[i]));
+		}
+				
+		/*if (fDebug) fDebug("привязка полей к таблице");
+		for (var i=0; i < params.columns.length; i++){
+			this.cL(oColumns[i], oTable);
+		}*/
+		
+		if (fDebug) fDebug("привязка полей к объекту-класс");
+		for (var i=0; i < params.columns.length; i++){
+			this.cL(oColumns[i], oClass);
+		}
+
+		if (fDebug) fDebug("привязка полей к ключевому полю");
+		for (var i=0; i < oColumns.length; i++){
+			if (i != keyFieldIndex) {
+				this.cL(oColumns[i], oColumns[keyFieldIndex]);
+			}
+		}
+			
+		if (fDebug) fDebug("создание значений");
+		var oData = [];
+		for (var i=0; i < params.data.length; i++){
+			var oDataRow = [];
+			for (var j=0; j < params.data[i].length; j++){
+				var oid = null;
+				if (params.data[i][j]) {
+					oid = this.cO(params.data[i][j]);
+				}
+				oDataRow.push(oid);
+			}
+			oData.push(oDataRow);
+		}
+
+		if (fDebug) fDebug("привязка значений всего столбца к полю по всем полям");
+		for (var i=0; i < oData.length; i++){
+			for (var j=0; j < oData[i].length; j++){
+				if (oData[i][j]) {
+					this.cL(oData[i][j], oColumns[j]);
+				}
+			}
+		}
+			
+		if (fDebug) fDebug("привязка значений всех полей записи к записи по всем записям");
+		for (var i=0; i < oData.length; i++){
+			for (var j=0; j < oData[i].length; j++){
+				if (j != keyFieldIndex) {
+					if (oData[i][j]) {
+						this.cL(oData[i][j], oData[i][keyFieldIndex]);
+					}
+				}
+			}
+		}
+	},
 }

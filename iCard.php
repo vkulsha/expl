@@ -209,7 +209,11 @@
 		});
 		
 		var power = getObjectPowerJson(objectId);
+		if (!power) { power = {contract:"", agreement:"", maxAuthorizedPower:"", maxConsumptionPower:"", powerConsumption:"", excess:"", powerPoint:""}; }
+
 		var manager = getObjectManagerJson(value[columns.indexOf("manager")]);
+		if (!manager) { manager = {fio:"", phone:"", email:""}; }
+		
 		var node = 
 		{"name":"["+objectId+"] "+value[columns.indexOf("name")], "nodeType":1, "children": [
 			{"name":"Общие характеристики", "nodeType":1, "children": [
