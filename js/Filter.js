@@ -66,10 +66,11 @@ function Filter(params) {
 	this.columnValues = new GetSet("columnValues", null, function(){//jsDistinctValuesOfCurrentColumn.get(false);
 		return that.jsDistinctValuesOfCurrentColumn.get(false);
 	});
+	this.jsDistinctValuesOfCurrentColumn.listen([this.currentColumn]);
 	
 	this.updateCurrentColumnFilter = new GetSet("updateCurrentColumnFilter", null, function(){
 		var result = [];
-		var jsValues = that.jsDistinctValuesOfCurrentColumn.get();
+		var jsValues = that.jsDistinctValuesOfCurrentColumn.get(false);
 		var column = that.currentColumn.get();
 		var columnsFilter = that.columnsFilter.get();
 		if (!jsValues || !column || !columnsFilter) return result;

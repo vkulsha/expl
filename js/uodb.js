@@ -287,13 +287,18 @@ var objectlink = {
 		this.cT(this.oo, "id bigint not null auto_increment, n char(255), d timestamp, /*x float, y float, z float, */primary key(id), index(n);");
 		this.cT(this.ll, "id bigint not null auto_increment, o1 bigint, o2 bigint, c bigint, primary key(id), index(o1), index(o2), index(c)");
 		this.cV(this.cc, 
+			"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 = 1))o1 "+
+			"left join link on o1 = o1.id and o2 <> 1 "
+		);
+/*		this.cV(this.cc, 
 			"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 is null) )o1 "+ //classes without objects
 			//"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object )o1 "+ //classes with objects
 			"left join link on o2 is not null and o1 = o1.id"
-		);
+		);*/
 		this.cV(this.ol, 
-			"select o.id, o.n, link.o2 from (select * from object) o "+
-			"left join link on o2 is not null and o1 = o.id "
+			"select o.id, o.n, link.o2 from (select * from object where id not in (select o1 from link where o2 = (select id from object where n = 'класс'))) o "+
+			"left join link on o1 = o.id and o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'))"
+			//"left join link on o2 is not null and o1 = o.id "
 		);
 		
 		var o = this.cO("Classes");
@@ -347,23 +352,7 @@ var objectlink = {
 		return this.sql.sT(this.cc, "*");
 		
 	},
-	gOR : function(arr){//return objects linked with any object from list arr //analog OR logic
-		//var cond = " and ( o2 in ("+arr.join(",")+") ) " || " and 1=2 ";
-		//return this.sql.sT(this.ol, "*", cond);
-		return getOrmObject(
-			this.sql.sql(
-				"select o1 from link where o2 in ("+arr.join(",")+") and o2 is not null "+
-				"union all "+
-				"select o2 from link where o1 in ("+arr.join(",")+") and o1 is not null "+
-				"order by o1"
-			).result
-			, "col2array"
-		);
-		
-	},
 	gAND : function(arr){//return objects linked with every object from list arr //analog AND logic
-//		var cond = " and o2 in ("+arr.join(",")+") group by id having count(id) = "+arr.length || " and 1=2 ";
-//		return this.sql.sT(this.ol, "*", cond);
 		return getOrmObject(
 			this.sql.sql(
 				"select o1 from ( "+
@@ -377,7 +366,23 @@ var objectlink = {
 			).result
 			, "col2array"
 		);
-
+	},
+	gR : function(arr){//return objects linked with every object from list arr //analog AND logic
+		return getOrmObject(
+			this.sql.sql(
+				"select o1 from ( "+
+				"	select o1 from link where o2 in ("+arr.join(",")+") and o1 is not null "+
+				"		and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
+				"	union all "+
+				"	select o2 from link where o1 in ("+arr.join(",")+") and o2 is not null "+
+				"		and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
+				")o "+
+				"group by o1 "+
+				"having count(*) = "+arr.length+" "+
+				"order by o1"
+			).result
+			, "col2array"
+		);
 	},
 	gT : function(){
 		return this.gAND([this.gO("время")])[0]
@@ -406,7 +411,7 @@ var objectlink = {
 		if (id) {
 			var isRuleCond = this.gL(id, this.gO("правило условие"));
 			if (isRuleCond) {
-				var rules = this.gAND([id, this.gO("правило"), this.gO("справочник")]);
+				var rules = this.gR([id, this.gO("правило")]);
 				if (rules && rules.length) {
 					for (var i=0; i < rules.length-1; i++) {
 						this.chR(rules[i], currentUser);
@@ -418,17 +423,17 @@ var objectlink = {
 	},
 	chR : function(rule, currentUser){//checked or execute rule, return rule execution result or undefined
 		var result;
-		var executor = this.gAND([rule, this.gO("правило исполнитель"), this.gO("справочник")])[0];
+		var executor = this.gR([rule, this.gO("правило исполнитель")])[0];
 		if (executor == currentUser) {
-			result = this.gO("правило исполнено") || this.cO("правило исполнено");
+			result = this.gO("правило статус исполнено") || this.cO("правило статус исполнено");
 			
 			if (!gL(rule, result)) {
-				var condition = this.gAND([rule, this.gO("правило условие"), this.gO("справочник")])[0];
-				var conditionCopy = this.gAND([rule, this.gO("правило условие сравнение"), this.gO("справочник")])[0];
+				var condition = this.gR([rule, this.gO("правило условие")])[0];
+				var conditionCopy = this.gR([rule, this.gO("правило условие сравнение")])[0];
 				if (this.gN(condition) == this.gN(conditionCopy)) {
 					if (executor == this.gO("система")) {
-						var subject = this.gAND([rule, this.gO("правило субъект"), this.gO("справочник")])[0];
-						var subjectCopy = this.gAND([rule, this.gO("правило субъект состояние"), this.gO("справочник")])[0];
+						var subject = this.gR([rule, this.gO("правило субъект")])[0];
+						var subjectCopy = this.gR([rule, this.gO("правило субъект состояние")])[0];
 						if (subject) {
 							this.uO(subject, this.gN(subjectCopy));
 							this.chRs(subject, currentUser);
@@ -438,7 +443,7 @@ var objectlink = {
 						this.cL(rule, result);
 						
 					} else {
-						result = this.gO("правило не исполнено") || this.cO("правило не исполнено");
+						result = this.gO("правило статус неисполнено") || this.cO("правило статус неисполнено");
 						this.cL(rule, result);
 					}
 				}

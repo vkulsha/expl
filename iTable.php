@@ -36,7 +36,7 @@
 		new Column({'id' : 3, 'name' : 'manager', 'caption' : 'Ответственный', 'width' : 150, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 4, 'name' : 'name', 'caption' : 'Наименование', 'width' : 200, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 5, 'name' : 'address', 'caption' : 'Адрес', 'width' : 300, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 6, 'name' : 'comment', 'caption' : 'Комментарий', 'width' : 300, 'visible' : false, 'class' : currentClass}),
+		//new Column({'id' : 6, 'name' : 'comment', 'caption' : 'Комментарий', 'width' : 300, 'visible' : false, 'class' : currentClass}),
 		new Column({'id' : 7, 'name' : 'cadastr', 'caption' : 'Кадастр номер', 'width' : 150, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 8, 'name' : 'lat', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 9, 'name' : 'lon', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
