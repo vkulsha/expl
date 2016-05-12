@@ -345,7 +345,29 @@ var objectlink = {
 		var result = this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id).result.data[0][0];
 		//chRs(id);
 		return result;
-
+	},
+	uS : function(id, c){
+		var result = this.sql.uT(this.oo, "c = '"+c+"'", "and id = "+id).result.data[0][0];
+		return result;
+	},
+	uL : function(id, c){
+		var result = this.sql.uT(this.ll, "c = '"+c+"'", "and id = "+id).result.data[0][0];
+		return result;
+	},
+	dL : function(id){
+		var result = this.uL(id, 0);
+		return result;
+	}
+	dO : function(id){
+		var result = getOrmObject(
+			this.sql.sql("select id from link where o2 = "+id+" or o1 = "+id).result
+			, "col2array"
+		);
+		
+		for (var i=0; i < result.length; i++){
+			this.dL(result[i]);
+		}
+		this.cL(id, gO("вымысел"));
 	},
 
 	gC : function(){//return view `class`
