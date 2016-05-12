@@ -389,16 +389,15 @@ var objectlink = {
 	},
 	cR : function(ruleName, executor, condObjectFrom, condObjTo, subjectFrom, subjectTo){//return created object-rule
 		var result = this.cO(ruleName);
+		var ruleclass = this.gO("правило") || this.cO("правило");
 		
-		var cond = this.gO(condObjTo);
-		cond = cond || this.cO(condObjTo);
-		
-		var subject = this.gO(subjectTo);
-		subject = subject || this.cO(subjectTo);
+		var cond = this.gO(condObjTo) || this.cO(condObjTo);
+		var subject = this.gO(subjectTo) || this.cO(subjectTo);
 		
 		this.cL(subjectFrom, subject);
 		this.cL(condObjectFrom, cond);
 		
+		this.cL(result, ruleclass);
 		this.cL(result, executor);
 		this.cL(result, condObjectFrom);
 		this.cL(result, cond);

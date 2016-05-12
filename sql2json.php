@@ -53,7 +53,7 @@ if ($query)
 			if ($result) {
 						
 				$columns = array();
-				if (strpos(strtolower($query), 'pragma') === false) {
+				if (strpos(strtolower($query), 'pragma') === true) {
 					$columns = explode(",", trim(explode("from", explode("select", strtolower($query))[1])[0]));
 					$tableName = trim(explode(" ", trim(explode("from", strtolower($query))[1]))[0]);
 

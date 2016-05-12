@@ -55,7 +55,7 @@ function Filter(params) {
 		var queryAll = that.queryAll.get();
 		if (!queryAll || !column) return result;
 
-		var q = "select distinct `"+column.name+"` from ("+queryAll+")xxx order by `"+column.name+"`";
+		var q = "select distinct `"+column.name+"` from ("+queryAll.split("order")[0]+" group by `"+column.name+"`)xxx order by `"+column.name+"`";
 		var values = getOrm(q, "col2array")
 		if (values && values.length) {
 			result = values;

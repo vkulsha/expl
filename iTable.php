@@ -11,9 +11,10 @@
 <script>
 	var container = document.getElementsByClassName("jsTableContainer")[0];
 	currentClass = "Object";
+	
 	var query = {
-		select:"select * from `expls"+currentClass+"` where 1=1", 
-		order:" order by rowid "
+		select:"select * from `expls"+currentClass+"` where 1=1 and tu is not null ", 
+		order:" order by tu desc, ik, case length(rowid) when 1 then concat('00',rowid) when 2 then concat('0',rowid) else rowid end "
 	};
 	var colors = [
 /*		new RowColorMarker({
@@ -37,9 +38,9 @@
 		new Column({'id' : 4, 'name' : 'name', 'caption' : 'Наименование', 'width' : 200, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 5, 'name' : 'address', 'caption' : 'Адрес', 'width' : 300, 'visible' : true, 'class' : currentClass}),
 		//new Column({'id' : 6, 'name' : 'comment', 'caption' : 'Комментарий', 'width' : 300, 'visible' : false, 'class' : currentClass}),
-		new Column({'id' : 7, 'name' : 'cadastr', 'caption' : 'Кадастр номер', 'width' : 150, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 8, 'name' : 'lat', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 9, 'name' : 'lon', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 6, 'name' : 'cadastr', 'caption' : 'Кадастр номер', 'width' : 150, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 7, 'name' : 'lat', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 8, 'name' : 'lon', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
 	];
 	currentUser.classes[currentClass].columns = colsOpts;
 	var tbHeight = windowHeight() * (380/699);

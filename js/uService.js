@@ -100,8 +100,12 @@ function bDocDownload(objectId, docName) {
 	openWindow(getObjectUri(objectId)+"/"+docName);
 }
 
+function getPassportName(num){
+	return "passport "+objectId+".pdf"
+}
+
 function passportDownload(objectId) {
-	bDocDownload(objectId, "passport"+objectId+".pdf")
+	bDocDownload(objectId, getPassportName(objectId))
 }
 
 function bMap(objectId, newwindow) {
@@ -538,7 +542,7 @@ function iMap(opts, callback, dblclick, funcError, funcFinnaly){
 			
 			var objectId = value[columns.indexOf("rowid")];
 			objectHTML.push("<tr><td colspan='1'>"+getButtonCardHTML(objectId)+"&nbsp;&nbsp;");
-			objectHTML.push("<button onclick=\"bDocDownload('"+objectId+"', 'passport"+objectId+".pdf')\"><img src='images/pdf.png' width='32'/><br>паспорт <br> объекта</button>");
+			objectHTML.push("<button onclick=\"bDocDownload('"+objectId+"', '"+getPassportName(objectId)+"')\"><img src='images/pdf.png' width='32'/><br>паспорт <br> объекта</button>");
 			objectHTML.push("</td></tr></table>");
 
 			var icon = {icon:objectIcons[0]};

@@ -1,14 +1,15 @@
+create view explsobject as 
 select * from (
 select
-	o0.n `объект`, 
-	o1.n `адрес`, 
-	o2.n `кадастр`, 
-	o3.n `широта`, 
-	o4.n `долгота`, 
-	o5.n `ик`, 
-	o6.n `ту`, 
-	o7.n `ответственный`, 
-	o8.n `номер` 
+	o8.n `rowid`,
+	o6.n `tu`, 
+	o5.n `ik`, 
+	o7.n `manager`, 
+	o0.n `name`, 
+	o1.n `address`, 
+	o2.n `cadastr`, 
+	o3.n `lat`, 
+	o4.n `lon`
 from (
 	select * from (
 	select * from object where id in (
@@ -99,4 +100,3 @@ left join (
 	)xx
 )l8 on l8.o2 = o0.id left join object o8 on o8.id = l8.o1
 )xx
-where ту in ('СЗТП','УЭИ')

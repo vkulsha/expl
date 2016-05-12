@@ -82,7 +82,6 @@
 	var currImgNum = $("#currImgNum");
 	var imgCount = $("#imgCount");
 	var objectPath = getObjectsDir()+"/"+objectId+"/";
-	
 	var uri = getQueryObject(objectId);
 	var func = function(dataJSON) {
 		var data = JSON.parse(dataJSON);
