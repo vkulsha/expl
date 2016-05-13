@@ -16,6 +16,10 @@ function JsTable (queryJson, opts, container) {
 		this.colsOpts = new GetSet("colsOpts", opts && opts.columns ? opts.columns : undefined);//ref
 		this.rowsColorOpts = new GetSet("rowsColorOpts", opts && opts.rowsColor ? opts.rowsColor : undefined);//ref
 		
+		this.selectedCell = new GetSet("selecterCell", undefined);//val
+		this.cellClickFunc = new GetSet("cellClickFunc", opts && opts.cellClickFunc ? opts.cellClickFunc : undefined);//ref
+		this.cellDblClickFunc = new GetSet("cellDblClickFunc", opts && opts.cellDblClickFunc ? opts.cellDblClickFunc : undefined);//ref
+		
 		this.container = container;//ref
 		this.mainContainer = new GetSet("mainContainer", null, function(){//ref
 			var container = that.container;
@@ -412,20 +416,26 @@ function JsTable (queryJson, opts, container) {
 			
 ///cell click			
 			var cellDblClick = function(){
-				bCard(this.id);//this.row, this.col, this.id
+				var cellDblClickFunc = that.cellDblClickFunc.get();
+				if (cellDblClickFunc) cellDblClickFunc();
+				//bCard(this.id);//this.row, this.col, this.id
 			}
 			
 			var cellClick = function(e){
+				var cellClickFunc = that.cellClickFunc.get();
+				if (cellClickFunc) cellClickFunc();
 			}
 			
 			var cellOnFocus = function(e){
 				//this.classList.add("jsTableSelectedCell");
+				that.selectedCell.set(this);
 				this.style.backgroundColor = rgb(255, 228, 138);
 				$(this.domRow).find("td").each(function(){
 					//this.classList.add("jsTableSelectedRow");
 					this.style.backgroundColor = rgb(255, 247, 217)
 				});
 				//this.removeAttribute("readonly");
+
 			}
 			
 			var cellOnBlur = function(e){
@@ -980,7 +990,7 @@ function JsTable (queryJson, opts, container) {
 				that.cancelAll.get();
 			}
 		});
-
+		
 }
 
 function RowColorMarker(val) {

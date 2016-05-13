@@ -46,7 +46,13 @@
 	var tbHeight = windowHeight() * (380/699);
 	var opts = {tableWidth:1200, tableHeight:tbHeight, columns: colsOpts, rowsColor: colors};
 	var jsTable = new JsTable(query, opts, container);
-	
 	addMapButton2Table(jsTable, 0);
+
+	var rows = jsTable.rows.get();
+	var cellDblClickFunc = function(){
+		bCard(jsTable.rows.get()[jsTable.selectedCell.get().row][0])
+	};
+	jsTable.cellDblClickFunc.set(cellDblClickFunc);
+
 	
 </script>

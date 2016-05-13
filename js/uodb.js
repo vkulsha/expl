@@ -357,7 +357,7 @@ var objectlink = {
 	dL : function(id){
 		var result = this.uL(id, 0);
 		return result;
-	}
+	},
 	dO : function(id){
 		var result = getOrmObject(
 			this.sql.sql("select id from link where o2 = "+id+" or o1 = "+id).result
@@ -368,6 +368,10 @@ var objectlink = {
 			this.dL(result[i]);
 		}
 		this.cL(id, gO("вымысел"));
+	},
+	eO : function(id){
+		this.sql.dT(this.ll, " and (o1 = "+id+" or o2 = "+id+") ");
+		this.sql.dT(this.oo, " and id = "+id);
 	},
 
 	gC : function(){//return view `class`
