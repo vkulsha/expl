@@ -410,7 +410,7 @@ function JsTable (queryJson, opts, container) {
 			var rows = that.rows.get();
 			var columns = that.columns.get();
 			var rowsColOpt = that.rowsColorOpts.get();
-			var isColorOpt = (JSON.stringify(rowsColOpt) == "{}");
+			var isColorOpt = (JSON.stringify(rowsColOpt) != "{}");
 
 			if (!columns || !rows || !result) return result;
 			
@@ -495,6 +495,7 @@ function JsTable (queryJson, opts, container) {
 					inp.style.resize = "none";
 					inp.style.border = "1px solid transparent"
 					inp.style.fontFamily = "inherit";
+					inp.style.fontSize = columns[j].fontSize;
 
 					//div.innerHTML = rows[i][j];
 					div.appendChild(inp);//
@@ -1022,8 +1023,9 @@ function getWhereForColumns(columns, val){
 }
 
 function cmpOperator(t, val, pat){
-	val = val.toLowerCase();
-	pat = pat.toLowerCase();
+	val = val ? val.toLowerCase() : undefined;
+	pat = pat ? pat.toLowerCase() : undefined;
+	
 	var result = 
 		( t == "=" && val == pat ) ||
 		( t == ">" && parseInt(val) > parseInt(pat) ) ||

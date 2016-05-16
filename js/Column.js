@@ -7,5 +7,6 @@
 	this["visible"] = (params && params["visible"] !== undefined) ? params["visible"] : true;
 	this["class"] = (params && params["class"] !== undefined) ? params["class"] : "";
 	this["objects"] = (params && params["objects"] !== undefined) ? params["objects"] : [];
+	this["fontSize"] = (params && params["fontSize"] !== undefined) ? params["fontSize"] : "inherit";
 	
 }

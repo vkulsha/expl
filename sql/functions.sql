@@ -9,9 +9,12 @@ begin
 	create table if not exists object (
 		id bigint not null auto_increment,
 		n char(255),
+		c bigint,
 		d timestamp,
 		primary key(id),
-		index(n)
+		index(n),
+		index(c),
+		index(d)
 	);
 
 	create table if not exists link (
@@ -23,7 +26,8 @@ begin
 		primary key(id),
 		index(o1),
 		index(o2),
-		index(c)
+		index(c),
+		index(d)
 
 	);
 
@@ -36,6 +40,7 @@ begin
 	insert into link (o1, o2, c) values (oid1, oid2, 1);
 
 	insert into object (n) select 'Класс';
+	insert into object (n) select 'Вымысел';
 
 	insert into object (n) select 'Правило';
 	set oid1 = (select LAST_INSERT_ID());
@@ -57,13 +62,19 @@ begin
 	drop view class;
 	create view class as
 		select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 = (select id from object where n = 'класс')))o1 
-		left join link on o1 = o1.id and o2 <> (select id from object where n = 'класс') 
+		left join link on o1 = o1.id and o2 <> (select id from object where n = 'класс');
 
 	drop view objectlink;
 	create view objectlink as
 		select o.id, o.n, link.o2 from (select * from object where id not in (select o1 from link where o2 = (select id from object where n = 'класс'))) o 
-		left join link on o1 = o.id and o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'))
-	
+		left join link on o1 = o.id and o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'));
+
+	drop view objectlinkall;
+	create view objectlinkall as 
+		select link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from link
+		join object on object.id = link.o1
+		left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс');
+		
 	commit;
 end;
 
@@ -115,29 +126,16 @@ create function gAND(oid1 bigint, oid2 bigint, oid3 bigint)
 returns bigint(20)
 return (
 	select o1 from ( 
-		select o1 from link where o2 in (oid1, oid2, oid3) and o1 is not null 
+		select o1 from link where o2 in (oid1, oid2) and o1 is not null
 		union all 
-		select o2 from link where o1 in (oid1, oid2, oid3) and o2 is not null 
-	)o 
-	group by o1 
-	having count(*) = case when oid2 is null then 1 when oid3 is null then 2 else 3 end
-	order by o1
-	limit 1
-);
-
-drop function gR;
-create function gR(oid1 bigint, oid2 bigint)
-returns bigint(20)
-return (
-	select o1 from ( 
-		select o1 from link where o2 in (oid1, oid2)
-			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1))
-		union all 
-		select o2 from link where o1 in (oid1, oid2)
-			and o2 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1))
+		select o2 from link where o1 in (oid1, oid2) and o2 is not null
 	)o 
 	group by o1 
 	having count(*) = case when oid2 is null then 1 else 2 end
+		and (
+			o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'))
+			or oid1 = (select id from object where n='класс')
+		)
 	order by o1
 	limit 1
 );
@@ -153,17 +151,17 @@ begin
 	declare result bigint;
 	declare newO bigint;
 
-	set executor = gR(rule, gO('правило исполнитель'));
+	set executor = gAND(rule, gO('правило исполнитель'));
 	set result = gO('правило статус исполнено');
 	if result is null then set result = cO('правило статус исполнено'); end if;
 	
 	if gL(rule, result) is null then
-		set cond = gR(rule, gO('правило условие'));
-		set condCopy = gR(rule, gO('правило условие сравнение'));
+		set cond = gAND(rule, gO('правило условие'));
+		set condCopy = gAND(rule, gO('правило условие сравнение'));
 		if gO(cond) = gO(condCopy) then
 			if executor = gO('система') then
-				set subj = gR(rule, gO('правило субъект'));
-				set subjCopy = gR(rule, gO('правило субъект состояние'));
+				set subj = gAND(rule, gO('правило субъект'));
+				set subjCopy = gAND(rule, gO('правило субъект состояние'));
 				if subj is not null then
 					call uO(subj, gO(subjCopy));
 					call chRs(subj);
@@ -189,13 +187,12 @@ begin
 	declare cur1 cursor for 
 		select o1 from ( 
 			select o1 from link where o2 in (gO('правило'), condId)
-				and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1))
 			union all 
 			select o2 from link where o1 in (gO('правило'), condId)
-				and o2 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1))
 		)o 
 		group by o1 
 		having count(*) = 2
+			and o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'))
 		order by o1;
 
 	declare continue HANDLER for not found set done = true;
