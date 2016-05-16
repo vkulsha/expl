@@ -39,18 +39,22 @@
 		<td style='background-color:#eee'>
 			<table>
 				<tr><td>
-					<button id="bHome">Class</button>
+					<button id="bHome">Класс</button>
 					<button id="bCO">cO</button>
 					<button id="bCL">cL</button>
 					<button id="bEO">eO</button>
 					&nbsp;
 					<button id="bFontSizePlus">+</button>
 					<button id="bFontSizeMinus">-</button>
-					<button id="bOrderByName">by n</button>
-					<button id="bOrderById">by id</button>
-					<textarea id='txt' cols=1 rows=1 style='background-color:#eee;color:#eee;border: 0px;resize:none;overflow:hidden' ></textarea>
+					<button id="bOrderByName">n</button>
+					<button id="bOrderById">id</button>
+					<button id="bEdit" onclick='document.getElementById("edit").hidden = !document.getElementById("edit").hidden'>#</button>
 				</td></tr>
-				<tr><td id='stat' style='font-size:10px'>...</td></tr>
+				<tr><td><input type='checkbox' id='link'/><label id='stat' style='font-size:10px'>...</label></td></tr>
+				<tr><td><table id='edit' width='100%' border=0 hidden><tr>
+					<td width='100%'><textarea id='txt' rows=2 style='width:100%'></textarea></td>
+					<td><button id='bSave'>ok</button></td>
+				</tr></table></td></tr>
 			</table>
 		</td>
 	</tr>
@@ -66,12 +70,21 @@
 	var oid = "";
 	var stat = document.getElementById("stat");
 	var txt = document.getElementById("txt");
+	var bSave = document.getElementById("bSave");
+	var link = document.getElementById("link");
 	var order = " order by c desc, o1 ";
 	var where = "and (o2 = 1 or o2 is null)";
+	var query = "select * from ( \n"+
+			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from ( \n"+
+			"		select o1, o2 from link union all select o2, o1 from link \n"+
+			"	)link \n"+
+			"	join object on object.id = link.o1 \n"+
+			"	left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') \n"+
+			")xxx where 1=1 \n";
 	
 	var dom = document.getElementById("dataContainer");
 	var load = function(where_, order_){
-		var result = orm("select * from objectlinkall where 1=1 "+where_+" "+order_, "all2array");
+		var result = orm(query+where_+" "+order_, "all2array");
 		var data = result;
 		if (!data.length) return false;
 		
@@ -84,50 +97,33 @@
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
 
 			cell.onclick = function(){
-				var n = this.innerHTML
-				txt.innerHTML = n;
+				var n = this.innerHTML;
+				$(txt).val(n);
 				txt.select();
 				document.execCommand("copy");
 				this.focus();
 				var id = this.id;
-				if (oid1 == ""){
+				if (link.checked){
+					oid2 = id;
+					n2 = n;
+				} else {
 					oid1 = id;
 					n1 = n;
-				} else {
-					if (oid2 == ""){
-						oid2 = id;
-						n2 = n;
-					} else {
-						oid1 = id;
-						oid2 = "";
-						n1 = n;
-					}
 				}
-				oid = (oid2 || oid1);
+				oid = oid1;
+				bSave.oid = oid;
 				stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
 				where = " and o2 = "+id;
-				if (!reload()){
-					var div = document.createElement("DIV");
-					div.linkedButton = this;
-					var memo = document.createElement("TEXTAREA");
-					memo.innerHTML = n;
-					var b = document.createElement("BUTTON");
-					b.innerHTML = "ok";
-					b.linkedMemo = memo;
-					b.linkedDiv = div;
-					div.appendChild(memo);
-					div.appendChild(b);
-					b.onclick = function(){
-						var val = $(this.linkedMemo).val();
-						objectlink.uO(id, val);
-						this.linkedDiv.linkedButton.innerHTML = val;
-						$(this.linkedDiv).replaceWith(this.linkedDiv.linkedButton);
-
-					};
-					$(this).replaceWith(div);
-					
-				}
+				reload();
 			};
+			
+			bSave.onclick = function(){
+				var oid = this.oid;
+				var val = $(txt).val();
+				objectlink.uO(oid, val);
+
+			}
+			
 			
 			var td = document.createElement("TD");
 			var tr = document.createElement("TR");
