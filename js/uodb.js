@@ -395,6 +395,9 @@ var objectlink = {
 		this.sql.dT(this.ll, " and (o1 = "+id+" or o2 = "+id+") ");
 		this.sql.dT(this.oo, " and id = "+id);
 	},
+	eL : function(o1, o2){
+		return this.sql.dT(this.ll, " and ((o1 = "+o1+" and o2="+o2+") or (o2 = "+o1+" and o1="+o2+"))").result.data[0][0];
+	},
 
 	gC : function(){//return view `class`
 		return this.sql.sT(this.cc, "*");

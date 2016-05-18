@@ -15,6 +15,7 @@ var iCardName = "iCard";
 var usersTableName = "explsUser";
 var CAT_TERRITORIAL_DEPARTMENT = getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
 var currentUser = getOrm("select * from "+usersTableName+" where login = '"+sessionLogin+"'");
+var classTable = "explsClass";
 
 var isMobile = {
     Android: function() {
@@ -40,8 +41,7 @@ var isMobile = {
 if (currentUser.policy)
 	currentUser.policy = JSON.parse(currentUser.policy);
 
-currentUser.classes = getOrm("select name from explsClass", 'col2object');
-//currentUser.classesArr = getOrm("select name from explsclass", 'col2array');
+currentUser.classes = getOrm("select name from "+classTable, 'col2object');
 
 $.extend($.expr[':'], {
   inview: function (el) {

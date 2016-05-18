@@ -43,6 +43,7 @@
 					<button id="bCO">cO</button>
 					<button id="bCL">cL</button>
 					<button id="bEO">eO</button>
+					<button id="bEL">eL</button>
 					&nbsp;
 					<button id="bFontSizePlus">+</button>
 					<button id="bFontSizeMinus">-</button>
@@ -210,6 +211,22 @@
 			alert("Удален объект: "+result);
 		} else {
 			alert("Недопустимое значение id!");
+		}
+	}
+
+	var bEL = document.getElementById("bEL");
+	bEL.onclick = function(){
+		result = prompt("eL (id,id)", oid1+","+oid2);
+		if (result) {
+			var arr = result.split(",");
+			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
+				alert("Удалена связь: "+objectlink.eL(arr[0],arr[1]));
+			} else {
+				alert("Недопустимое значение oid1 или oid2!");
+			}
+			
+		} else {
+			alert("Недопустимое значение oid1 или oid2!");
 		}
 	}
 
