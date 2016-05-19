@@ -41,5 +41,6 @@
         <File name="blank.php" />
         <File name="sql2json.php" />
         <File name="iObjectLink.php" />
+        <File name="iii.php" />
     </Project>
 </NotepadPlus>

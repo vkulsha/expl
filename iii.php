@@ -63,14 +63,14 @@
 			</table>
 		</td>
 	</tr>
-	<tr><td><table id='dataContainer' cellpadding=1></table></td></tr>
+	<tr><td><div style='overflow-y:auto' id='divContainer'><table id='dataContainer' cellpadding=1></table></div></td></tr>
 </table>
 
 <script>
 	var fs = 12;
-	var oid1 = "";
+	var oid1 = "1";
 	var oid2 = "";
-	var n1 = "";
+	var n1 = "Класс";
 	var n2 = "";
 	var oid = "";
 	var stat = document.getElementById("stat");
@@ -78,8 +78,11 @@
 	var bSave = document.getElementById("bSave");
 	var link = document.getElementById("link");
 	var lCount = document.getElementById("lCount");
+	var dom = document.getElementById("dataContainer");
+	var divContainer = document.getElementById("divContainer");
 	var order = " order by c desc, o1 ";
-	var where = "and (o2 = 1 or o2 is null)";
+	var WHERE = "and (o2 = 1 or o2 is null)";
+	var where = WHERE;
 	var query = "select * from ( \n"+
 			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from ( \n"+
 			"		select o1, o2 from link union all select o2, o1 from link \n"+
@@ -88,7 +91,8 @@
 			"	left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') \n"+
 			")xxx where 1=1 \n";
 	
-	var dom = document.getElementById("dataContainer");
+	
+	divContainer.style.height = windowHeight()-100+"px";
 	var load = function(where_, order_){
 		var result = orm(query+where_+" "+order_, "all2array");
 		var data = result;
@@ -120,9 +124,9 @@
 					oid1 = id;
 					n1 = n;
 				}
-				oid = oid1;
-				bSave.oid = oid;
-				stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
+//				oid = oid1;
+//				bSave.oid = oid;
+//				stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
 				where = " and o2 = "+id;
 				reload();
 			};
@@ -140,6 +144,9 @@
 			td.appendChild(cell);
 			tr.appendChild(td);
 			dom.appendChild(tr);	
+			oid = oid1;
+			bSave.oid = oid;
+			stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
 			
 		}
 		lCount.innerHTML = countAll+"("+countClass+"/"+countObjects+")";
@@ -182,9 +189,13 @@
 	};
 
 	var bHome = document.getElementById("bHome");
-	bHome.onclick = function(){
-		where = "and (o2 = 1 or o2 is null)";
+	var goHome = function(){
+		where = WHERE;
 		reload();
+		
+	}
+	bHome.onclick = function(){
+		goHome();
 	}
 
 	var bCO = document.getElementById("bCO");
@@ -193,6 +204,8 @@
 		if (result) {
 			var o1 = objectlink.cO(result);
 			if (oid) objectlink.cL(o1, oid);
+			//alert("Создан объект "+o1);
+			reload();
 		} else {
 			alert("Недопустимое значение объекта!");
 		}
@@ -204,7 +217,9 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				alert("Создана связь: "+objectlink.cL(arr[0],arr[1]));
+				//alert("Создана связь: "+
+				objectlink.cL(arr[0],arr[1]);
+				reload();
 			} else {
 				alert("Недопустимое значение oid1 или oid2!");
 			}
@@ -219,7 +234,10 @@
 		result = prompt("eO (id)", oid);
 		if (result) {
 			objectlink.eO(result);
-			alert("Удален объект: "+result);
+			//alert("Удален объект: "+result);
+			oid1 = "1";
+			n1 = "Класс";
+			goHome();
 		} else {
 			alert("Недопустимое значение id!");
 		}
@@ -231,7 +249,9 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				alert("Удалена связь: "+objectlink.eL(arr[0],arr[1]));
+				//alert("Удалена связь: "+
+				objectlink.eL(arr[0],arr[1]);
+				reload();
 			} else {
 				alert("Недопустимое значение oid1 или oid2!");
 			}
