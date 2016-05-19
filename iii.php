@@ -39,7 +39,7 @@
 		<td style='background-color:#eee'>
 			<table>
 				<tr><td>
-					<button id="bHome">Класс</button>
+					<button id="bHome">/</button>
 					<button id="bCO">cO</button>
 					<button id="bCL">cL</button>
 					<button id="bEO">eO</button>
@@ -50,8 +50,12 @@
 					<button id="bOrderByName">n</button>
 					<button id="bOrderById">id</button>
 					<button id="bEdit" onclick='document.getElementById("edit").hidden = !document.getElementById("edit").hidden'>#</button>
+					<br><label id="lCount" style='font-size:10px'>0</label>
 				</td></tr>
-				<tr><td><input type='checkbox' id='link'/><label id='stat' style='font-size:10px'>...</label></td></tr>
+				<tr><td>
+					<input type='checkbox' id='link'/>
+					<label id='stat' style='font-size:10px'>...</label>
+				</td></tr>
 				<tr><td><table id='edit' width='100%' border=0 hidden><tr>
 					<td width='100%'><textarea id='txt' rows=2 style='width:100%'></textarea></td>
 					<td><button id='bSave'>ok</button></td>
@@ -73,6 +77,7 @@
 	var txt = document.getElementById("txt");
 	var bSave = document.getElementById("bSave");
 	var link = document.getElementById("link");
+	var lCount = document.getElementById("lCount");
 	var order = " order by c desc, o1 ";
 	var where = "and (o2 = 1 or o2 is null)";
 	var query = "select * from ( \n"+
@@ -90,12 +95,16 @@
 		if (!data.length) return false;
 		
 		dom.innerHTML = "";
+		var countClass = 0;
+		var countObjects = 0;
+		var countAll = data.length;
 		for (var i=0; i < data.length; i++){
 			var cell = document.createElement("BUTTON");
 			cell.innerHTML = data[i][1];
 			cell.id = data[i][0];
 			cell.style.fontSize = fs+"px";
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
+			if (data[i][3]) { countClass++; } else { countObjects++; };
 
 			cell.onclick = function(){
 				var n = this.innerHTML;
@@ -133,6 +142,8 @@
 			dom.appendChild(tr);	
 			
 		}
+		lCount.innerHTML = countAll+"("+countClass+"/"+countObjects+")";
+
 		return true;
 		
 	};
