@@ -121,7 +121,7 @@ function bDocDownload(objectId, docName) {
 	openWindow(getObjectUri(objectId)+"/"+docName);
 }
 
-function getPassportName(num){
+function getPassportName(objectId){
 	return "passport "+objectId+".pdf"
 }
 
@@ -186,7 +186,7 @@ function postJSON(uri, data, async, func, funcError, funcFinnaly) {
 function sqlAsync(query, async, func, funcError, funcFinnaly) {
 	postJSON(domain+"sql2json.php", {q : query}, async, func, funcError, funcFinnaly)
 };
-
+	
 function sql(query, funcError, funcFinnaly){
 	var result;
 	sqlAsync(query, false, function(data){ result = data; }, funcError, funcFinnaly)
@@ -278,6 +278,34 @@ function getOrmObject(data, type) {
 		result = data.data;
 	}
 	
+	function all2domtable(){
+		result = document.createElement("TABLE");
+		var thead = document.createElement("THEAD")
+		var tr = document.createElement("TR");
+		thead.appendChild(tr);
+		
+		for (var i=0; i < columns.length; i++){
+			var th = document.createElement("TH");
+			th.innerHTML = columns[i];
+			tr.appendChild(th);
+		}
+		result.appendChild(thead);
+		
+		var tbody = document.createElement("TBODY")
+		result.appendChild(tbody);
+
+		for (var i=0; i < data.data.length; i++){
+			var tr = document.createElement("TR");
+			
+			for (var j=0; j < data.data[i].length; j++){
+				var td = document.createElement("TD");
+				td.innerHTML = data.data[i][j];
+				tr.appendChild(td);
+			}
+			tbody.appendChild(tr);
+		}
+	}
+	
 	if (type == 'col2array') {
 		col2array();
 	} else if (type == 'row2array') {
@@ -294,6 +322,8 @@ function getOrmObject(data, type) {
 		all2array();
 	} else if (type == 'all2object') {
 		all2object();
+	} else if (type == 'all2domtable') {
+		all2domtable();
 	} else if (data.data.length == 0) {
 		all2object();
 	} else if (data.data.length == 1) {

@@ -114,10 +114,11 @@ function JsTable (queryJson, opts, container) {
 			if (colsOpts) {
 				result = colsOpts;
 			} else {
-				getQueryJson(that.querySelect.get() + that.queryWhere.get() + that.queryOrder.get() + " limit 0", function(json){
+				/*sqlAsync(that.querySelect.get() + that.queryWhere.get() + that.queryOrder.get() + " limit 0", function(json){
 					columns = JSON.parse(json).columns;
-				}, false);
-			
+				}, false);*/
+				columns = sql(that.querySelect.get() + that.queryWhere.get() + that.queryOrder.get() + " limit 0").columns;
+				
 				if (columns) {
 					for (var i=0; i < columns.length; i++) {
 						result.push(new Column({
@@ -158,9 +159,10 @@ function JsTable (queryJson, opts, container) {
 		this.jsBody = new GetSet("jsBody", null, function(){//obj
 			var result = [];
 			if (!that.queryAll.get()) return result;
-			getQueryJson(that.queryAll.get(), function(json){
+			/*getQueryJson(that.queryAll.get(), function(json){
 				result = JSON.parse(json).data;
-			}, false);
+			}, false);*/
+			result = sql(that.queryAll.get()).data;
 			return result;
 			
 		});

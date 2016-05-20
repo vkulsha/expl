@@ -389,7 +389,7 @@ var objectlink = {
 		for (var i=0; i < result.length; i++){
 			this.dL(result[i]);
 		}
-		this.cL(id, gO("вымысел"));
+		this.cL(id, gO("вымысел") || cO("вымысел"));
 	},
 	eO : function(id){
 		this.sql.dT(this.ll, " and (o1 = "+id+" or o2 = "+id+") ");
@@ -549,4 +549,65 @@ var objectlink = {
 			}
 		}
 	},
+	getTableQuery : function(params){
+		var result = [];
+		params = params || [];//[{id:1331, n:"ик", parentCol:0, linkParent:0}]
+		
+		var head = [];
+		var body = [];
+		var foot = [];
+		
+		for (var i=0; i < params.length; i++){
+			var cc = params[i];
+			var col = i;
+			if (i==0){
+				var h = "select o"+col+".id id"+col+", o"+col+".n n"+col+" \n";
+				var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+				var b = 
+					"from (#main class \n"+
+					"	select id, n from object where id in ( \n"+
+					"		select o1 from link where o2 = "+l+" \n"+
+					"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+					"	) \n"+
+					"	group by id \n"+
+					")o"+col+" \n";
+				head.push(h);
+				body.push(b);
+			} else {
+				var h = ",group_concat(distinct o"+col+".n) n"+col+", group_concat(distinct o"+col+".id) id"+col+", count(distinct o"+col+".id) c"+col+" \n";
+				var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+				var selecto1o2 = cc.linkParent ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
+				var parentCol = cc.parentCol ? cc.parentCol : 0;
+				var b = 
+					"left join ( \n"+
+					"	"+selecto1o2+" \n"+
+					"		select o1 from link where o2 = "+l+" \n"+
+					"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+					"	) \n"+
+					"	group by o1, o2 \n"+
+					")l"+i+" on l"+i+".o2 = o"+parentCol+".id left join object o"+i+" on o"+i+".id = l"+i+".o1 \n";
+				
+				head.push(h);
+				body.push(b);
+			}
+		}
+		
+		foot.push("group by o0.id having n0 is not null \n\n");
+		result = head.join("")+body.join("")+foot.join("foot");
+		return result;
+	},
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -46,10 +46,9 @@
 					<button id="bEL">eL</button>
 					&nbsp;
 					<button id="bFontSizePlus">+</button>
-					<button id="bFontSizeMinus">-</button>
-					<button id="bOrderByName">n</button>
-					<button id="bOrderById">id</button>
-					<button id="bEdit" onclick='document.getElementById("edit").hidden = !document.getElementById("edit").hidden'>#</button>
+					<button id="bOrderBy">n</button>
+					<button id="bEdit">[..]</button>
+					<button id="bTable">t</button>
 					<br><label id="lCount" style='font-size:10px'>0</label>
 				</td></tr>
 				<tr><td>
@@ -63,16 +62,18 @@
 			</table>
 		</td>
 	</tr>
-	<tr><td><div style='overflow-y:auto' id='divContainer'><table id='dataContainer' cellpadding=1></table></div></td></tr>
+	<tr><td id='table' hidden></td></tr>
+	<tr><td><div style='overflow-y:auto' id='divContainer'><table id='dataContainer' cellpadding=1 style='width:100%'></table></div></td></tr>
 </table>
 
 <script>
 	var fs = 12;
-	var oid1 = "1";
+	var oid1 = "";
 	var oid2 = "";
-	var n1 = "Класс";
+	var n1 = "";
 	var n2 = "";
-	var oid = "";
+	var oid = "1";
+	var arrQuery = [];
 	var stat = document.getElementById("stat");
 	var txt = document.getElementById("txt");
 	var bSave = document.getElementById("bSave");
@@ -80,9 +81,11 @@
 	var lCount = document.getElementById("lCount");
 	var dom = document.getElementById("dataContainer");
 	var divContainer = document.getElementById("divContainer");
-	var order = " order by c desc, o1 ";
-	var WHERE = "and (o2 = 1 or o2 is null)";
-	var where = WHERE;
+	var bEdit = document.getElementById("bEdit");
+	var bTable = document.getElementById("bTable");
+	var table = document.getElementById("table");
+	var ORDER = " order by c desc, o1 ";
+	var order = ORDER;
 	var query = "select * from ( \n"+
 			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from ( \n"+
 			"		select o1, o2 from link union all select o2, o1 from link \n"+
@@ -91,9 +94,19 @@
 			"	left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') \n"+
 			")xxx where 1=1 \n";
 	
+	divContainer.style.height = windowHeight()-95+"px";
 	
-	divContainer.style.height = windowHeight()-100+"px";
-	var load = function(where_, order_){
+	bTable.onclick = function(){
+		table.hidden = !table.hidden;
+	}
+	
+	if (location.hash == "#id"+oid) {
+		hashchange();
+	} else {
+		location.href = "#id"+oid;
+	}
+	
+	function load(where_, order_){
 		var result = orm(query+where_+" "+order_, "all2array");
 		var data = result;
 		if (!data.length) return false;
@@ -107,28 +120,13 @@
 			cell.innerHTML = data[i][1];
 			cell.id = data[i][0];
 			cell.style.fontSize = fs+"px";
+			cell.style.width = "100%";
+			cell.style.textAlign = "left";
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
 			if (data[i][3]) { countClass++; } else { countObjects++; };
 
 			cell.onclick = function(){
-				var n = this.innerHTML;
-				$(txt).val(n);
-				txt.select();
-				document.execCommand("copy");
-				this.focus();
-				var id = this.id;
-				if (link.checked){
-					oid2 = id;
-					n2 = n;
-				} else {
-					oid1 = id;
-					n1 = n;
-				}
-//				oid = oid1;
-//				bSave.oid = oid;
-//				stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
-				where = " and o2 = "+id;
-				reload();
+				location.href = "#id"+this.id;
 			};
 			
 			bSave.onclick = function(){
@@ -144,9 +142,6 @@
 			td.appendChild(cell);
 			tr.appendChild(td);
 			dom.appendChild(tr);	
-			oid = oid1;
-			bSave.oid = oid;
-			stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
 			
 		}
 		lCount.innerHTML = countAll+"("+countClass+"/"+countObjects+")";
@@ -155,13 +150,46 @@
 		
 	};
 
-	var reload = function(){
-		return load(where, order);
+	function reload(){
+		return load(" and o2 = "+oid, order);
 	}
 	
-	reload();
+	function hashchange(){
+		var hash = location.hash;
+		hash = hash.split("#id")[1];
 
-	var resize = function(){
+		oid = hash;
+		var n = objectlink.gN(oid);
+		$(txt).val(n);
+
+		if (link.checked){
+			oid2 = oid;
+			n2 = n;
+		} else {
+			oid1 = oid;
+			n1 = n;
+		}
+		bSave.oid = oid;
+		stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
+		reload();
+		
+		if (!table.hidden){
+			arrQuery.push({"n":n});
+			
+			var query = objectlink.getTableQuery(arrQuery);
+			var domtable = orm(query, "all2domtable");
+			domtable.setAttribute("border",1);
+			table.innerHTML = "";
+			table.appendChild(domtable);
+		}
+		
+	}
+	
+	window.onhashchange = function(){
+		hashchange();
+	}
+
+	function resize(){
 		var arr = document.getElementsByTagName("BUTTON");
 		for (var i=0; i < arr.length; i++){
 			arr[i].style.fontSize = fs;
@@ -172,30 +200,28 @@
 	bFontSizePlus.onclick = function(){
 		resize(++fs);
 	};
-	bFontSizeMinus = document.getElementById("bFontSizeMinus");
-	bFontSizeMinus.onclick = function(){
-		resize(--fs);
-	};
 
-	bOrderByName = document.getElementById("bOrderByName");
-	bOrderByName.onclick = function(){
-		order = " order by c desc, n ";
-		reload();
-	};
-	bOrderById = document.getElementById("bOrderById");
-	bOrderById.onclick = function(){
-		order = " order by c desc, o1 ";
+	bOrderBy = document.getElementById("bOrderBy");
+	bOrderBy.onclick = function(){
+		this.innerHTML = order == ORDER ? "id" : "n";
+		order = order == ORDER ? " order by c desc, n " : ORDER;
 		reload();
 	};
 
 	var bHome = document.getElementById("bHome");
-	var goHome = function(){
-		where = WHERE;
-		reload();
+	function goHome(){
+		oid = "1";
+		location.href = "#id"+oid;
 		
 	}
 	bHome.onclick = function(){
 		goHome();
+	}
+
+	bEdit.onclick = function(){
+		document.getElementById("edit").hidden = !document.getElementById("edit").hidden;
+		divContainer.style.height = windowHeight()-(document.getElementById("edit").hidden ? 95 : 135)+"px";
+		
 	}
 
 	var bCO = document.getElementById("bCO");
@@ -204,7 +230,6 @@
 		if (result) {
 			var o1 = objectlink.cO(result);
 			if (oid) objectlink.cL(o1, oid);
-			//alert("Создан объект "+o1);
 			reload();
 		} else {
 			alert("Недопустимое значение объекта!");
@@ -217,7 +242,6 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				//alert("Создана связь: "+
 				objectlink.cL(arr[0],arr[1]);
 				reload();
 			} else {
@@ -234,7 +258,6 @@
 		result = prompt("eO (id)", oid);
 		if (result) {
 			objectlink.eO(result);
-			//alert("Удален объект: "+result);
 			oid1 = "1";
 			n1 = "Класс";
 			goHome();
@@ -249,7 +272,6 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				//alert("Удалена связь: "+
 				objectlink.eL(arr[0],arr[1]);
 				reload();
 			} else {

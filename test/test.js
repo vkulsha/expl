@@ -89,6 +89,13 @@ QUnit.test( "uService.js test", function( a ) {
 		getOrm("select * from test where f1='a1'", "row2table")[1][0] == "f2" && 
 		getOrm("select * from test where f1='a1'", "row2table")[1][1] == "b1" 
 	, "getOrm8 row2table" );
+
+	var domtable = getOrm("select * from test", "all2domtable");
+	a.ok( 
+		$(domtable).find("thead").find("tr").find("th")[2].innerHTML == "f3" &&
+		$(domtable).find("tbody").find("tr").find("td")[0].innerHTML == "a1"
+	, "getOrm9 rows2object" 
+	);
 	
 	var rt = getRowTable4Class('Object', 1);
 	a.ok( rt[0][0] == "rowid" && rt[0][1] == "1", "getRowTable4Class" );
@@ -573,8 +580,8 @@ QUnit.test( "jTable.js JsTable class test", function( a ) {
 	var val = domLegend(colors, cols);
 	a.ok( val.firstChild.childNodes.length == 2, "domLegend" );
 	
-	var dom = domCardTable(1);
-	a.ok( dom.firstChild.getElementsByTagName("tr").length == 10 && dom.firstChild.firstChild.firstChild.innerHTML == "rowid", "domCardTable" );
+//	var dom = domCardTable(1);
+//	a.ok( dom.firstChild.getElementsByTagName("tr").length == 10 && dom.firstChild.firstChild.firstChild.innerHTML == "rowid", "domCardTable" );
 	
 });
 
@@ -649,11 +656,30 @@ QUnit.test( "objectlink test", function( a ) {
 	//var tb = sql("select * from transexplobject");
 	//var tb = sql("select * from transexplterritorialdepartment");
 	//var tb = sql("select * from transexplobjectmanager");
-	var tb = sql("select * from transexplik");
+	/*var tb = sql("select * from transexplik");
 	var func = function(val){
 		console.log(val);
-	};
+	};*/
 	//objectlink.importSQL(tb, func);
 	
+	/*
+	var query = objectlink.getTableQuery([
+		{id:1331, n:"ик"},
+		{n:"ответственный"},
+		{n:"объект"},
+		{n:"ту", linkParent:true},
+		{n:"email", parentCol:1},
+	]);
 	
+	console.log(query);
+	var domtable = orm(query, "all2domtable");
+	domtable.setAttribute("border",1);
+	$("body").append(
+		domtable
+	)
+	*/
 });
+
+
+
+

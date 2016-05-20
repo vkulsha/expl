@@ -11,9 +11,24 @@
 <script>
 	var container = document.getElementsByClassName("jsTableContainer")[0];
 	currentClass = "Object";
+
+	var sel = objectlink.getTableQuery([
+		{n:"объект"},//0
+		{n:"адрес"},//1
+		{n:"кадастр"},//2
+		{n:"широта"},//3
+		{n:"долгота"},//4
+		{n:"номер"},//5
+		{n:"ик", linkParent:true},//6
+		{n:"ту", linkParent:true, parentCol:6},//7
+		{n:"ответственный", parentCol:6},//8
+	]);
+	sel = "select * from (select n5 rowid, n7 tu, n6 ik, n8 manager, n0 name, n1 address, n2 cadastr, n3 lat, n4 lon "+
+	" from ( "+sel+")x )x where 1=1 ";
 	
 	var query = {
-		select:"select * from `expls"+currentClass+"` where 1=1 and tu is not null ", 
+		//select:"select * from `expls"+currentClass+"` where 1=1 and tu is not null ", 
+		select:sel, 
 		order:" order by tu desc, ik, case length(rowid) when 1 then concat('00',rowid) when 2 then concat('0',rowid) else rowid end "
 	};
 	var colors = [
