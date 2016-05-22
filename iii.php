@@ -44,13 +44,12 @@
 					<button id='bCL'>cL</button>
 					<button id='bEO'>eO</button>
 					<button id='bEL'>eL</button>
-					&nbsp;
+					<input type='checkbox' id='chAdd2query'/>
+					<input type='checkbox' id='chQueryLinkParent'/>
+					<button id='bTable'>t</button>
 					<button id='bFontSizePlus'>+</button>
 					<button id='bOrderBy'>n</button>
 					<button id='bEdit'>[..]</button>
-					<button id='bTable'>t</button>
-					<input type='checkbox' id='chAdd2query'/>
-					<input type='checkbox' id='chQueryLinkParent'/>
 					<br><label id="lCount" style='font-size:10px'>0</label>
 				</td></tr>
 				<tr><td>
@@ -87,11 +86,13 @@
 	var dom = document.getElementById("dataContainer");
 	var divContainer = document.getElementById("divContainer");
 	var bEdit = document.getElementById("bEdit");
+	var edit =  document.getElementById("edit");
 	var bTable = document.getElementById("bTable");
 	var tQuery = document.getElementById("tQuery");
 	var lQuery = document.getElementById("lQuery");
 	var chAdd2query = document.getElementById("chAdd2query");
 	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
+	var isFile = false;
 
 	var ORDER = " order by c desc, t desc, o1 asc ";
 	var order = ORDER;
@@ -103,7 +104,7 @@
 			"	left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') \n"+
 			")xxx where 1=1 and (o1 <> o2 or (o1 = o2 and t='parent')) \n";
 	
-	divContainer.style.height = windowHeight()-95+"px";
+	divContainer.style.height = windowHeight()-105+"px";
 	
 	if (location.hash == "#id"+oid) {
 		hashchange();
@@ -130,6 +131,7 @@
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
 			cell.style.color = data[i][4] == 'parent' ? "#aa0000" : "#000";
 			if (data[i][3]) { countClass++; } else { countObjects++; };
+			isFile = (data[i][1] == 'Файлы');
 
 			cell.onclick = function(){
 				location.href = "#id"+this.id;
@@ -244,8 +246,11 @@
 	}
 
 	bEdit.onclick = function(){
-		document.getElementById("edit").hidden = !document.getElementById("edit").hidden;
-		divContainer.style.height = windowHeight()-(document.getElementById("edit").hidden ? 95 : 135)+"px";
+		edit.hidden = !edit.hidden;
+		divContainer.style.height = windowHeight()-(document.getElementById("edit").hidden ? 105 : 145)+"px";
+		if (isFile && !edit.hidden) {
+			openImageWindow(domain+$(txt).val());
+		}
 		
 	}
 
