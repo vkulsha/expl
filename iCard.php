@@ -140,11 +140,11 @@
 			var filesHtml = [];
 			var iconFile = "file.png";
 			for (var i=0; i < otherFiles.length; i++) {
-				iconFile = 
-					(~otherFiles[i].indexOf(".pdf")) ? "pdf.png" : 
-					(~otherFiles[i].indexOf(".doc")) ? "word.png" : 
-					(~otherFiles[i].indexOf(".xls")) ? "excel.png" : 
-					iconFile;
+				iconFile = getIconFile(otherFiles[i]);
+					//(~otherFiles[i].indexOf(".pdf")) ? "pdf.png" : 
+					//(~otherFiles[i].indexOf(".doc")) ? "word.png" : 
+					//(~otherFiles[i].indexOf(".xls")) ? "excel.png" : 
+					//iconFile;
 				
 				var chDel = document.createElement("INPUT");
 				chDel.setAttribute("type", "checkbox");
@@ -157,7 +157,8 @@
 					"<a href='#' onclick='openImageWindow(\""+
 						domain+objectPath+otherFiles[i]+
 					"\")' title='скачать файл' >"+
-					"<table><tr align='middle'><td><img src='images/"+iconFile+"' width='32'/></td></tr>"+
+					//"<table><tr align='middle'><td><img src='images/"+iconFile+"' width='32'/></td></tr>"+
+					"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
 					"<tr align='middle'><td style='font-size:11px; width:10px'>"+otherFiles[i]+"</td></tr></table></a></td>"
 				);
 			}

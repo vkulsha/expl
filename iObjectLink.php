@@ -1,7 +1,12 @@
 <table>
 	<tr>
 		<td>
-			<div id="jstree" style="position:absolute; text-align:left; background-color:#fffff0"></div>
+			<table id="pClassAdd" style="position:absolute; text-align:left; background-color:#fffff0;" hidden>
+				<tr>
+					<td><div id="jstree"></div></td>
+					<td valign="top"><table id='lQuery'></table></td>
+				</tr>
+			</table>
 		</td>
 	</tr>
 	<tr>
@@ -15,6 +20,10 @@
 
 <script>
 	var container = document.getElementsByClassName("jsTableContainer")[0];
+	var jstree = document.getElementById("jstree");
+	var pClassAdd = document.getElementById("pClassAdd");
+	var lQuery = document.getElementById("lQuery");
+
 	currentClass = "Object";
 	var query = {
 		select:"",//"select 1,2, 3,4,5, 6,7,8, 9,10,11, 12,13,14, 15,16,17", 
@@ -30,8 +39,19 @@
 	
 	addMapButton2Table(jsTable, 0);
 	
-	var arrQuery = [];
-	var arrParent = [];
+	but1 = document.createElement("BUTTON");
+	but1.innerHTML = "class++";
+	but1.onclick = function(){
+		pClassAdd.hidden = !pClassAdd.hidden;
+		
+	}
+	addToTable(jsTable, but1);
+	
+	pClassAdd.style.border = "1px solid #ccc";
+	pClassAdd.style.left = windowWidth()/2 - 100;
+	pClassAdd.style.top = 250;
+
+	var arrQuery = {query:[], parent:[], status:[]};
 	
 ///classes
 	$(function () {
@@ -43,20 +63,52 @@
 			}
 		);
 		$('#jstree').on("changed.jstree", function (e, data) {
-			//console.log(data);
+			var linkParent = false;
 			var selectedN = data.node.text;
 			var selectedId = data.node.id;
 			var selectedPid = data.node.parent;
-			var parent = arrParent.indexOf(selectedPid);
-			arrParent.push(selectedId);
-			arrQuery.push({"n":selectedN, "parentCol":~parent ? parent : undefined});
-			//console.log(arrQuery);
-			var sel = objectlink.getTableQuery(arrQuery);
+			var selectedChildren = data.node.children;
+
+			var parent = arrQuery.parent.indexOf(selectedPid);
+			for (var i=0; i < selectedChildren.length; i++){
+				var ind = arrQuery.parent.indexOf(selectedChildren[i]);
+				if (ind >= 0) {
+					parent = ind;
+					linkParent = true;
+				}
+			}
+			console.log(parent + " " + linkParent);
+			arrQuery.parent.push(selectedId);
+			arrQuery.status.push(true);	
+			arrQuery.query.push({"n":selectedN, "parentCol":~parent ? parent : undefined, "linkParent":linkParent});
+			var getQuery = function(arrQ, arrStatus){
+				var ret = [];
+				for (var i=0; i < arrQ.length; i++){
+					if (arrStatus[i]){
+						ret.push(arrQ[i]);
+					}
+				}
+				return ret;
+			}
+			var sel = objectlink.getTableQuery(getQuery(arrQuery.query, arrQuery.status));
 			jsTable.querySelect.set(sel);
+
+			var tr = lQuery.appendChild(document.createElement("TR"));
+			var td = tr.appendChild(document.createElement("TD"));
+			var bt = td.appendChild(document.createElement("BUTTON"));
+			bt.id = arrQuery.query.length-1;
+			bt.tr = tr;
+			bt.innerHTML = "(x) "+selectedN;
+			bt.onclick = function(){
+				arrQuery.status[this.id] = false;
+				var sel = objectlink.getTableQuery(getQuery(arrQuery.query, arrQuery.status));
+				jsTable.querySelect.set(sel);
+				this.tr.hidden = true;
+				
+				
+			}
+			
 		});
-		$('#labelComment').on("click", function(){
-			$('#jstree').get()[0].hidden = !$('#jstree').get()[0].hidden;
-		})
 	});
 	
 </script>

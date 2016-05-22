@@ -65,7 +65,7 @@
 	</tr>
 	<tr><td><table><tr>
 		<td valign='top'><table id='lQuery'></table></td>
-		<td valign='top' id='tQuery'></td>
+		<td valign='top' id='tQuery' hidden></td>
 	</tr></table></td></tr>
 	<tr><td><div style='overflow-y:auto' id='divContainer'><table id='dataContainer' cellpadding=1 style='width:100%'></table></div></td></tr>
 </table>
@@ -76,7 +76,7 @@
 	var oid2 = "";
 	var n1 = "";
 	var n2 = "";
-	var oid = "1";
+	var oid = "1.class";
 	var arrQuery = [];
 	var stat = document.getElementById("stat");
 	var txt = document.getElementById("txt");
@@ -106,10 +106,10 @@
 	
 	divContainer.style.height = windowHeight()-105+"px";
 	
-	if (location.hash == "#id"+oid) {
+	if (location.hash == "#."+oid) {
 		hashchange();
 	} else {
-		location.href = "#id"+oid;
+		location.href = "#."+oid;
 	}
 	
 	function load(where_, order_){
@@ -125,6 +125,7 @@
 			var cell = document.createElement("BUTTON");
 			cell.innerHTML = data[i][1];
 			cell.id = data[i][0];
+			cell.isClass = data[i][3];
 			cell.style.fontSize = fs+"px";
 			cell.style.width = "100%";
 			cell.style.textAlign = "left";
@@ -134,16 +135,15 @@
 			isFile = (data[i][1] == 'Файлы');
 
 			cell.onclick = function(){
-				location.href = "#id"+this.id;
+				location.href = "#."+this.id+(this.isClass ? ".class" : "");
 			};
 			
 			bSave.onclick = function(){
 				var oid = this.oid;
-				var val = $(txt).val();
+				var val = txt.value;
 				objectlink.uO(oid, val);
 
 			}
-			
 			
 			var td = document.createElement("TD");
 			var tr = document.createElement("TR");
@@ -151,6 +151,36 @@
 			tr.appendChild(td);
 			dom.appendChild(tr);	
 			
+		}
+		
+		if (isFile && !isClass) {
+			var img = new Image();
+			var fn = txt.value;
+			var arr = fn.split(".");
+			var arrIm = ['jpg','bmp','png','gif','tif'];
+			var ext = arr[arr.length-1];
+			if (arr && arr.length && ~arrIm.indexOf(ext)) {
+				img.src = domain+fn;
+			} else {
+				var iconFile = getIconFile(fn);
+				img.src = domain+iconFile;
+			}
+
+			if (img.width >= 128){
+				img.width = 128;
+			}
+			
+			img.fn = fn;
+			img.style.cursor = "pointer";
+			img.onclick = function(){
+				openWindow(domain+this.fn);
+			}
+			
+			var td = document.createElement("TD");
+			var tr = document.createElement("TR");
+			td.appendChild(img);
+			tr.appendChild(td);
+			dom.appendChild(tr);
 		}
 		lCount.innerHTML = countAll+"("+countClass+"/"+countObjects+")";
 
@@ -163,12 +193,13 @@
 	}
 	
 	function hashchange(){
-		var hash = location.hash;
-		hash = hash.split("#id")[1];
+		$(bHome).focus();
+		var hash = location.hash.split(".");
+		oid = hash[1];
+		isClass = hash[2];
 
-		oid = hash;
 		var n = objectlink.gN(oid);
-		$(txt).val(n);
+		txt.value = n;
 
 		if (link.checked){
 			oid2 = oid;
@@ -202,14 +233,14 @@
 	}
 	
 	bTable.onclick = function(){
-		//table.hidden = !table.hidden;
-		//if (!table.hidden) {
+		tQuery.hidden = !tQuery.hidden;
+		if (!tQuery.hidden) {
 			var query = objectlink.getTableQuery(arrQuery);
 			var domtable = orm(query, "all2domtable");
 			domtable.setAttribute("border",1);
 			tQuery.innerHTML = "";
 			tQuery.appendChild(domtable);
-		//}
+		}
 	}
 	
 	window.onhashchange = function(){
@@ -237,8 +268,8 @@
 
 	var bHome = document.getElementById("bHome");
 	function goHome(){
-		oid = "1";
-		location.href = "#id"+oid;
+		oid = "1.class";
+		location.href = "#."+oid;
 		
 	}
 	bHome.onclick = function(){
@@ -248,11 +279,7 @@
 	bEdit.onclick = function(){
 		edit.hidden = !edit.hidden;
 		divContainer.style.height = windowHeight()-(document.getElementById("edit").hidden ? 105 : 145)+"px";
-		if (isFile && !edit.hidden) {
-			openImageWindow(domain+$(txt).val());
-		}
-		
-	}
+ 	}
 
 	var bCO = document.getElementById("bCO");
 	bCO.onclick = function(){
@@ -288,8 +315,6 @@
 		result = prompt("eO (id)", oid);
 		if (result) {
 			objectlink.eO(result);
-			oid1 = "1";
-			n1 = "Класс";
 			goHome();
 		} else {
 			alert("Недопустимое значение id!");
@@ -303,7 +328,7 @@
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
 				objectlink.eL(arr[0],arr[1]);
-				reload();
+				goHome();
 			} else {
 				alert("Недопустимое значение oid1 или oid2!");
 			}

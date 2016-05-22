@@ -109,10 +109,10 @@ function openWindow(url, title, params) {
 }
 
 function openImageWindow(src) {
-    var im = new Image();
-    im.src = src;
-    var width = im.width;
-    var height = im.height;
+    //var im = new Image();
+    //im.src = src;
+    //var width = im.width;
+    //var height = im.height;
     openWindow(src);
     //openWindow(src,src,"width=" + width + ",height=" + height);
 }
@@ -896,3 +896,11 @@ function rgb(r,g,b)
 	return color;
 }
 
+function getIconFile(filename){
+	var iconFile = 
+		(~filename.indexOf(".pdf")) ? "pdf.png" : 
+		(~filename.indexOf(".doc")) ? "word.png" : 
+		(~filename.indexOf(".xls")) ? "excel.png" : 
+		"file.png";
+	return "images/"+iconFile;
+}
