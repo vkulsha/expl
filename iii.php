@@ -31,7 +31,7 @@
 	<script src="js/GetSet.js"></script>
 	<script src="js/Filter.js"></script>
 	<script src="js/JsTable.js"></script></head>
-	<script src="js/uodb.js"></script></head>
+	<script src="js/objectlink.js"></script></head>
 <body>
 
 <table id="tbData" width="100%">
@@ -39,16 +39,18 @@
 		<td style='background-color:#eee'>
 			<table>
 				<tr><td>
-					<button id="bHome">/</button>
-					<button id="bCO">cO</button>
-					<button id="bCL">cL</button>
-					<button id="bEO">eO</button>
-					<button id="bEL">eL</button>
+					<button id='bHome'>/</button>
+					<button id='bCO'>cO</button>
+					<button id='bCL'>cL</button>
+					<button id='bEO'>eO</button>
+					<button id='bEL'>eL</button>
 					&nbsp;
-					<button id="bFontSizePlus">+</button>
-					<button id="bOrderBy">n</button>
-					<button id="bEdit">[..]</button>
-					<button id="bTable">t</button>
+					<button id='bFontSizePlus'>+</button>
+					<button id='bOrderBy'>n</button>
+					<button id='bEdit'>[..]</button>
+					<button id='bTable'>t</button>
+					<input type='checkbox' id='chAdd2query'/>
+					<input type='checkbox' id='chQueryLinkParent'/>
 					<br><label id="lCount" style='font-size:10px'>0</label>
 				</td></tr>
 				<tr><td>
@@ -62,7 +64,10 @@
 			</table>
 		</td>
 	</tr>
-	<tr><td id='table' hidden></td></tr>
+	<tr><td><table><tr>
+		<td valign='top'><table id='lQuery'></table></td>
+		<td valign='top' id='tQuery'></td>
+	</tr></table></td></tr>
 	<tr><td><div style='overflow-y:auto' id='divContainer'><table id='dataContainer' cellpadding=1 style='width:100%'></table></div></td></tr>
 </table>
 
@@ -83,22 +88,22 @@
 	var divContainer = document.getElementById("divContainer");
 	var bEdit = document.getElementById("bEdit");
 	var bTable = document.getElementById("bTable");
-	var table = document.getElementById("table");
-	var ORDER = " order by c desc, o1 ";
+	var tQuery = document.getElementById("tQuery");
+	var lQuery = document.getElementById("lQuery");
+	var chAdd2query = document.getElementById("chAdd2query");
+	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
+
+	var ORDER = " order by c desc, t desc, o1 asc ";
 	var order = ORDER;
 	var query = "select * from ( \n"+
-			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from ( \n"+
-			"		select o1, o2 from link union all select o2, o1 from link \n"+
+			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c, link.t from ( \n"+
+			"		select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link \n"+
 			"	)link \n"+
 			"	join object on object.id = link.o1 \n"+
 			"	left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') \n"+
-			")xxx where 1=1 \n";
+			")xxx where 1=1 and (o1 <> o2 or (o1 = o2 and t='parent')) \n";
 	
 	divContainer.style.height = windowHeight()-95+"px";
-	
-	bTable.onclick = function(){
-		table.hidden = !table.hidden;
-	}
 	
 	if (location.hash == "#id"+oid) {
 		hashchange();
@@ -123,6 +128,7 @@
 			cell.style.width = "100%";
 			cell.style.textAlign = "left";
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
+			cell.style.color = data[i][4] == 'parent' ? "#aa0000" : "#000";
 			if (data[i][3]) { countClass++; } else { countObjects++; };
 
 			cell.onclick = function(){
@@ -173,16 +179,35 @@
 		stat.innerHTML = "oid1: "+oid1+" ("+n1+"), oid2: "+oid2+" ("+n2+")";
 		reload();
 		
-		if (!table.hidden){
-			arrQuery.push({"n":n});
-			
+		if (chAdd2query.checked){
+			var parentCol = $( "input[type=radio]:checked" ).val();
+			var id = arrQuery.length;
+			arrQuery.push({"n":n, "parentCol":parentCol, "linkParent":chQueryLinkParent.checked});
+
+			var tr = lQuery.appendChild(document.createElement("TR"));
+			var td = tr.appendChild(document.createElement("TD"));
+			var radio = td.appendChild(document.createElement("INPUT"));
+			radio.setAttribute("type", "radio");
+			radio.setAttribute("name", "rQuery");
+			radio.setAttribute("value", id);
+			radio.setAttribute("id", "rQuery"+id);
+
+			var l = td.appendChild(document.createElement("LABEL"));
+			l.innerHTML = n;
+			l.setAttribute("for", "rQuery"+id);
+		}
+		
+	}
+	
+	bTable.onclick = function(){
+		//table.hidden = !table.hidden;
+		//if (!table.hidden) {
 			var query = objectlink.getTableQuery(arrQuery);
 			var domtable = orm(query, "all2domtable");
 			domtable.setAttribute("border",1);
-			table.innerHTML = "";
-			table.appendChild(domtable);
-		}
-		
+			tQuery.innerHTML = "";
+			tQuery.appendChild(domtable);
+		//}
 	}
 	
 	window.onhashchange = function(){

@@ -118,7 +118,6 @@ function JsTable (queryJson, opts, container) {
 					columns = JSON.parse(json).columns;
 				}, false);*/
 				columns = sql(that.querySelect.get() + that.queryWhere.get() + that.queryOrder.get() + " limit 0").columns;
-				
 				if (columns) {
 					for (var i=0; i < columns.length; i++) {
 						result.push(new Column({
@@ -139,9 +138,11 @@ function JsTable (queryJson, opts, container) {
 		this.columns = new GetSet("columns", null, function(){//ref
 			return that.jsHead.get(false)
 		});
+		this.columns.listen([this.jsHead]);//listen
 		this.columnsRefresh = new GetSet("columnsRefresh", null, function(){//val
 			return JSON.stringify(that.columns.get())
 		});
+		this.columnsRefresh.listen([this.jsHead]);//listen
 		this.columnsVisibleRefresh = new GetSet("columnsVisibleRefresh", null, function(){
 			var columns = that.columns.get();
 			if (!columns) return;
@@ -188,6 +189,7 @@ function JsTable (queryJson, opts, container) {
 			return result;
 			
 		})
+		this.domHeadOrdersCreate.listen([this.jsHead, this.columnsRefresh]);//listen
 		this.domHeadOrders = new GetSet("domHeadOrders", null, function(){//ref
 			return that.domHeadOrdersCreate.get(false);
 			
@@ -209,6 +211,7 @@ function JsTable (queryJson, opts, container) {
 				dom.ind = i;
 				
 				dom.onclick = function(e){
+					var columns = that.columns.get();
 					var pos = {x : e.clientX, y : e.clientY};
 					that.filter.get().domPanelFilterPosition.set(pos);
 					that.currentColumn.set(columns[this.ind]);
@@ -221,6 +224,7 @@ function JsTable (queryJson, opts, container) {
 			return result;
 			
 		})
+		this.domHeadFiltersCreate.listen([this.jsHead, this.columnsRefresh]);//listen
 		this.domHeadFilters = new GetSet("domHeadFilters", null, function(){//ref
 			return that.domHeadFiltersCreate.get(false);
 			
@@ -240,6 +244,7 @@ function JsTable (queryJson, opts, container) {
 				dom.style.marginRight = '5px';
 				
 				dom.onclick = function(){
+					var columns = that.columns.get();
 					that.orderColumnOld.set(that.orderColumn.get());
 					if (columns[this.ind] == that.orderColumn.get()) {
 						that.inverseOrderDirection.get();
@@ -255,6 +260,7 @@ function JsTable (queryJson, opts, container) {
 			return result;
 			
 		})
+		this.domHeadCaptionsCreate.listen([this.jsHead, this.columnsRefresh]);//listen
 		this.domHeadCaptions = new GetSet("domHeadCaptions", null, function(){//ref
 			return that.domHeadCaptionsCreate.get(false);
 			
@@ -326,6 +332,7 @@ function JsTable (queryJson, opts, container) {
 				field.appendChild(divResizeCnt);
 
 				divResize.onmousedown = function(){
+					var columns = that.columns.get();
 					var column = that.resizeColumn;
 					if (column) {
 						column.set(columns[this.parentNode.parentNode.ind]);
@@ -386,7 +393,7 @@ function JsTable (queryJson, opts, container) {
 ///domBody				
 		this.domBodyContainerCreate = new GetSet("domBodyContainerCreate", null, function(){//obj
 			var result = document.createElement("TBODY");
-			var domHead = that.domHeadContainer.get();
+			//var domHead = that.domHeadContainer.get();
 			var tableWidth = that.tableWidth.get();
 			var tableHeight = that.tableHeight.get();
 			if (!tableWidth || !tableHeight) return result;
@@ -396,8 +403,9 @@ function JsTable (queryJson, opts, container) {
 			result.style.height = tableHeight;
 			result.style.width = tableWidth;
 
-			var headTr = domHead.getElementsByTagName("TR")[0];
+			//var headTr = domHead.getElementsByTagName("TR")[0];
 			result.onscroll = function() {
+				var headTr = that.domHeadContainer.get().getElementsByTagName("TR")[0];
 				headTr.scrollLeft = this.scrollLeft;
 			};
 			return result;
@@ -415,7 +423,6 @@ function JsTable (queryJson, opts, container) {
 			var isColorOpt = (JSON.stringify(rowsColOpt) != "{}");
 
 			if (!columns || !rows || !result) return result;
-			
 ///cell click			
 			var cellDblClick = function(){
 				var cellDblClickFunc = that.cellDblClickFunc.get();
@@ -702,7 +709,8 @@ function JsTable (queryJson, opts, container) {
 	
 			return result;
 		
-		})
+		});
+		this.domColumnsVisible.listen([this.jsHead, this.columnsRefresh]);//listen
 		
 		this.createPanelColsVisible = new GetSet("createPanelColsVisible", null, function(){//call
 			var domColumnsVisibleContainer = that.domColumnsVisibleContainer.get();
@@ -754,6 +762,7 @@ function JsTable (queryJson, opts, container) {
 			}
 			return result;
 		});
+		this.domButtonColumnsVisibleContainerCreate.listen([this.jsHead, this.columnsRefresh]);//listen
 		this.domButtonColumnsVisibleContainer = new GetSet("domButtonColumnsVisibleContainer", null, function(){
 			return that.domButtonColumnsVisibleContainerCreate.get(false);
 		});
@@ -795,9 +804,9 @@ function JsTable (queryJson, opts, container) {
 			result.setAttribute("autofocus", "");
 			result.style.width = "200px";
 			
-			var cols = that.columns.get();
-			
+			//var cols = that.columns.get();
 			result.onchange = function(){
+				var cols = that.columns.get();
 				var val = this.value;
 				var userFilter = that.filter.get().userFilter;
 				if (userFilter) {
@@ -950,6 +959,7 @@ function JsTable (queryJson, opts, container) {
 			result.style.position = "absolute";
 			return result;
 		})
+		this.domLegendContainerCreate.listen([this.jsHead, this.columnsRefresh]);//listen
 		this.domLegendContainer = new GetSet("domLegendContainer", null, function(){
 			return that.domLegendContainerCreate.get(false);
 		})

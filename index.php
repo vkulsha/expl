@@ -40,7 +40,7 @@
 		<script src="js/GetSet.js"></script>
 		<script src="js/Filter.js"></script>
 		<script src="js/JsTable.js"></script>
-		<script src="js/uodb.js"></script></head>
+		<script src="js/objectlink.js"></script></head>
 		<script>
 			$(document).keydown( function(event) {
 				if (event.which == 17) isCtrl = true;

@@ -37,6 +37,7 @@ function Filter(params) {
 		return result;
 		
 	});
+	this.createColumnsFilter.listen([this.jsTable.get().columns]);//listen
 	this.columnsFilter = new GetSet("columnsFilter", null, function(){//this.createColumnsFilter.get(false)
 		return that.createColumnsFilter.get(false);
 	});
@@ -55,7 +56,8 @@ function Filter(params) {
 		var queryAll = that.queryAll.get();
 		if (!queryAll || !column) return result;
 
-		var q = "select distinct `"+column.name+"` from ("+queryAll.split("order")[0]+" group by `"+column.name+"`)xxx order by `"+column.name+"`";
+		//var q = "select distinct `"+column.name+"` from ("+queryAll.split("order")[0]+" group by `"+column.name+"`)xxx order by `"+column.name+"`";
+		var q = "select distinct `"+column.name+"` from ("+queryAll.split("order")[0]+" )xxx order by `"+column.name+"`";
 		//var values = getOrm(q, "col2array")
 		var values = orm(q, "col2array")
 		if (values && values.length) {
@@ -195,7 +197,7 @@ function Filter(params) {
 				if (arr[i].checked) {
 					filter = filter + "'"+checkedValues[i].value+"',";
 					if (checkedValues[i].value == "") {
-						isnull = " or "+column.name+" is null ";
+						isnull = " or `"+column.name+"` is null ";
 
 					}
 				}
@@ -203,7 +205,7 @@ function Filter(params) {
 			filter = slice(filter);
 			
 			if (filter) {
-				filter = " and ("+column.name+" in ("+filter+") "+isnull+")";
+				filter = " and (`"+column.name+"` in ("+filter+") "+isnull+")";
 			}
 			that.isDomPanelFilterVisible.set(false);
 			that.panelFilterResult.set(filter);

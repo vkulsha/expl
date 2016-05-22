@@ -39,6 +39,7 @@
 		<script src="../js/Filter.js"></script>
 		<script src="../js/JsTable.js"></script></head>
 		<script src="../js/uodb.js"></script></head>
+		<script src="../js/objectlink.js"></script></head>
 <body>
 	<div id="qunit"></div>
 	<div id="qunit-fixture"></div>

@@ -25,6 +25,7 @@
             <File name="js\Column.js" />
             <File name="js\GetSet.js" />
             <File name="js\domtree.js" />
+            <File name="js\objectlink.js" />
         </Folder>
         <File name="index.php" />
         <File name="iMap.php" />
@@ -38,7 +39,6 @@
         <File name="scanDir.php" />
         <File name="upload.php" />
         <File name="delete.php" />
-        <File name="blank.php" />
         <File name="sql2json.php" />
         <File name="iObjectLink.php" />
         <File name="iii.php" />

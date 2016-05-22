@@ -23,13 +23,11 @@
 		{n:"ту", linkParent:true, parentCol:6},//7
 		{n:"ответственный", parentCol:6},//8
 	]);
-	sel = "select * from (select n5 rowid, n7 tu, n6 ik, n8 manager, n0 name, n1 address, n2 cadastr, n3 lat, n4 lon "+
-	" from ( "+sel+")x )x where 1=1 ";
+	sel = "select номер, ту, ик, ответственный, объект, адрес, кадастр, широта, долгота from ("+sel+")x where 1=1 ";
 	
 	var query = {
-		//select:"select * from `expls"+currentClass+"` where 1=1 and tu is not null ", 
 		select:sel, 
-		order:" order by tu desc, ik, case length(rowid) when 1 then concat('00',rowid) when 2 then concat('0',rowid) else rowid end "
+		order:" order by ту desc, ик, case length(номер) when 1 then concat('00',номер) when 2 then concat('0',номер) else номер end "
 	};
 	var colors = [
 /*		new RowColorMarker({
@@ -46,16 +44,15 @@
 		}),*/
 	];
 	var colsOpts = [
-		new Column({'id' : 0, 'name' : 'rowid', 'caption' : '№', 'width' : 40, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 1, 'name' : 'tu', 'caption' : 'ТУ', 'width' : 70, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 2, 'name' : 'ik', 'caption' : 'ИК', 'width' : 70, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 3, 'name' : 'manager', 'caption' : 'Ответственный', 'width' : 150, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 4, 'name' : 'name', 'caption' : 'Наименование', 'width' : 200, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 5, 'name' : 'address', 'caption' : 'Адрес', 'width' : 300, 'visible' : true, 'class' : currentClass}),
-		//new Column({'id' : 6, 'name' : 'comment', 'caption' : 'Комментарий', 'width' : 300, 'visible' : false, 'class' : currentClass}),
-		new Column({'id' : 6, 'name' : 'cadastr', 'caption' : 'Кадастр номер', 'width' : 150, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 7, 'name' : 'lat', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
-		new Column({'id' : 8, 'name' : 'lon', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 0, 'name' : 'номер', 'caption' : '№', 'width' : 40, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 1, 'name' : 'ту', 'caption' : 'ТУ', 'width' : 70, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 2, 'name' : 'ик', 'caption' : 'ИК', 'width' : 70, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 3, 'name' : 'ответственный', 'caption' : 'Ответственный', 'width' : 150, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 4, 'name' : 'объект', 'caption' : 'Наименование', 'width' : 200, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 5, 'name' : 'адрес', 'caption' : 'Адрес', 'width' : 300, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 6, 'name' : 'кадастр', 'caption' : 'Кадастр номер', 'width' : 150, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 7, 'name' : 'широта', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
+		new Column({'id' : 8, 'name' : 'долгота', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
 	];
 	currentUser.classes[currentClass].columns = colsOpts;
 	var tbHeight = windowHeight() * (380/699);
