@@ -311,43 +311,46 @@ var objectlink = {
 		var head = [];
 		var body = [];
 		var foot = [];
-		
-		for (var i=0; i < params.length; i++){
-			var cc = params[i];
-			//var col = i;
-			var col = cc.n;
-			if (i==0){
-				var h = "select o"+i+".id `id "+col+"`, o"+i+".n `"+col+"` \n";
-				var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
-				var b = 
-					"from (#main class \n"+
-					"	select id, n from object where id in ( \n"+
-					"		select o1 from link where o2 = "+l+" \n"+
-					"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
-					"	) \n"+
-					"	group by id \n"+
-					")o"+i+" \n";
-				head.push(h);
-				body.push(b);
-			} else {
-				/*var h = ",case when count(distinct o"+i+".id) <= 3 then group_concat(distinct o"+i+".id) else concat(o"+i+".id,'..') end `id "+col+"` "+
-						",case when count(distinct o"+i+".id) <= 3 then group_concat(distinct o"+i+".n)  else concat(o"+i+".n,'..')  end `"+col+"` "+
-						",count(distinct o"+i+".id) `кол-во "+col+"` \n";*/
-				var h = ",case when count(distinct o"+i+".id) <= 1 then o"+i+".n else count(distinct o"+i+".id) end `"+col+"` \n";
-				var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
-				var selecto1o2 = cc.linkParent ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
-				var parentCol = cc.parentCol ? cc.parentCol : 0;
-				var b = 
-					"left join ( \n"+
-					"	"+selecto1o2+" \n"+
-					"		select o1 from link where o2 = "+l+" \n"+
-					"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
-					"	) \n"+
-					"	group by o1, o2 \n"+
-					")l"+i+" on l"+i+".o2 = o"+parentCol+".id left join object o"+i+" on o"+i+".id = l"+i+".o1 \n";
-				
-				head.push(h);
-				body.push(b);
+		var i = -1;
+		for (var ind=0; ind < params.length; ind++){
+			var cc = params[ind];
+			i = ind;
+			if (cc.n) {
+				//i++;
+				var col = cc.n;
+				if (i==0){
+					var h = "select o"+i+".id `id "+col+"`, o"+i+".n `"+col+"` \n";
+					var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+					var b = 
+						"from (#main class \n"+
+						"	select id, n from object where id in ( \n"+
+						"		select o1 from link where o2 = "+l+" \n"+
+						"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+						"	) \n"+
+						"	group by id \n"+
+						")o"+i+" \n";
+					head.push(h);
+					body.push(b);
+				} else {
+					/*var h = ",case when count(distinct o"+i+".id) <= 3 then group_concat(distinct o"+i+".id) else concat(o"+i+".id,'..') end `id "+col+"` "+
+							",case when count(distinct o"+i+".id) <= 3 then group_concat(distinct o"+i+".n)  else concat(o"+i+".n,'..')  end `"+col+"` "+
+							",count(distinct o"+i+".id) `кол-во "+col+"` \n";*/
+					var h = ",case when count(distinct o"+i+".id) <= 1 then o"+i+".n else count(distinct o"+i+".id) end `"+col+"` \n";
+					var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+					var selecto1o2 = cc.linkParent ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
+					var parentCol = cc.parentCol ? cc.parentCol : 0;
+					var b = 
+						"left join ( \n"+
+						"	"+selecto1o2+" \n"+
+						"		select o1 from link where o2 = "+l+" \n"+
+						"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+						"	) \n"+
+						"	group by o1, o2 \n"+
+						")l"+i+" on l"+i+".o2 = o"+parentCol+".id left join object o"+i+" on o"+i+".id = l"+i+".o1 \n";
+					
+					head.push(h);
+					body.push(b);
+				}
 			}
 		}
 		
@@ -355,6 +358,50 @@ var objectlink = {
 		result = head.join("")+body.join("")+foot.join("foot");
 		return result;
 	},
+	getClassLinkLevelQuery : function(fromClassName, toClassId, maxLevel){
+		maxLevel = maxLevel || 1;
+		var result = "";
+		var head = [];
+		var body = [];
+		var body2 = [];
+		var cond1 = [];
+		var cond2 = [];
+		var order = [];
+		for (var i=1; i <= maxLevel; i++){
+			head.push(" level"+i+".o1 o"+i+", obj"+i+".n n"+i+", level"+i+".t t"+i+""+(i < maxLevel ? "," : " "));
+			body.push((i==1 ? "from" : "left join")+" (select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link)level"+i+" "+(i == 1 ? "" : "on level"+i+".o2 = level"+(i-1)+".o1")+"\n");
+			body2.push("left join object obj"+i+" on obj"+i+".id = level"+i+".o1 \n");
+			cond1.push("level"+i+".o1 = "+toClassId+(i < maxLevel ? " or " : ""));
+			cond2.push("and level"+i+".o1 in (select o1 from link where o2 = (select id from object where n='класс' limit 1) and o1 <> (select id from object where n='класс' limit 1)) \n");
+			order.push(" when level"+i+".o1 = "+toClassId+" then "+i+" ");
+		}
+		result = "select "+
+			head.join("")+"\n"+
+			body.join("")+"\n"+
+			body2.join("")+
+			"where 1=1 \n"+
+			cond2.join("")+
+			"and ("+cond1.join("")+
+			") \n"+"and level1.o2 = (select id from object where n='"+fromClassName+"') \n"+
+			" order by case "+
+			order.join("")+
+			" else 1000 end";
+		return result;
+	},
+	addClass2jsQuery : function(jsQ, newClassId, maxLevel){
+		for (var i=0; i < jsQ.length; i++){
+			var q = jsQ[i];
+			var sql = this.getClassLinkLevelQuery(q.n, newClassId, maxLevel);
+			var chain = lineArray2matrixArray(orm(sql, "row2array"), maxLevel, 3);
+			var ind = i;
+			for (var j=0; j < chain.length; j++){
+				jsQ.push({"n":chain[j][1], "parentCol":ind, "linkParent":(chain[j][2] == "parent")});
+				ind = jsQ.length-1;
+				if (chain[j][0] == newClassId) return;
+			}
+		}
+	},
+	
 }
 
 

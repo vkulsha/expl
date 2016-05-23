@@ -51,24 +51,53 @@
 	pClassAdd.style.left = windowWidth()/2 - 100;
 	pClassAdd.style.top = 250;
 
-	var arrQuery = {query:[], parent:[], status:[]};
+	var arrQuery = {query:[], parent:[]};
+	
+	var reload = function(){
+		var sel = objectlink.getTableQuery(arrQuery.query);
+		jsTable.querySelect.set(sel);
+		
+	}
+	
+	var getClearQuery = function(q){
+		var newQ = {query:[], parent:[], oldInd:[]};
+		for (var i=0; i < q.parent.length; i++){
+			if (q.parent[i]) {
+				newQ.parent.push(q.parent[i]);
+				newQ.query.push(q.query[i]);
+				newQ.oldInd.push(i);
+			}
+		}
+		
+		for (var i=0; i < newQ.oldInd.length; i++){
+			var oldInd = newQ.oldInd[i];
+			for (var j=0; j < newQ.query.length; j++){
+				var parentCol = newQ.query[j].parentCol;
+				if (parentCol == oldInd) {
+					newQ.query[j].parentCol = i;
+				}
+			}
+		}
+		return newQ;
+	}
 	
 ///classes
 	$(function () {
 		var data = orm(objectlink.gCQ()+" and o2 <1399 ", "rows2object");
-//		console.log(objectlink.gCQ());
 		$('#jstree').jstree( 
 			{
 				'core' : { 'data' : data }	//,"checkbox" : { "keep_selected_style" : false } //,"plugins" : [ "wholerow", "checkbox" ] 
 			}
 		);
+		
 		$('#jstree').on("changed.jstree", function (e, data) {
-			var linkParent = false;
-			var selectedN = data.node.text;
-			var selectedId = data.node.id;
-			var selectedPid = data.node.parent;
-			var selectedChildren = data.node.children;
+			var node = data.node;
+			var selectedN = node.text;
+			var selectedId = node.id;
+			var selectedPid = node.parent;
+			var selectedChildren = node.children;
 
+			var linkParent = false;
 			var parent = arrQuery.parent.indexOf(selectedPid);
 			for (var i=0; i < selectedChildren.length; i++){
 				var ind = arrQuery.parent.indexOf(selectedChildren[i]);
@@ -77,21 +106,18 @@
 					linkParent = true;
 				}
 			}
-			console.log(parent + " " + linkParent);
 			arrQuery.parent.push(selectedId);
-			arrQuery.status.push(true);	
 			arrQuery.query.push({"n":selectedN, "parentCol":~parent ? parent : undefined, "linkParent":linkParent});
-			var getQuery = function(arrQ, arrStatus){
-				var ret = [];
-				for (var i=0; i < arrQ.length; i++){
-					if (arrStatus[i]){
-						ret.push(arrQ[i]);
-					}
-				}
-				return ret;
+			
+			/*search with level link
+			arrQuery.parent.push(selectedId);
+			if (arrQuery.query.length == 0) {
+				arrQuery.query.push({"n":selectedN, "parentCol": undefined, "linkParent":undefined});
+			} else {
+				objectlink.addClass2jsQuery(arrQuery.query, selectedId, 3);
 			}
-			var sel = objectlink.getTableQuery(getQuery(arrQuery.query, arrQuery.status));
-			jsTable.querySelect.set(sel);
+			*/
+			reload();
 
 			var tr = lQuery.appendChild(document.createElement("TR"));
 			var td = tr.appendChild(document.createElement("TD"));
@@ -100,14 +126,12 @@
 			bt.tr = tr;
 			bt.innerHTML = "(x) "+selectedN;
 			bt.onclick = function(){
-				arrQuery.status[this.id] = false;
-				var sel = objectlink.getTableQuery(getQuery(arrQuery.query, arrQuery.status));
-				jsTable.querySelect.set(sel);
+				arrQuery.query[this.id] = {};
+				arrQuery.parent[this.id] = undefined;
+				arrQuery = getClearQuery(arrQuery);
 				this.tr.hidden = true;
-				
-				
+				reload();
 			}
-			
 		});
 	});
 	
