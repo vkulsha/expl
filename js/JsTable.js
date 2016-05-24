@@ -353,7 +353,7 @@ function JsTable (queryJson, opts, container) {
 					var columnWidth = that.resizeColumnWidth;
 					if (column && columnWidth) {
 						var field = column.objects[0];
-						var left = field.getBoundingClientRect().left;
+						var left = getColumnLeft(columns, column.id)+150;//field.getBoundingClientRect().left;
 						columnWidth.set(e.pageX - left, true, true);
 					}
 				}
@@ -1132,6 +1132,14 @@ function domLegend(rowColorMarkers, columns){
 	
 	return result;
 };
+
+function getColumnLeft(columns, ind){
+	var ret = 0;
+	for (var i=0; i < ind; i++){
+		ret += columns[i].width;
+	}
+	return ret;
+}
 
 /*///редактирование в таблице
 $(function()	{
