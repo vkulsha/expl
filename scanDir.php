@@ -6,6 +6,7 @@ function myscandir($dir, $exp)
 	foreach ($files as $key=>$fname ) { 
 		//echo iconv("cp1251", "utf-8", $fname);
 		//echo mb_convert_encoding($fname, "UTF-8", "Windows-1251");
+		mb_detect_encoding($fname);
 		$fname = mb_convert_encoding($fname, "UTF-8", "Windows-1251");
 		$fname = htmlentities($fname, ENT_QUOTES);
 		if (preg_match($exp, $fname)) { 

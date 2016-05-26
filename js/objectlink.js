@@ -86,12 +86,17 @@ var objectlink = {
 		var lid = this.sql.sT(this.ll, "id", this.o1o2(o1, o2));
 		lid = lid.result.data.length ? lid.result.data[0][0] : undefined;
 		if (lid) {
-			this.sql.uT(this.ll, "c = c+1", this.o1o2(o1, o2));
+			this.sql.uT(this.ll, "c = 1", this.o1o2(o1, o2));
 			return lid;
 		} else {
 			this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
 			return this.sql.sT(this.ll, "max(id)").result.data[0][0];
 		}
+		var s = parseInt(this.gS(o1))+1 || 1;
+		this.uS(o1, s);
+		var s = parseInt(this.gS(o2))+1 || 1;
+		this.uS(o2, s);
+		
 	},
 	gO : function(n){//return object.id from name
 		var result = this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1").result.data;
@@ -100,6 +105,11 @@ var objectlink = {
 	},
 	gN : function(id){//return object.n
 		var result = this.sql.sT(this.oo, "n", " and id="+id).result.data;
+		result = result.length ? result[0][0] : undefined;
+		return result;
+	},
+	gS : function(id){
+		var result = this.sql.sT(this.oo, "c", " and id="+id).result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},

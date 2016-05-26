@@ -18,6 +18,7 @@
 		$clientIp = $_SERVER['REMOTE_ADDR'];
 		$host = $_SERVER['SERVER_NAME'];
 		echo "
+			var host = '$host';
 			var domain = 'http://$host/';
 			var interfaceUrlKey = '$interfaceUrlKey';
 			var objectIdUrlKey = '$objectIdUrlKey';
@@ -93,6 +94,7 @@
 	var chAdd2query = document.getElementById("chAdd2query");
 	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
 	var isFile = false;
+	var isClass = false;
 
 	var ORDER = " order by c desc, t desc, o1 asc ";
 	var order = ORDER;
@@ -132,7 +134,7 @@
 			cell.style.fontWeight = data[i][3] ? "bold" : "";
 			cell.style.color = data[i][4] == 'parent' ? "#aa0000" : "#000";
 			if (data[i][3]) { countClass++; } else { countObjects++; };
-			isFile = (data[i][1] == 'Файлы');
+			isFile = isFile || (data[i][1] == 'Файлы');
 
 			cell.onclick = function(){
 				location.href = "#."+this.id+(this.isClass ? ".class" : "");
@@ -152,7 +154,6 @@
 			dom.appendChild(tr);	
 			
 		}
-		
 		if (isFile && !isClass) {
 			var img = new Image();
 			var fn = txt.value;
@@ -160,20 +161,18 @@
 			var arrIm = ['jpg','bmp','png','gif','tif'];
 			var ext = arr[arr.length-1];
 			if (arr && arr.length && ~arrIm.indexOf(ext)) {
-				img.src = domain+fn;
+				img.src = domain+url2cp1251(fn);
 			} else {
 				var iconFile = getIconFile(fn);
 				img.src = domain+iconFile;
 			}
 
-			if (img.width >= 128){
-				img.width = 128;
-			}
+			img.width = 128;
 			
 			img.fn = fn;
 			img.style.cursor = "pointer";
 			img.onclick = function(){
-				openWindow(domain+this.fn);
+				openWindow(domain+url2cp1251(this.fn));
 			}
 			
 			var td = document.createElement("TD");
@@ -195,6 +194,7 @@
 	function hashchange(){
 		$(bHome).focus();
 		var hash = location.hash.split(".");
+		isFile = false;
 		oid = hash[1];
 		isClass = hash[2];
 

@@ -22,6 +22,7 @@
 			$clientIp = $_SERVER['REMOTE_ADDR'];
 			$host = $_SERVER['SERVER_NAME'];
 			echo "
+				var host = '$host';
 				var domain = 'http://$host/';
 				var interfaceUrlKey = '$interfaceUrlKey';
 				var objectIdUrlKey = '$objectIdUrlKey';

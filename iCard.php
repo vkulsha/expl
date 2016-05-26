@@ -98,7 +98,7 @@
 		var imageFiles = [];
 		var otherFiles = [];
 		var filesChbxs = [];
-		getHttp("scandir.php?path="+objectPath, function(imagesJSON) {
+		getHttp("scanDir.php?path="+objectPath, function(imagesJSON) {
 			var files = JSON.parse(imagesJSON);
 
 			bPhoto.bind("click", function(){
@@ -155,7 +155,7 @@
 					"<td>"+
 					chDel.outerHTML+
 					"<a href='#' onclick='openImageWindow(\""+
-						domain+objectPath+otherFiles[i]+
+						domain+objectPath+url2cp1251(otherFiles[i])+
 					"\")' title='скачать файл' >"+
 					//"<table><tr align='middle'><td><img src='images/"+iconFile+"' width='32'/></td></tr>"+
 					"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
@@ -168,7 +168,7 @@
 			imgCount.html(imgIndMax);
 			var imgInd = 0;
 			if (imgIndMax) {
-				imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+				imgObject.attr("src", domain+objectPath+url2cp1251(imageFiles[imgInd]));
 				imgContainer.attr("title", imageFiles[imgInd]);
 				currImgNum.html(imgInd+1);
 				bImgPrev.get()[0].hidden = true;
@@ -182,7 +182,7 @@
 				.unbind("click")
 				.bind("click", function(){
 					imgInd -= 1;
-					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+					imgObject.attr("src", domain+objectPath+url2cp1251(imageFiles[imgInd]));
 					imgContainer.attr("title", imageFiles[imgInd]);
 					currImgNum.html(imgInd+1);
 					if (imgInd == 0)
@@ -193,7 +193,7 @@
 				.unbind("click")
 				.bind("click", function(){
 					imgInd += 1;
-					imgObject.attr("src", domain+objectPath+imageFiles[imgInd]);
+					imgObject.attr("src", domain+objectPath+url2cp1251(imageFiles[imgInd]));
 					imgContainer.attr("title", imageFiles[imgInd]);
 					currImgNum.html(imgInd+1);
 					if (imgInd == imgIndMax-1)
