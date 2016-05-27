@@ -140,7 +140,7 @@
 			var filesHtml = [];
 			var iconFile = "file.png";
 			for (var i=0; i < otherFiles.length; i++) {
-				iconFile = getIconFile(otherFiles[i]);
+				iconFile = getIconFile(otherFiles[i].toLowerCase());
 					//(~otherFiles[i].indexOf(".pdf")) ? "pdf.png" : 
 					//(~otherFiles[i].indexOf(".doc")) ? "word.png" : 
 					//(~otherFiles[i].indexOf(".xls")) ? "excel.png" : 

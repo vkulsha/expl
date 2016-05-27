@@ -4,6 +4,7 @@ select
 	,group_concat(distinct o2.n) n2, group_concat(distinct o2.id) id2, count(distinct o2.id) c2 
 	,group_concat(distinct o3.n) n3, group_concat(distinct o3.id) id3, count(distinct o3.id) c3 
 	,group_concat(distinct o4.n) n4, group_concat(distinct o4.id) id4, count(distinct o4.id) c4 
+	,group_concat(distinct o5.n) n5, group_concat(distinct o5.id) id5, count(distinct o5.id) c5
 
 	from (#main class
 		select id, n from object where id in (
@@ -44,5 +45,13 @@ select
 		)
 		group by o1, o2
 	)l4 on l4.o2 = o1.id left join object o4 on o4.id = l4.o1
+
+	left join (#class of objects
+		select o1 o2, o2 o1 from link where o2 in (
+			select o1 from link where o2 = (select id from object where n='Класс' limit 1) 
+				and o1 in (select o1 from link where o2 = (select id from object where n='класс' limit 1))
+		)
+		group by o1, o2
+	)l5 on l5.o2 = o4.id left join object o5 on o5.id = l5.o1
 
 group by o0.id having n0 is not null 

@@ -4,6 +4,8 @@
 	<meta name="viewport" content="width=device-width">
 	<title>III</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<link rel="stylesheet" type="text/css" href="css/jsTable.css">
+	<link rel="stylesheet" type="text/css" href="css/expl.css">
 	
 	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/domtree.js"></script>
@@ -37,7 +39,7 @@
 
 <table id="tbData" width="100%">
 	<tr>
-		<td style='background-color:#eee'>
+		<td class="highlight">
 			<table>
 				<tr><td>
 					<button id='bHome'>/</button>
@@ -60,6 +62,8 @@
 				<tr><td><table id='edit' width='100%' border=0 hidden><tr>
 					<td width='100%'><textarea id='txt' rows=2 style='width:100%'></textarea></td>
 					<td><button id='bSave'>ok</button></td>
+					<td><button id='bFile' onclick='document.getElementById("selectFile").hidden = !document.getElementById("selectFile").hidden'>></button></td>
+					<td id='selectFile' hidden><input id='files' name='files[]' type='file' multiple /></td>
 				</tr></table></td></tr>
 			</table>
 		</td>
@@ -93,6 +97,7 @@
 	var lQuery = document.getElementById("lQuery");
 	var chAdd2query = document.getElementById("chAdd2query");
 	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
+	var files = document.getElementById("files");
 	var isFile = false;
 	var isClass = false;
 
@@ -144,6 +149,7 @@
 				var oid = this.oid;
 				var val = txt.value;
 				objectlink.uO(oid, val);
+				hashchange();
 
 			}
 			
@@ -337,6 +343,43 @@
 			alert("Недопустимое значение oid1 или oid2!");
 		}
 	}
+	
+	window.onkeydown = function(event) {
+		if (event.keyCode == 118) {
+			bCO.onclick();
+		}
+		if (event.keyCode == 115) {
+			bCL.onclick();
+		}
+	};
+
+/*
+	filepath.onchange = function(){
+		txt.value = this.value;
+	}
+*/	
+
+	function handleFileSelect(evt) {
+		var files = evt.target.files;
+
+		var output = [];
+		for (var i = 0, f; f = files[i]; i++) {
+			/*var fn = "";
+			var reader = new FileReader();
+			reader.onload = (function(theFile) {
+				return function(e) {
+					//console.log(e.target);
+				};
+			})(f);
+			
+			reader.readAsDataURL(f);*/
+			txt.value = "data/objects/21/"+f.name;
+		}
+		bSave.click();
+		//txt.value = output.join(';');
+	}
+
+	files.addEventListener('change', handleFileSelect, false);	
 
 </script>
 </body>
