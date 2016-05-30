@@ -1041,3 +1041,14 @@ $(document).ready(function() {
 	$('#text_to_cp1251').keyup (function() {codenet_urldecode_cp1251($('#text_to_cp1251').val());});
 });
 */
+
+
+function cDom(type, innerHTML){
+	var ret = document.createElement(type);
+	ret.appendChild(typeof(innerHTML)=="object" ? innerHTML : document.createTextNode(innerHTML || ""));
+	return ret;
+}
+
+function gDom(id){
+	return document.getElementById(id);
+}

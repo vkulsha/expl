@@ -40,6 +40,7 @@
 		<script src="../js/JsTable.js"></script></head>
 		<script src="../js/uodb.js"></script></head>
 		<script src="../js/objectlink.js"></script></head>
+		<script src="../js/JsObjTable.js"></script></head>
 <body>
 	<div id="qunit"></div>
 	<div id="qunit-fixture"></div>

@@ -35,6 +35,7 @@
 	<script src="js/Filter.js"></script>
 	<script src="js/JsTable.js"></script></head>
 	<script src="js/objectlink.js"></script></head>
+	<script src="js/JsObjTable.js"></script></head>
 <body>
 
 <table id="tbData" width="100%">
