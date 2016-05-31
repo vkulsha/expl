@@ -101,6 +101,7 @@
 	var files = document.getElementById("files");
 	var isFile = false;
 	var isClass = false;
+	var arrChbxs = [];
 
 	var ORDER = " order by c desc, t desc, o1 asc ";
 	var order = ORDER;
@@ -154,9 +155,21 @@
 
 			}
 			
+			var ch = document.createElement("INPUT");
+			ch.setAttribute("type", "checkbox");
+			ch.hidden = true;
+			ch.id = cell.id;
+			arrChbxs.push(ch);
+			
 			var td = document.createElement("TD");
 			var tr = document.createElement("TR");
 			td.appendChild(cell);
+			td.style.width = "100%";
+
+			var td2 = document.createElement("TD");
+			td2.appendChild(ch);
+
+			tr.appendChild(td2);
 			tr.appendChild(td);
 			dom.appendChild(tr);	
 			
@@ -302,7 +315,7 @@
 
 	var bCL = document.getElementById("bCL");
 	bCL.onclick = function(){
-		result = prompt("cL (id,id)", oid1+","+oid2);
+		/*result = prompt("cL (id,id)", oid1+","+oid2);
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
@@ -315,6 +328,26 @@
 		} else {
 			alert("Недопустимое значение oid1 или oid2!");
 		}
+		*/
+		var re = false;
+		if (!arrChbxs[i].hidden)
+			result = prompt("cL (id,[])", oid1+",[...] ?");
+		
+		if (result) {
+			for (var i=0; i < arrChbxs.length; i++){
+				if (arrChbxs[i].hidden) {
+					arrChbxs[i].hidden = false;
+				} else {
+					if (arrChbxs[i].checked) {
+						re = true;
+						arrChbxs[i].checked = false;
+						objectlink.cL(oid1, arrChbxs[i].id);
+					}
+				}
+			}
+		}
+		if (re) reload();
+		
 	}
 
 	var bEO = document.getElementById("bEO");

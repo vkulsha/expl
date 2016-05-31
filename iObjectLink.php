@@ -35,7 +35,7 @@
 	currentUser.classes[currentClass].columns = colsOpts;
 	var tbHeight = windowHeight() * (380/699);
 	var opts = {tableWidth:1200, tableHeight:tbHeight, columns: colsOpts, rowsColor: colors};
-	var jsTable = new JsObjTable(query, opts, container);
+	var jsTable = new JsTable(query, opts, container);
 	
 	addMapButton2Table(jsTable, 0);
 	
