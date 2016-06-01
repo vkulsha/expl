@@ -140,8 +140,8 @@ function bMap(objectId, newwindow) {
 	}
 }
 
-function bCard(objectId) {
-	openWindow(domain+'?interface=iCard&objectId='+objectId);
+function bCard(objectId, version) {
+	openWindow(domain+'?interface=iCard'+(version ? version : '')+'&objectId='+objectId);
 }
 
 function bCadastr(objectCadastrNumber) {

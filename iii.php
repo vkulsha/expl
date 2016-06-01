@@ -37,6 +37,7 @@
 	<script src="js/objectlink.js"></script></head>
 	<script src="js/JsObjTable.js"></script></head>
 <body>
+<div id='terminalRow' style='position:absolute; top:100; left:300' hidden><textarea id='terminal' cols=100 rows=40></textarea></div>
 
 <table id="tbData" width="100%">
 	<tr>
@@ -99,6 +100,8 @@
 	var chAdd2query = document.getElementById("chAdd2query");
 	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
 	var files = document.getElementById("files");
+	var terminal = document.getElementById("terminal");
+	var terminalRow = document.getElementById("terminalRow");
 	var isFile = false;
 	var isClass = false;
 	var arrChbxs = [];
@@ -130,6 +133,7 @@
 		var countClass = 0;
 		var countObjects = 0;
 		var countAll = data.length;
+		
 		for (var i=0; i < data.length; i++){
 			var cell = document.createElement("BUTTON");
 			cell.innerHTML = data[i][1];
@@ -174,6 +178,7 @@
 			dom.appendChild(tr);	
 			
 		}
+		
 		if (isFile && !isClass) {
 			var img = new Image();
 			var fn = txt.value;
@@ -197,6 +202,7 @@
 			
 			var td = document.createElement("TD");
 			var tr = document.createElement("TR");
+			td.setAttribute("colspan","2");
 			td.appendChild(img);
 			tr.appendChild(td);
 			dom.appendChild(tr);
@@ -250,6 +256,10 @@
 			l.setAttribute("for", "rQuery"+id);
 		}
 		
+		if (!terminalRow.hidden) {
+			terminal.focus();
+
+		}
 	}
 	
 	bTable.onclick = function(){
@@ -315,7 +325,7 @@
 
 	var bCL = document.getElementById("bCL");
 	bCL.onclick = function(){
-		/*result = prompt("cL (id,id)", oid1+","+oid2);
+		result = prompt("cL (id,id)", oid1+","+oid2);
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
@@ -328,26 +338,32 @@
 		} else {
 			alert("Недопустимое значение oid1 или oid2!");
 		}
-		*/
-		var re = false;
-		if (!arrChbxs[i].hidden)
-			result = prompt("cL (id,[])", oid1+",[...] ?");
+		/*
+		var ret;
+		if (!arrChbxs[0].hidden)
+			ret = prompt("cL (id,[])", oid1+",[...] ?");
 		
-		if (result) {
+		if (ret) {
 			for (var i=0; i < arrChbxs.length; i++){
-				if (arrChbxs[i].hidden) {
-					arrChbxs[i].hidden = false;
-				} else {
-					if (arrChbxs[i].checked) {
-						re = true;
-						arrChbxs[i].checked = false;
-						objectlink.cL(oid1, arrChbxs[i].id);
+				if (arrChbxs[i].checked) {
+					if (link.checked){
+						objectlink.cL(arrChbxs[i].id, oid2)
+						//console.log(arrChbxs[i].id + " " + oid2);
+					} else {
+						objectlink.cL(oid1, arrChbxs[i].id)
+						//console.log(oid1 + " " + arrChbxs[i].id);
 					}
 				}
 			}
+			arrChbxs = [];
+			reload();
+			
+		} else {
+			for (var i=0; i < arrChbxs.length; i++){
+				arrChbxs[i].hidden = false;
+			}
 		}
-		if (re) reload();
-		
+		*/
 	}
 
 	var bEO = document.getElementById("bEO");
@@ -385,6 +401,12 @@
 		if (event.keyCode == 115) {
 			bCL.onclick();
 		}
+		if (event.keyCode == 120) {
+			terminalRow.hidden = !terminalRow.hidden;
+			terminalRow.height = "100%";
+			terminal.focus();
+
+		}
 	};
 
 /*
@@ -415,6 +437,82 @@
 
 	files.addEventListener('change', handleFileSelect, false);	
 
+	terminal.onkeydown = function(event) {
+		if (event.keyCode == 13) {
+			var commands = this.value.split("\n");
+			var command = commands[commands.length-1];
+			parseCommand(command);
+		}
+	}
+	
+	function parseCommand(command){//удалить объект,кадастр;широта,долгота
+		var ci = command.split(" ")[0].toLowerCase();
+		var objects = command.substr(ci.length+1, command.length).split(";");
+
+		switch (ci){
+			case "select":
+			case "ls":
+			case "выбрать":
+				if (objects[0]) {
+					location.href = "#."+objectlink.gO(objects[0]);
+				}
+			break;
+			case "create":
+			case "co":
+			case "создать":
+				if (objects[0]) {
+					var o1 = objectlink.cO(objects[0]);
+					if (oid) objectlink.cL(o1, oid);
+					reload();
+				}
+			break;
+			case "link":
+			case "cl":
+			case "связать":
+				if (objects[0] && objects[1]) {
+					var o1 = objects[0].split(",");
+					var o2 = objects[1].split(",");
+					
+					for (var i=0; i < o1.length; i++){
+						for (var j=0; j < o2.length; j++){
+							objectlink.cL(objectlink.gO(o1[i]), objectlink.gO(o2[j]))
+							//console.log("link "+objectlink.gO(o1[i])+" "+objectlink.gO(o2[j])+"\n");
+						}
+					}
+					reload();
+				}
+			break;
+			case "delete":
+			case "eO":
+			case "eL":
+			case "удалить":
+				if (objects[0] && !objects[1]) {
+					var o1 = objects[0].split(",");
+					for (var i=0; i < o1.length; i++){
+						objectlink.eO(objectlink.gO(o1[i]))
+						//console.log("eO "+objectlink.gO(o1[i]));
+					}
+					goHome();
+				} else if (objects[0] && objects[1]) {
+					var o1 = objects[0].split(",");
+					var o2 = objects[1].split(",");
+					
+					for (var i=0; i < o1.length; i++){
+						for (var j=0; j < o2.length; j++){
+							objectlink.eL(objectlink.gO(o1[i]), objectlink.gO(o2[j]))
+							//console.log("eL "+objectlink.gO(o1[i])+" "+objectlink.gO(o2[j])+"\n");
+						}
+					}
+					goHome();
+					
+				}
+			break;
+			
+		}
+	
+	}
+	
+	
 </script>
 </body>
 </html>

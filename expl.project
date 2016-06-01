@@ -31,6 +31,7 @@
         <File name="iMap.php" />
         <File name="iTable.php" />
         <File name="iCard.php" />
+        <File name="iCard2.php" />
         <File name="iPower.php" />
         <File name="iMainMenu.php" />
         <File name="iControl.php" />

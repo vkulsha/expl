@@ -17,7 +17,11 @@
 						<button id="bToCadastr" class="buttons"><img src="images/bCadastr.png" width="48" title="Показать объект на кадастровой карте"/>
 						<!--<div>Росреестр</div>-->
 						</button>
-					</td><!--
+					</td>
+					<td>
+						<button onclick='bCard(location.href.split("&")[1].split("=")[1],2);'>Новая версия</button>
+					</td>
+					<!--
 					<td align="center" class="isPhoto">
 						<button id="bPhoto" class="buttons"><img src="images/bPhoto.png" width="48" title="Показать/скрыть фотоматериал"/>
 						<div>Фотоматериал</div>

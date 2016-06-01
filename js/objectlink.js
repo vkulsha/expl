@@ -411,6 +411,22 @@ var objectlink = {
 			}
 		}
 	},
+	getlinkedObjectsQuery : function(){
+		return ""+
+			"select id, n, oid2, n2, n1 from ( "+
+			"	select o0.n n1, l1.o1 oid1, l1.o2 id, o1.n n, o2.id oid2, o2.n n2 from (select o1, o2 from link union all select o2, o1 from link)l1 "+
+			"	left join link l2 on l2.o1 = l1.o2 and l2.o2 in (select o1 from link where o2 = (select id from object where n = 'Класс' limit 1)) "+
+			"	left join object o1 on o1.id = l1.o2 "+
+			"	left join object o2 on o2.id = l2.o2 "+
+			"	left join object o0 on o0.id = l1.o1 "+
+			")lll where 1=1 ";
+		
+		
+	},
+	getlinkedObjects : function(oid1, n2){
+		var q = this.getlinkedObjectsQuery();
+		return orm(q+" and oid1="+oid1+" and n2='"+n2+"'", "all2array")
+	},
 	
 }
 
