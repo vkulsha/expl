@@ -4,6 +4,11 @@ body, table, a {
 	color: #746a55;/*#b4aa95;*/
 }
 
+table {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
 body {
 	background-color: #f8f1da;/*#f4f1ec;#fffff5*/
     margin-left: 0 !important;
@@ -41,8 +46,20 @@ button {
 	cursor : pointer;
 }
 
-button:hover {
+button.card {
     background-color: #f8f1da;
+	border: 1px solid #e4ddc6;
+    color: #7b5401;
+	border-radius: 3px;
+	
+}
+
+button.card:hover {
+    background-color: #d3b989;
+}
+
+button:hover {
+    background-color: #f2ead4;
     /*color: #c4baa5;*/
 }
 

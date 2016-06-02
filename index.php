@@ -2,6 +2,7 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		
+		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/leaflet.css" />
 		<link rel="stylesheet" href="js/jstree/themes/default/style.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/jsTable.css">
@@ -12,6 +13,7 @@
 		<script src="js/d3.min.js"></script>
 		<script src="js/leaflet.js"></script>		
 		<script src="js/jstree/jstree.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
 
 		<script>
 		<?php

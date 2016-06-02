@@ -425,7 +425,7 @@ var objectlink = {
 	},
 	getlinkedObjects : function(oid1, n2){
 		var q = this.getlinkedObjectsQuery();
-		return orm(q+" and oid1="+oid1+" and n2='"+n2+"'", "all2array")
+		return orm(q+" and oid1="+oid1+(n2 ? " and n2='"+n2+"'" : ""), "all2array")
 	},
 	
 }
