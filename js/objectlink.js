@@ -423,9 +423,20 @@ var objectlink = {
 		
 		
 	},
-	getlinkedObjects : function(oid1, n2){
+	getlinkedObjects : function(oid1, n2, id){
 		var q = this.getlinkedObjectsQuery();
-		return orm(q+" and oid1="+oid1+(n2 ? " and n2='"+n2+"'" : ""), "all2array")
+		return orm(q+" and oid1="+oid1+(n2 ? " and n2='"+n2+"'" : "")+(id ? " and id='"+id+"'" : ""), "all2array");
+	},
+	getObjectByLinkedObjectQuery : function(class1Name, class2Name){
+		return ""+
+			"select o2 from ( "+
+			"	select o1, o2 from link where o1 in (select o1 from link where o2 = (select id from object where n = '"+class2Name+"' limit 1)) "+
+			"	and o2 in (select o1 from link where o2 = (select id from object where n = '"+class1Name+"' limit 1) and o1 not in (select o1 from link where o2 = (select id from object where n='Класс' limit 1))) "+
+			")link join object on object.id = link.o1 ";
+	},
+	getObjectByLinkedObject : function(class1Name, class2Name, class2ObjectName){
+		var q = this.getObjectByLinkedObjectQuery(class1Name, class2Name);
+		return orm(q+" and n='"+class2ObjectName+"'", "all2array")[0][0];
 	},
 	
 }

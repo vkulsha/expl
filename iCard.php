@@ -269,7 +269,7 @@
 			"<form enctype='multipart/form-data' action='upload.php' method='POST'>"+
 			"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+
 			"<input type='hidden' name='uploadPath' value='data/objects/"+objectId+"/' />"+
-			"Загрузить файл: <input name='userfile' type='file' /><br><br>"+
+			"Загрузить файл: <input name='userfile[]' type='file' multiple /><br><br>"+
 			"<input type='submit' value='Загрузить' />"+
 			"</form></td></tr></table>";
 

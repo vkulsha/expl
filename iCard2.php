@@ -1,26 +1,24 @@
-<div class="modal fade" id="myModal" role="dialog">
-	<div class="modal-dialog modal-lg" id="modalCont">
-	  <div class="modal-content">
-		<div class="modal-header">
-		  <button type="button" class="close" data-dismiss="modal">&times;</button>
-		  <h4 class="modal-title" id='modalTitle'></h4>
-		</div>
-		<div class="modal-body" id='modalBody'>
-		</div>
-		<div class="modal-footer" id='modalFooter'>
-		  <!--<button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>-->
-		</div>
-	  </div>
-	</div>
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <span class="close">&times;</span>
+      <h3 id='modalTitle'></h2>
+    </div>
+    <div class="modal-body" id='modalBody'>
+    </div>
+    <div class="modal-footer" id='modalFooter'>
+    </div>
+  </div>
 </div>
-  
+ 
 <table width='100%' height='100%' border='0'>
 	<tr>
 		<td valign='top'>
 			<table width='100%' height='100%'>
 				<tr valign='top'>
 					<td width='50%' style='background-color:#e8e1ca'>
-						<table id='container' style='margin-left: 10px; margin-right: 10px; '></table>
+						<!--<table id='container' style='margin-left: 10px; margin-right: 10px; '></table>-->
+						<table id='container'></table>
 					</td>
 					<td>
 						<table id='container2'></table>
@@ -32,6 +30,33 @@
 </table>
 
 <script>
+	var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
+	var objectId = null;
+	<?php
+		echo "objectId = '".$_GET[$objectIdUrlKey]."';\n";
+		//echo "policy = {add: true, delete: true};";
+	?>
+	var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
+	
+	var modal = document.getElementById('myModal');
+	var span = document.getElementsByClassName("close")[0];
+
+	span.onclick = function() {
+		modal.style.display = "none";
+	}
+
+	window.onclick = function(event) {
+		if (event.target == modal) {
+			modal.style.display = "none";
+		}
+	}
+	
+	window.onkeydown = function(event) {
+		if (event.keyCode == 27) {
+			modal.style.display = "none";
+		}
+	};
+
 	function gB(val, isTxt){
 		var tr = cDom("TR");
 		tr.setAttribute("valign", "top");
@@ -43,22 +68,23 @@
 		return [tr,td,b];
 	}
 	
-	function gObjects(cont, oid1, n2, isNum){
-		cont.appendChild(gB(n2, true)[0]);
-		var objects = objectlink.getlinkedObjects(oid1, n2);
+	function gObjects(cont, opts){
+		cont.appendChild(gB(opts.caption ? opts.caption : opts.n2, true)[0]);
+		var objects = objectlink.getlinkedObjects(opts.oid1, opts.n2, opts.id);
 		for (var i=0; i < objects.length; i++){
 			var n = objects[i][1];
 			var id = objects[i][0];
-			var b = gB((isNum ? i+1+". " : "")+n);
+			var b = gB((opts.isNum ? i+1+". " : "")+n);
 			b[2].id = id;
 			b[2].n = n;
-			b[2].c = n2;
+			b[2].c = opts.n2;
 			cont.appendChild(b[0]);
 
 			b[2].onclick = function(){
 				//console.log(this.id);
 				insertDataToModal(this);
-				$("#myModal").modal();
+				//$("#myModal").modal();
+				modal.style.display = "block";
 			}
 			
 		}
@@ -67,13 +93,14 @@
 	var container = gDom("container");
 	var container2 = gDom("container2");
 	
-	gObjects(container, 115, "Адрес");
+	gObjects(container, {oid1:2, n2:"Объект", id:oid, caption:"Общая информация по объекту:"});
 	$(container).append("<tr height='10'><td></td></tr>");
-	gObjects(container, 115, "Земельные участки");
+	//gObjects(container, {oid1:oid, n2:"Адрес"});
+	//$(container).append("<tr height='10'><td></td></tr>");
+	gObjects(container, {oid1:oid, n2:"Земельные участки", caption:"Земельные участки:"});
 	$(container).append("<tr height='10'><td></td></tr>");
-	gObjects(container, 115, "Здания и сооружения", true);
+	gObjects(container, {oid1:oid, n2:"Здания и сооружения", isNum:true, caption:"Состав имущества:"});
 
-	
 	container2.appendChild(gB("Схема объекта и наличие коммуникаций", true)[0]);
 	var tr = cDom("TR");
 	tr.setAttribute("valign", "top");
@@ -82,7 +109,7 @@
 	var img = new Image();
 	//img.style.width = "100%";
 	td.appendChild(img);
-	var imagePath = objectlink.getlinkedObjects(115, "Схемы");
+	var imagePath = objectlink.getlinkedObjects(oid, "Схемы");
 	img.src = imagePath[0][1];
 
 	$(container2).append("<tr height='10'><td></td></tr>");
@@ -94,7 +121,7 @@
 	var trbut = td.appendChild(cDom("TABLE").appendChild(cDom("TR")));
 	//container2.appendChild(gB("Наличие коммуникаций", true)[0]);
 	container2.appendChild(tr);
-	var objects = objectlink.getlinkedObjects(115, "Класс");
+	var objects = objectlink.getlinkedObjects(oid, "Класс");
 	for (var i=0; i < objects.length; i++){
 		var n = objects[i][1];
 		var id = objects[i][0];
@@ -109,8 +136,9 @@
 		b.c = "Коммуникации";
 		b.onclick = function(){
 			insertDataToModal(this);
-			$("#myModal").modal();
+			//$("#myModal").modal();
 			//console.log(this.id);
+			modal.style.display = "block";
 		}
 		var imagePath = objectlink.getlinkedObjects(id, "Фото");
 		if (imagePath.length) {
@@ -127,6 +155,7 @@
 	function insertDataToModal(object){
 		$("#modalTitle").html(object.n);
 		$("#modalBody").html("");
+		$("#modalFooter").html("");
 		var maincont = $("#modalCont");
 		var cont = $(modalBody).get()[0];
 		
@@ -145,12 +174,14 @@
 					$(cont).append(imgContainer);
 					
 					$(imgContainer)
-						.css("height", windowHeight()-270+"px")
-						.css("width", maincont.css("width")-50+"px")
-						.attr("title", "кликните для перехода на следующее фото");
+						.css("height", windowHeight()-300+"px")
+						.css("width", maincont.css("width")-50+"px");
 					
-					$(imgObject).css("max-width", "100%");
-					$(imgObject).css("max-height", "100%");
+					$(imgObject)
+						.css("max-width", "100%")
+						.css("max-height", "100%")
+						.attr("title", "кликните для перехода на следующее фото");
+
 					if (parseInt($(imgObject).css("width")) / parseInt($(imgObject).css("height")) > 1)
 						$(imgObject).css("width", $(imgContainer).css("width"))
 					else
@@ -163,14 +194,36 @@
 				}
 				
 				///Файлы
-				var html = "<div id='fileContainer' style='border: 1px dashed #999; padding: 10px; height:100%; background-color:inherit; overflow-x:auto'><table cellpadding='5'><tr></tr></table></div>";
-				$("#modalFooter").html(html);
+				var addButtonHtml = policy.add ? "<button id='bFileUpload'>+</button>" : "";
+				var domPanelFileUploadHtml = "<div style='background-color:#fffff0; border:1px solid #ccc' hidden id='domPanelFileUpload'><table cellspacing=5><tr><td>"+
+					"<form enctype='multipart/form-data' action='upload2.php' method='POST'>"+
+					"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+
+					"<input type='hidden' name='uploadPath' value='data/"+object.id+"/' />"+
+					"<input type='hidden' name='uploadId' value='"+object.id+"' />"+
+					"Загрузить файл: <input name='userfile[]' type='file' multiple /><br><br>"+
+					"<input type='submit' value='Загрузить' />"+
+					"</form></td></tr></table></div>";
+				var html = "<div id='fileContainer' style='border: 1px dashed #999; padding: 10px; height:100%; background-color:inherit; overflow-x:auto'><table cellpadding='5'><tr id='trFileContainer'><td>"+addButtonHtml+"</td><td>"+domPanelFileUploadHtml+"</td></tr></table></div>";
+					
+				$("#modalFooter").html("");
+				$("#modalFooter").append(html);
+				//$("#modalFooter").append(domPanelFileUploadHtml);
 
 				var fileContainer = $("#fileContainer");
-				var tableFileContainer = fileContainer.find("table");
 				//fileContainer.css("width", imgContainer.css("width"));
 				fileContainer.css("height", "100px");
 				
+				//fileContainer.find("table").find("tr").append(domPanelFileUploadHtml);
+				var domPanelFileUpload = gDom("domPanelFileUpload")
+				var bFileUpload = gDom("bFileUpload");
+				if (bFileUpload && domPanelFileUpload) {
+					bFileUpload.onclick = function(e){
+						domPanelFileUpload.style.left = e.clientX+2;
+						domPanelFileUpload.style.top = e.clientY+2;
+						domPanelFileUpload.hidden = !domPanelFileUpload.hidden;
+					}
+				}
+
 				var otherFiles = objectlink.getlinkedObjects(object.id, "Файлы");
 				var filesHtml = [];
 				var iconFile = "file.png";
@@ -187,11 +240,19 @@
 						);
 					}
 				}
-				tableFileContainer.append(filesHtml.join(""));
+				$("#trFileContainer").append(filesHtml.join(""));
+
+			break;
+			case "Объект":
 				
+			break;
+
+			default:
 			break;
 		}
 		
 	}
+		
+	
 
 </script>

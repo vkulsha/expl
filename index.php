@@ -2,7 +2,6 @@
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		
-		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<link rel="stylesheet" href="css/leaflet.css" />
 		<link rel="stylesheet" href="js/jstree/themes/default/style.min.css" />
 		<link rel="stylesheet" type="text/css" href="css/jsTable.css">
@@ -13,7 +12,6 @@
 		<script src="js/d3.min.js"></script>
 		<script src="js/leaflet.js"></script>		
 		<script src="js/jstree/jstree.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
 
 		<script>
 		<?php
@@ -74,6 +72,47 @@
 		<tr>
 		<tr height="100%" width="100%">
 			<td align="center" valign="middle" class="mainContainer">
+			<!-- offset for debuging included php files
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+						
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			-->
 			<?php 
 				$link = "auth.php";
 				if (isset($_SESSION['auth']) /*|| $_SERVER['SERVER_NAME'] == 'kulshavi.guss.ru' || $_SERVER['SERVER_NAME'] == 'localhost'*/) {
