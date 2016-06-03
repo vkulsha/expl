@@ -7,10 +7,7 @@ mkdir($uploaddir);
 
 $typePhoto = ["image/jpeg", "image/png"];
 
-$files = array(
-	"photo" => [],
-	"other" => []
-);
+$files = [];
 
 for($i=0; $i<count($_FILES['userfile']['name']); $i++){
 	$uploadfile = $uploaddir . basename( $_FILES['userfile']['name'][$i] );
@@ -27,46 +24,50 @@ for($i=0; $i<count($_FILES['userfile']['name']); $i++){
 	
 	$filetype = $_FILES['userfile']['type'][$i];
 	if (in_array($filetype, $typePhoto)){
-		$files["photo"][] = $uploadfile;
+		$files[]["photo"] = $uploadfile;
 	} else {
-		$files["other"][] = $uploadfile;
+		$files[]["other"] = $uploadfile;
 	};
 	
 }
-//var_dump($files);
 //print $_FILES['userfile']['type'][$i];// image/jpeg image/png application/pdf
 
-for($i=0; $i<count(files["photo"]); $i++){
-	$query = "insert into object (n) select ".files["photo"][$i]."; select max(id) from object;"
-	$oid = $explDb->exec($query);
+$query = "select id from object where n='Файл' ";
+$cidFile = $explDb->query($query, PDO::FETCH_NUM)->fetchAll(PDO::FETCH_NUM);
+if ($cidFile) {	$cidFile = $cidFile[0][0]; } else { $cidFile = '1410'; };
 
-	$query = "insert into link (o1, o2) select ".$oid.", ".$uploadid;
-	$result = $explDb->exec($query);
-	
-	$query = "select id from object where n='Файл' ";
-	$cid = $explDb->exec($query);
-	$query = "insert into link (o1, o2) select ".$oid.", ".$cid;
-	$result = $explDb->exec($query);
-	
-	$query = "select id from object where n='Фото' ";
-	$cid = $explDb->exec($query);
-	$query = "insert into link (o1, o2) select ".$oid.", ".$cid;
-	$result = $explDb->exec($query);
-	
-}
+$query = "select id from object where n='Фото' ";
+$cidPhoto = $explDb->query($query, PDO::FETCH_NUM)->fetchAll(PDO::FETCH_NUM);
+if ($cidPhoto) { $cidPhoto = $cidPhoto[0][0]; } else { $cidPhoto = '1423'; };
 
-for($i=0; $i<count(files["other"]); $i++){
-	$query = "insert into object (n) select ".files["other"][$i]."; select max(id) from object;"
-	$oid = $explDb->exec($query);
-
-	$query = "insert into link (o1, o2) select ".$oid.", ".$uploadid;
-	$result = $explDb->exec($query);
+for($i=0; $i<count($files); $i++){
+	$filename = "";
+	if (array_key_exists("photo", $files[$i])) {
+		$filename = $files[$i]["photo"];
+	} else {
+		$filename = $files[$i]["other"];
+	};
 	
-	$query = "select id from object where n='Файл' ";
-	$cid = $explDb->exec($query);
-	$query = "insert into link (o1, o2) select ".$oid.", ".$cid;
+	$query = "insert into object (n) values ('".$filename."')";
 	$result = $explDb->exec($query);
+	$query = "select max(id) from object";
+	$oid = $explDb->query($query, PDO::FETCH_NUM)->fetchAll(PDO::FETCH_NUM);
+	if ($oid) {
+		$oid = $oid[0][0]; 
 	
+		$query = "insert into link (o1, o2) values ('".$oid."', '".$uploadid."')";
+		$result = $explDb->exec($query);
+		
+		if ($cidFile) {	
+			$query = "insert into link (o1, o2) values ('".$oid."', '".$cidFile."')";
+			$result = $explDb->exec($query);
+		};
+		
+		if ($cidPhoto && array_key_exists("photo", $files[$i])) {
+			$query = "insert into link (o1, o2) values ('".$oid."', '".$cidPhoto."')";
+			$result = $explDb->exec($query);
+		}
+	}
 }
 
 //header('Location: ' . $_SERVER['HTTP_REFERER']);
