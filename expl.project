@@ -44,5 +44,7 @@
         <File name="iObjectLink.php" />
         <File name="iii.php" />
         <File name="upload2.php" />
+        <File name="DB.php" />
+        <File name="ObjectLink.php" />
     </Project>
 </NotepadPlus>

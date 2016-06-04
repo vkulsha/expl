@@ -1,21 +1,14 @@
 <?php
+require('DB.php');
+require('ObjectLink.php');
 header('Content-Type: text/html; charset=utf-8');
 
-$constr = "";
-$login = "";
-$pass = "";
+$conn;
 if ($_SERVER['SERVER_NAME'] == "kulsha.ru") {
-	$constr	= "mysql:host=kulsha.ru;port=3306;dbname=c5553_expl;charset=utf8";
-	//$constr	= "pgsql:host=kulsha.ru;port=5432;dbname=c5553_expl";
-	$login = "c5553_root";
-	$pass = "Rekmif1983";
+	$conn = new DB("kulsha.ru","c5553_expl","c5553_root","Rekmif1983",0);
 } else {
-	$constr	= "mysql:host=localhost;port=3306;dbname=expl;charset=utf8";
-	//$constr	= "pgsql:host=localhost;port=5432;dbname=expl";
-	$login = "root";
-	$pass = "Rekmif1983";
+	$conn = new DB("localhost","expl","root","Rekmif1983",0);
 };
-
-$explDb = new PDO($constr, $login, $pass);
-$explDb -> exec("set names utf8");
+$explDb = $conn->db;
 $explDbType = $explDb->getAttribute(PDO::ATTR_DRIVER_NAME);
+$objectlink = new ObjectLink($conn->db);
