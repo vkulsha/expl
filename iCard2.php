@@ -75,7 +75,8 @@
 			var n = objects[i][1];
 			var id = objects[i][0];
 			var b = gB((opts.isNum ? i+1+". " : "")+n);
-			b[2].id = id;
+			b[2].id = "b"+id;
+			b[2].oid = id;
 			b[2].n = n;
 			b[2].c = opts.n2;
 			cont.appendChild(b[0]);
@@ -86,8 +87,52 @@
 				//$("#myModal").modal();
 				modal.style.display = "block";
 			}
-			
 		}
+	}
+
+	function createSVGobjects(svgCont, opts){
+		var objects = objectlink.getlinkedObjects(opts.oid1, opts.n2, opts.id);
+		for (var i=0; i < objects.length; i++){
+			var id = objects[i][0];
+			var svgs = objectlink.getlinkedObjects(id, "Векторные схемы объектов");
+			for (var j=0; j < svgs.length; j++){
+				var val = svgs[j][1];
+				createSVGpolygon(svgCont, val, id, opts.fill, opts.funcClick, opts.caption ? i+1 : "");
+			}
+		}
+	}
+	
+	function createSVGpolygon(svgCont, points, id, fill, funcClick, caption){
+		var el = svgCont
+			.append("polygon")
+			.attr("points", points)
+			.attr("stroke-width", 1)
+			.attr("stroke", "#7b5401")
+			.attr("fill", "transparent");
+		var el = el[0][0];
+		el.id = "svg"+id;
+		el.oid = id;
+		el.caption = caption;
+			el.onmouseover = function(){
+				if (fill) {
+					this.setAttribute("fill", fill);
+				}
+				this.style.cursor = "pointer";
+			};
+			el.onmouseout = function(){
+				this.setAttribute("fill", "transparent")
+				this.style.cursor = "auto";
+			};
+		el.onclick = funcClick;
+		
+		//var point = points.split(" ")[0].split(",");
+		var point = getCenterFromPoints(points);
+		var txt = svgCont
+			.append("text")
+			.attr("fill", "#7b5401")
+			.attr("x", point[0])
+			.attr("y", point[1]);
+		txt[0][0].innerHTML = el.caption;
 	}
 	
 	var container = gDom("container");
@@ -106,12 +151,50 @@
 	tr.setAttribute("valign", "top");
 	container2.appendChild(tr);
 	var td = tr.appendChild(cDom("TD"));
-	var img = new Image();
-	//img.style.width = "100%";
-	td.appendChild(img);
-	var imagePath = objectlink.getlinkedObjects(oid, "Схемы");
-	img.src = imagePath[0][1];
 
+	var svgContainer = d3.select(td).append("svg")
+								.attr("width", 1000)
+								.attr("height", 500);
+								
+	func = function(){
+		var el = gDom("b"+this.oid);
+		el.onclick();
+	}
+	
+	createSVGobjects(svgContainer,  {oid1:oid, n2:"Земельные участки", funcClick:func});
+	createSVGobjects(svgContainer,  {oid1:oid, n2:"Здания и сооружения", fill:"#d3b989", funcClick:func, caption:true});
+	
+	function getMaxCoordFromPoints(points, coordNum){
+		var arr = points.split(" ");
+		var maxCoord = -1;
+		for (var i=0; i < arr.length; i++){
+			var coord = arr[i].split(",");
+			maxCoord = parseInt(coord[coordNum]) > parseInt(maxCoord) ? coord[coordNum] : maxCoord;
+		}
+		return maxCoord;
+	}
+	
+	function getMinCoordFromPoints(points, coordNum){
+		var arr = points.split(" ");
+		var minCoord = 1000000;
+		for (var i=0; i < arr.length; i++){
+			var coord = arr[i].split(",");
+			minCoord = parseInt(coord[coordNum]) < parseInt(minCoord) ? coord[coordNum] : minCoord;
+		}
+		return minCoord;
+	}
+	
+	function getCenterFromPoints(points){
+		var arr = points.split(" ");
+		var maxX = getMaxCoordFromPoints(points, 0);
+		var maxY = getMaxCoordFromPoints(points, 1);
+		var minX = getMinCoordFromPoints(points, 0);
+		var minY = getMinCoordFromPoints(points, 1);
+		var centX = parseInt(minX) + Math.round((parseInt(maxX) - parseInt(minX)) / 2) - 5;
+		var centY = parseInt(minY) + Math.round((parseInt(maxY) - parseInt(minY)) / 2) + 5;
+		return [centX, centY];
+	}
+	
 	$(container2).append("<tr height='10'><td></td></tr>");
 	
 	var tr = cDom("TR");
@@ -163,7 +246,7 @@
 			case "Земельные участки":
 			case "Здания и сооружения":
 				///Фото
-				var images = objectlink.getlinkedObjects(object.id, "Фото");
+				var images = objectlink.getlinkedObjects(object.oid, "Фото");
 				if (images && images.length) {
 					var imgInd = 0;
 					var imgContainer = cDom("DIV");
@@ -198,8 +281,8 @@
 				var domPanelFileUploadHtml = "<div style='background-color:#fffff0; border:1px solid #ccc' hidden id='domPanelFileUpload'><table cellspacing=5><tr><td>"+
 					"<form enctype='multipart/form-data' action='upload2.php' method='POST'>"+
 					"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+
-					"<input type='hidden' name='uploadPath' value='data/"+object.id+"/' />"+
-					"<input type='hidden' name='uploadId' value='"+object.id+"' />"+
+					"<input type='hidden' name='uploadPath' value='data/"+object.oid+"/' />"+
+					"<input type='hidden' name='uploadId' value='"+object.oid+"' />"+
 					"Загрузить файл: <input name='userfile[]' type='file' multiple /><br><br>"+
 					"<input type='submit' value='Загрузить' />"+
 					"</form></td></tr></table></div>";
@@ -224,7 +307,7 @@
 					}
 				}
 
-				var otherFiles = objectlink.getlinkedObjects(object.id, "Файлы");
+				var otherFiles = objectlink.getlinkedObjects(object.oid, "Файлы");
 				var filesHtml = [];
 				var iconFile = "file.png";
 				for (var i=0; i < otherFiles.length; i++) {
