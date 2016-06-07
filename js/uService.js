@@ -5,6 +5,10 @@ if (getBrowser() != "Chrome") {
 	window.stop();
 }
 */
+var host = location.host;
+var domain = "http://"+host+"/";
+var interfaceUrlKey = "interface";
+var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
 var mapObjectsTableName = "explsObject";
 var mainMenuTableName = "explsMainMenu";
@@ -16,7 +20,11 @@ var usersTableName = "explsUser";
 var CAT_TERRITORIAL_DEPARTMENT = getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
 var currentUser = getOrm("select * from "+usersTableName+" where login = '"+sessionLogin+"'");
 var classTable = "explsClass";
-var userId = "undefined";
+
+if (currentUser.policy)
+	currentUser.policy = JSON.parse(currentUser.policy);
+
+currentUser.classes = getOrm("select name from "+classTable, 'col2object');
 
 var isMobile = {
     Android: function() {
@@ -38,11 +46,6 @@ var isMobile = {
         return (isMobile.Android() || isMobile.BlackBerry() || isMobile.iOS() || isMobile.Opera() || isMobile.Windows());
     }
 };
-
-if (currentUser.policy)
-	currentUser.policy = JSON.parse(currentUser.policy);
-
-currentUser.classes = getOrm("select name from "+classTable, 'col2object');
 
 $.extend($.expr[':'], {
   inview: function (el) {
@@ -100,7 +103,7 @@ function getObjectUri(objectId) {
 }
 
 function openWindow(url, title, params) {
-	var w = window.open(url, title, params);
+	var w = window.open(url+"&key="+userKey, title, params);
 	w.onkeydown = function(event) {
 		if (event.keyCode == 27) {
 			w.close();
@@ -137,7 +140,7 @@ function bMap(objectId, newwindow) {
 	if (newwindow) {
 		openWindow(domain+'?interface=iMap'+objectId);
 	} else {
-		location.href = domain+'?interface=iMap'+objectId;
+		location.href = domain+'?interface=iMap'+objectId+'&key='+userKey;
 	}
 }
 
@@ -674,7 +677,7 @@ function iMainMenu(interfaces){
 							td.row = row;
 							td.col = col;
 							td.onclick = function(){
-								location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов'];
+								location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов']+"&key="+userKey;
 							}
 						}
 					}
@@ -1050,7 +1053,7 @@ function gDom(id){
 	return document.getElementById(id);
 }
 
-function getInterfacesAccess(userKey, interfacesFunction){
+function getInterfacesAccess(userId, interfacesFunction){
 	var sel = objectlink.getTableQuery([
 		{n:"Пользователи"},//0
 		{n:"Группы прав пользователей", linkParent:true},//1
@@ -1063,7 +1066,7 @@ function getInterfacesAccess(userKey, interfacesFunction){
 	interfacesFunction = interfacesFunction || "просмотр";
 	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where 1=1 "+
 	"and `Функции интерфейсов` = '"+interfacesFunction+"' "+
-	"and `id Пользователи` = "+userKey+
+	"and `id Пользователи` = "+userId+
 	//" ( select id from object where id in ( "+
 	//"		select o1 from link where o2 = (select id from object where n='Пользователи' limit 1) "+
 	//"					and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
@@ -1072,3 +1075,16 @@ function getInterfacesAccess(userKey, interfacesFunction){
 	
 	return orm(query, "col2array")
 };
+
+function $_GET(keyname){
+	var search = location.search.split("?")
+	search = search.length > 1 ? search[1] : "";
+	var params = search.split("&");
+	for (var i=0; i < params.length; i++){
+		var param = params[i].split("=");
+		if (param[0] == keyname){
+			return param[1];
+		}
+	}
+	return undefined;
+}

@@ -31,10 +31,7 @@
 
 <script>
 	var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
-	var objectId = null;
-	<?php
-		echo "objectId = '".$_GET[$objectIdUrlKey]."';\n";
-	?>
+	var objectId = $_GET(objectIdUrlKey);
 	var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
 	
 	var modal = document.getElementById('myModal');
@@ -167,8 +164,9 @@
 		var el = gDom("b"+this.oid);
 		el.onclick();
 	}
-	
+	//slow
 	createSVGobjects(svgContainer,  {oid1:oid, n2:"Земельные участки", funcClick:func/*, stroke:"#d3b989"*/});
+	//slow
 	createSVGobjects(svgContainer,  {oid1:oid, n2:"Здания и сооружения", fill:"#d3b989", funcClick:func, caption:true});
 	
 	function getMinMaxCoordFromPoints(points, coordNum, minOrMax){
@@ -202,6 +200,7 @@
 	//container2.appendChild(gB("Наличие коммуникаций", true)[0]);
 	container2.appendChild(tr);
 	var objects = objectlink.getlinkedObjects(oid, "Класс");
+	//slow
 	for (var i=0; i < objects.length; i++){
 		var n = objects[i][1];
 		var id = objects[i][0];
@@ -231,7 +230,7 @@
 			b.hidden = true;
 		}
 	}
-	
+
 	function insertDataToModal(object){
 		$("#modalTitle").html(object.n);
 		$("#modalBody").html("");

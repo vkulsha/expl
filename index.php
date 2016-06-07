@@ -16,17 +16,7 @@
 		<script>
 		<?php
 			session_start();
-			require('conn.php');
-			$interfaceUrlKey = "interface";
-			$objectIdUrlKey = "objectId";
-			$clientIp = $_SERVER['REMOTE_ADDR'];
-			$host = $_SERVER['SERVER_NAME'];
 			echo "
-				var host = '$host';
-				var domain = 'http://$host/';
-				var interfaceUrlKey = '$interfaceUrlKey';
-				var objectIdUrlKey = '$objectIdUrlKey';
-				var _clientIp = '$clientIp';
 				var sessionLogin = '';
 			";
 			if (isset($_SESSION['auth'])) {
@@ -43,18 +33,28 @@
 		<script src="js/JsTable.js"></script>
 		<script src="js/objectlink.js"></script></head>
 		<script src="js/JsObjTable.js"></script>
+
 		<script>
-			$(document).keydown( function(event) {
-				if (event.which == 17) isCtrl = true;
-				if (event.which == 88 && isCtrl) {
-					location.href = "auth.php?logout";
-				}
-			});
-			
-			$(document).keyup( function(event) {
-				if (event.which == 17) isCtrl = false;
-			});		
+			var userKey = $_GET("key");
+			var userId = userKey || objectlink.getObjectFromClass('Пользователи',"undefined");
+			var interfaces = getInterfacesAccess(userId, 'просмотр');
+			var curInterface = $_GET(interfaceUrlKey);
+			if (curInterface && ~interfaces.indexOf(curInterface)){
+			} else {
+				curInterface = interfaces[0];
+			}
+			if (curInterface) {
+				$(document).ready(function() {
+					var iGoHome = gDom("iGoHome");
+					iGoHome.setAttribute("href", "?interface=iMainMenu&key="+userKey);
+					var mainContainer = gDom("mainContainer");
+					getHttp(curInterface+".php"+location.search, function(data){
+						$(mainContainer).append(data);
+					}, true);
+				});
+			}
 		</script>
+
 	</head>
 	<body>
 		<table width="100%" height="100%" border="0">
@@ -62,7 +62,7 @@
 			<td valign="top" colspan="2" class="highlight">
 				<table cellpadding="10" align="center" class="highlight" width="100%">
 					<tr>
-						<td align="center"><a href="?interface=iMainMenu" class="highlight"><img width="70" src="/images/logo.png" id="logo"></a></td>
+						<td align="center"><a href="#" id="iGoHome" class="highlight"><img width="70" src="/images/logo.png" id="logo"></a></td>
 					</tr>
 					<tr>
 						<td><div id="mainCaption" style="font-size:14px" align="center">База Данных Управления Эксплуатации Имущества</div></td>
@@ -71,57 +71,7 @@
 			</td>
 		<tr>
 		<tr height="100%" width="100%">
-			<td align="center" valign="middle" class="mainContainer">
-			<!-- offset for debuging included php files
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-						
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			-->
-			<?php 
-				$link = "auth.php";
-				if (isset($_SESSION['auth']) /*|| $_SERVER['SERVER_NAME'] == 'kulshavi.guss.ru' || $_SERVER['SERVER_NAME'] == 'localhost'*/) {
-					$link = "iMainMenu.php";
-					if (isset($_GET["interface"]) && file_exists($_GET["interface"].".php"))
-						$link = $_GET["interface"].".php";
-				}
-				require $link; //line number "script.php" = line number "?interface=script" - 39
-			?>
+			<td align="center" valign="middle" class="mainContainer" id="mainContainer">
 			</td>
 		</tr>
 	</body>

@@ -67,12 +67,7 @@
 
 <script>
 	var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
-
-	var objectId = null;
-	<?php 
-		echo "objectId = '".$_GET[$objectIdUrlKey]."';\n";
-		//echo "policy = {add: true, delete: true};";
-	?>
+	var objectId = $_GET(objectIdUrlKey);
 	$("#bDocDownload").bind("click", function(){ passportDownload(objectId) });
 	$("#bToMap").bind("click", function(){bMap(objectId)});
 	var bImgPrev = $("#bImgPrev");
@@ -315,5 +310,6 @@
 ///indert code here	
 	};
 	getQueryJson(uri, func);
+
 ///stop code	
 </script>

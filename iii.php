@@ -13,22 +13,6 @@
 	<script src="js/leaflet.js"></script>		
 	<script src="js/jstree/jstree.min.js"></script>
 
-	<script>
-	<?php
-		$interfaceUrlKey = "interface";
-		$objectIdUrlKey = "objectId";
-		$clientIp = $_SERVER['REMOTE_ADDR'];
-		$host = $_SERVER['SERVER_NAME'];
-		echo "
-			var host = '$host';
-			var domain = 'http://$host/';
-			var interfaceUrlKey = '$interfaceUrlKey';
-			var objectIdUrlKey = '$objectIdUrlKey';
-			var _clientIp = '$clientIp';
-			var sessionLogin = '';
-		";
-	?>
-	</script>
 	<script src="js/Column.js"></script>
 	<script src="js/uService.js"></script>
 	<script src="js/GetSet.js"></script>

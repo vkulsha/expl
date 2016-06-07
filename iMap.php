@@ -43,9 +43,7 @@
 </table>
  
 <script type='text/javascript'>
-	var objectId = null;
-	<?php if (isset($_GET[$objectIdUrlKey])){echo "objectId = '".$_GET[$objectIdUrlKey]."';";}; ?>
-
+	var objectId = $_GET(objectIdUrlKey);
 	var bFiltersDel = document.getElementById("bFiltersDel");
 	
 	var map = L.map('map');
