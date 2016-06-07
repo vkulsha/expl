@@ -371,7 +371,8 @@
 		result = prompt("eO (id)", oid);
 		if (result) {
 			objectlink.eO(result);
-			goHome();
+			hashchange();
+			//goHome();
 		} else {
 			alert("Недопустимое значение id!");
 		}
@@ -384,7 +385,8 @@
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
 				objectlink.eL(arr[0],arr[1]);
-				goHome();
+				hashchange();
+				//goHome();
 			} else {
 				alert("Недопустимое значение oid1 или oid2!");
 			}

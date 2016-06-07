@@ -34,7 +34,6 @@
 	var objectId = null;
 	<?php
 		echo "objectId = '".$_GET[$objectIdUrlKey]."';\n";
-		//echo "policy = {add: true, delete: true};";
 	?>
 	var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
 	
@@ -97,41 +96,49 @@
 			var svgs = objectlink.getlinkedObjects(id, "Векторные схемы объектов");
 			for (var j=0; j < svgs.length; j++){
 				var val = svgs[j][1];
-				createSVGpolygon(svgCont, val, id, opts.fill, opts.funcClick, opts.caption ? i+1 : "");
+				createSVGpolygon(svgCont, val, id, opts.fill, opts.funcClick, opts.caption ? i+1 : "", opts.stroke);
 			}
 		}
 	}
 	
-	function createSVGpolygon(svgCont, points, id, fill, funcClick, caption){
+	function createSVGpolygon(svgCont, points, id, fill, funcClick, caption, stroke){
 		var el = svgCont
 			.append("polygon")
 			.attr("points", points)
 			.attr("stroke-width", 1)
 			.attr("stroke", "#7b5401")
 			.attr("fill", "transparent");
+			
 		var el = el[0][0];
 		el.id = "svg"+id;
 		el.oid = id;
 		el.caption = caption;
-			el.onmouseover = function(){
-				if (fill) {
-					this.setAttribute("fill", fill);
-				}
-				this.style.cursor = "pointer";
-			};
-			el.onmouseout = function(){
-				this.setAttribute("fill", "transparent")
-				this.style.cursor = "auto";
-			};
+		
+		el.onmouseover = function(){
+			if (fill) {
+				this.setAttribute("fill", fill);
+			}
+			if (stroke) {
+				this.setAttribute("stroke", stroke);
+			}
+			this.style.cursor = "pointer";
+		};
+		
+		el.onmouseout = function(){
+			this.setAttribute("fill", "transparent");
+			this.setAttribute("stroke", "#7b5401");
+			this.style.cursor = "auto";
+		};
+		
 		el.onclick = funcClick;
 		
-		//var point = points.split(" ")[0].split(",");
-		var point = getCenterFromPoints(points);
+		var arr = points.split(" ");
+		var point = getCenterFromPoints(arr);
 		var txt = svgCont
 			.append("text")
 			.attr("fill", "#7b5401")
-			.attr("x", point[0])
-			.attr("y", point[1]);
+			.attr("x", point[0]-5)
+			.attr("y", point[1]+5);
 		txt[0][0].innerHTML = el.caption;
 	}
 	
@@ -161,37 +168,27 @@
 		el.onclick();
 	}
 	
-	createSVGobjects(svgContainer,  {oid1:oid, n2:"Земельные участки", funcClick:func});
+	createSVGobjects(svgContainer,  {oid1:oid, n2:"Земельные участки", funcClick:func/*, stroke:"#d3b989"*/});
 	createSVGobjects(svgContainer,  {oid1:oid, n2:"Здания и сооружения", fill:"#d3b989", funcClick:func, caption:true});
 	
-	function getMaxCoordFromPoints(points, coordNum){
-		var arr = points.split(" ");
-		var maxCoord = -1;
-		for (var i=0; i < arr.length; i++){
-			var coord = arr[i].split(",");
-			maxCoord = parseInt(coord[coordNum]) > parseInt(maxCoord) ? coord[coordNum] : maxCoord;
+	function getMinMaxCoordFromPoints(points, coordNum, minOrMax){
+		var resultCoord = points[0].split(",")[coordNum];
+		for (var i=0; i < points.length; i++){
+			var coord = points[i].split(",");
+			resultCoord = 
+				parseInt(coord[coordNum]) < parseInt(resultCoord) && minOrMax ? coord[coordNum] : minOrMax ? resultCoord :
+				parseInt(coord[coordNum]) > parseInt(resultCoord) ? coord[coordNum] : resultCoord;
 		}
-		return maxCoord;
-	}
-	
-	function getMinCoordFromPoints(points, coordNum){
-		var arr = points.split(" ");
-		var minCoord = 1000000;
-		for (var i=0; i < arr.length; i++){
-			var coord = arr[i].split(",");
-			minCoord = parseInt(coord[coordNum]) < parseInt(minCoord) ? coord[coordNum] : minCoord;
-		}
-		return minCoord;
+		return resultCoord;
 	}
 	
 	function getCenterFromPoints(points){
-		var arr = points.split(" ");
-		var maxX = getMaxCoordFromPoints(points, 0);
-		var maxY = getMaxCoordFromPoints(points, 1);
-		var minX = getMinCoordFromPoints(points, 0);
-		var minY = getMinCoordFromPoints(points, 1);
-		var centX = parseInt(minX) + Math.round((parseInt(maxX) - parseInt(minX)) / 2) - 5;
-		var centY = parseInt(minY) + Math.round((parseInt(maxY) - parseInt(minY)) / 2) + 5;
+		var maxX = getMinMaxCoordFromPoints(points, 0, false);
+		var maxY = getMinMaxCoordFromPoints(points, 1, false);
+		var minX = getMinMaxCoordFromPoints(points, 0, true);
+		var minY = getMinMaxCoordFromPoints(points, 1, true);
+		var centX = parseInt(minX) + Math.round((parseInt(maxX) - parseInt(minX)) / 2);
+		var centY = parseInt(minY) + Math.round((parseInt(maxY) - parseInt(minY)) / 2);
 		return [centX, centY];
 	}
 	

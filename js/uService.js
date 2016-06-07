@@ -16,6 +16,7 @@ var usersTableName = "explsUser";
 var CAT_TERRITORIAL_DEPARTMENT = getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
 var currentUser = getOrm("select * from "+usersTableName+" where login = '"+sessionLogin+"'");
 var classTable = "explsClass";
+var userId = "undefined";
 
 var isMobile = {
     Android: function() {
@@ -655,34 +656,30 @@ function iMainMenu(interfaces){
 		var tr = document.createElement("tr");
 		for (var col=0; col < interfaces[row].length; col++) {
 			var td = document.createElement("td");
-			//var alink = document.createElement("a");
 			var but = document.createElement("button");
 			var div = document.createElement("div");
 			var img = new Image();
-			//alink.href = "#";
 			but.classList.add("menubutton");
 			but.style.width = "200px";
 			but.style.height = "180px";
 			but.style.cursor = "pointer";
 			
-			if (interfaces[row][col]['name']){
+			if (interfaces[row][col]['Ключи интерфейсов']){
 				var classes = interfaces[row][col]['classes'];
-				img.src = domain+interfaces[row][col]['src'];
+				img.src = domain+interfaces[row][col]['Файлы'];
 				if (classes) {
-					classes = JSON.parse(classes);
+					classes = classes.split(",");//JSON.parse(classes);
 					if (classes && classes.length) {
-						//console.log("select * from "+usersTableName+" where login = '"+sessionLogin+"'");
 						if (~currentUser.policy[classes[0]-1].indexOf("view")) {
-							//alink.href = "?"+interfaceUrlKey+"="+interfaces[row][col]['name'];
 							td.row = row;
 							td.col = col;
 							td.onclick = function(){
-								location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['name'];
+								location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов'];
 							}
 						}
 					}
 				}
-				div.innerHTML = interfaces[row][col]['caption'];
+				div.innerHTML = interfaces[row][col]['Главное меню'];
 			}
 			
 			img.style.height = "130px";
@@ -1052,3 +1049,26 @@ function cDom(type, innerHTML){
 function gDom(id){
 	return document.getElementById(id);
 }
+
+function getInterfacesAccess(userKey, interfacesFunction){
+	var sel = objectlink.getTableQuery([
+		{n:"Пользователи"},//0
+		{n:"Группы прав пользователей", linkParent:true},//1
+		{n:"Права пользователей", parentCol:1},//2
+		{n:"Интерфейсы", parentCol:2},//3
+		{n:"Функции интерфейсов", parentCol:2},//4
+		{n:"Ключи интерфейсов", parentCol:3},//5
+	], 5);
+	
+	interfacesFunction = interfacesFunction || "просмотр";
+	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where 1=1 "+
+	"and `Функции интерфейсов` = '"+interfacesFunction+"' "+
+	"and `id Пользователи` = "+userKey+
+	//" ( select id from object where id in ( "+
+	//"		select o1 from link where o2 = (select id from object where n='Пользователи' limit 1) "+
+	//"					and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
+	//"	) and n='user' ) "+
+	" order by case `Ключи интерфейсов` when 'iMainMenu' then 0 else 1 end ";
+	
+	return orm(query, "col2array")
+};

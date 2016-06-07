@@ -46,5 +46,7 @@
         <File name="upload2.php" />
         <File name="DB.php" />
         <File name="ObjectLink.php" />
+        <File name="shemaPaint.php" />
+        <File name="test.php" />
     </Project>
 </NotepadPlus>

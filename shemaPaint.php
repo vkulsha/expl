@@ -56,8 +56,7 @@
 	function createCoordObject(arr, pid){
 		val = arr.join(" ");
 		if (val && pid) {
-			var oid = objectlink.cO(val);
-			objectlink.cL(oid, pid);
+			var oid = objectlink.cO(val, pid);
 		}
 		
 		var oidShemaClass = objectlink.gO("Векторные схемы объектов");
@@ -65,6 +64,9 @@
 			objectlink.cL(oid, oidShemaClass);
 		}
 	}
+
+	var userKey = objectlink.getObjectFromClass('Пользователи','undefined');
+	console.log(getInterfacesAccess(userKey, 'просмотр'));
 	
 /*	
 /////////////CANVAS
