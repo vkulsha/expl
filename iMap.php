@@ -130,7 +130,15 @@
 	function setManagers4tu(dom, tu){
 		var val = tu;
 		val = val == "Все" ? "" : " and tu = '"+val+"'";
-		var managers = getOrm("select distinct `manager` from `"+mapObjectsTableName+"` where 1=1 "+val, "col2array");
+
+		var sel = objectlink.getTableQuery([
+			{n:"ответственный"},//0
+			{n:"ик", linkParent:true},//1
+			{n:"ту", linkParent:true, parentCol:1},//2
+		]);
+		sel = "select ту tu, ик ik, ответственный manager from ("+sel+")x where 1=1 ";
+
+		var managers = orm("select distinct `manager` from ("+sel+")x where 1=1 "+val, "col2array");
 		dom.innerHTML = "";
 		var opt = document.createElement("OPTION");
 		opt.innerHTML = "Все";

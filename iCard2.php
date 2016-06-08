@@ -30,7 +30,7 @@
 </table>
 
 <script>
-	var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
+	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
 	var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
 	
@@ -273,7 +273,7 @@
 				}
 				
 				///Файлы
-				var addButtonHtml = policy.add ? "<button id='bFileUpload'>+</button>" : "";
+				var addButtonHtml = "";//policy.add ? "<button id='bFileUpload'>+</button>" : "";
 				var domPanelFileUploadHtml = "<div style='background-color:#fffff0; border:1px solid #ccc' hidden id='domPanelFileUpload'><table cellspacing=5><tr><td>"+
 					"<form enctype='multipart/form-data' action='upload2.php' method='POST'>"+
 					"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+

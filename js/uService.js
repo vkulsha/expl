@@ -1,30 +1,10 @@
 ﻿"use strict";
-/*
-if (getBrowser() != "Chrome") {
-	alert("Данная программа работает только в броузере Chrome!");
-	window.stop();
-}
-*/
 var host = location.host;
 var domain = "http://"+host+"/";
 var interfaceUrlKey = "interface";
 var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
-var mapObjectsTableName = "explsObject";
-var mainMenuTableName = "explsMainMenu";
-var objectPowerTable = "explsObjectPower";
-var objectManagerTable = "explsObjectManager";
-var territorialDepartmentTableName = "explsTerritorialDepartment";
-var iCardName = "iCard";
-var usersTableName = "explsUser";
-var CAT_TERRITORIAL_DEPARTMENT = getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
-var currentUser = getOrm("select * from "+usersTableName+" where login = '"+sessionLogin+"'");
-var classTable = "explsClass";
-
-if (currentUser.policy)
-	currentUser.policy = JSON.parse(currentUser.policy);
-
-currentUser.classes = getOrm("select name from "+classTable, 'col2object');
+var currentUser = {};
 
 var isMobile = {
     Android: function() {
@@ -70,14 +50,6 @@ function getBrowser(){
     return 'Unknown';
 }
 
-function getQueryId(tableName, objectId) {
-	return "select * from "+tableName+" where rowid = "+objectId;
-}
-
-function getQueryObject(objectId) {
-	return getQueryId(mapObjectsTableName, objectId);
-}
-
 function ifnull(value) { 
 	return value == null ? "" : value;
 }
@@ -103,7 +75,7 @@ function getObjectUri(objectId) {
 }
 
 function openWindow(url, title, params) {
-	var w = window.open(url+"&key="+userKey, title, params);
+	var w = window.open(url, title, params);
 	w.onkeydown = function(event) {
 		if (event.keyCode == 27) {
 			w.close();
@@ -113,12 +85,7 @@ function openWindow(url, title, params) {
 }
 
 function openImageWindow(src) {
-    //var im = new Image();
-    //im.src = src;
-    //var width = im.width;
-    //var height = im.height;
     openWindow(src);
-    //openWindow(src,src,"width=" + width + ",height=" + height);
 }
 
 function bDocDownload(objectId, docName) {
@@ -138,14 +105,14 @@ function bMap(objectId, newwindow) {
 	objectId = objectId == undefined ? "" : "&objectId="+objectId;
 	
 	if (newwindow) {
-		openWindow(domain+'?interface=iMap'+objectId);
+		openWindow(domain+'?interface=iMap'+objectId+"&key="+userKey);
 	} else {
 		location.href = domain+'?interface=iMap'+objectId+'&key='+userKey;
 	}
 }
 
 function bCard(objectId, version) {
-	openWindow(domain+'?interface=iCard'+(version ? version : '')+'&objectId='+objectId);
+	openWindow(domain+'?interface=iCard'+(version ? version : '')+'&objectId='+objectId+"&key="+userKey);
 }
 
 function bCadastr(objectCadastrNumber) {
@@ -272,7 +239,6 @@ function getOrmObject(data, type) {
 
 	function col2array(){
 		result = [];
-
 		$.each(data.data, function(ind, value) {
 			result.push(value[0]);
 		})
@@ -547,11 +513,22 @@ function splitObjectArray(obj1, obj2){
 }
 
 function iMap(opts, callback, dblclick, funcError, funcFinnaly){
+	var CAT_TERRITORIAL_DEPARTMENT = orm("select n from ("+objectlink.gOCQ("ТУ")+")xx", "col2array");//getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
 	var whereCond = opts.whereCond || "";
-	
-	var sql = "select * from "+mapObjectsTableName+" where 1=1 "+whereCond+" order by rowid";
+	var sel = objectlink.getTableQuery([
+		{n:"объект"},//0
+		{n:"адрес"},//1
+		{n:"кадастр"},//2
+		{n:"широта"},//3
+		{n:"долгота"},//4
+		{n:"номер"},//5
+		{n:"ик", linkParent:true},//6
+		{n:"ту", linkParent:true, parentCol:6},//7
+		{n:"ответственный", parentCol:6},//8
+	]);
+	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 "+whereCond+" order by rowid ";
 	var func = function(dataJSON) {
-		var data = JSON.parse(dataJSON);
+		var data = dataJSON;//JSON.parse(dataJSON);
 		if (data.columns[0] == "result" && data.data[0][0] == false) {callback(undefined); return;};
 
 		var ObjectIcon = L.Icon.extend({
@@ -625,7 +602,7 @@ function iMap(opts, callback, dblclick, funcError, funcFinnaly){
 		});
 		
 	};
-	getQueryJson(sql, func, true, funcError, funcFinnaly);
+	sqlAsync(sel, true, func, funcError, funcFinnaly);
 	
 }
 
@@ -668,19 +645,11 @@ function iMainMenu(interfaces){
 			but.style.cursor = "pointer";
 			
 			if (interfaces[row][col]['Ключи интерфейсов']){
-				var classes = interfaces[row][col]['classes'];
 				img.src = domain+interfaces[row][col]['Файлы'];
-				if (classes) {
-					classes = classes.split(",");//JSON.parse(classes);
-					if (classes && classes.length) {
-						if (~currentUser.policy[classes[0]-1].indexOf("view")) {
-							td.row = row;
-							td.col = col;
-							td.onclick = function(){
-								location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов']+"&key="+userKey;
-							}
-						}
-					}
+				td.row = row;
+				td.col = col;
+				td.onclick = function(){
+					location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов']+"&key="+userKey;
 				}
 				div.innerHTML = interfaces[row][col]['Главное меню'];
 			}
@@ -704,6 +673,7 @@ function iMainMenu(interfaces){
 /*
 Return object as [{field1:val11, field2:val12}, {field1:val21, field2:val22}] from sql query table
 */
+/*
 function getMainMenuJson() {
 	return getOrm("select * from "+mainMenuTableName, "rows2object");
 	
@@ -718,7 +688,7 @@ function getObjectManagerJson(manager) {
 	return getOrm("select * from "+objectManagerTable+" where name = '"+manager+"'", "row2object");
 	
 }
-
+*/
 function slice(str, count) {
 	count = count ? count : 1;
 	return str.substr(0, str.length - count);
@@ -1061,18 +1031,22 @@ function getInterfacesAccess(userId, interfacesFunction){
 		{n:"Интерфейсы", parentCol:2},//3
 		{n:"Функции интерфейсов", parentCol:2},//4
 		{n:"Ключи интерфейсов", parentCol:3},//5
-	], 5);
+	], false);
+/*	var sel = objectlink.getTableQuery([
+		{n:"Ключи интерфейсов"},//0
+		{n:"Интерфейсы", linkParent:true},//1
+		{n:"Права пользователей", parentCol:1, linkParent:true},//2
+		{n:"Функции интерфейсов", parentCol:2},//3
+		{n:"Группы прав пользователей", parentCol:2, linkParent:true},//4
+		{n:"Пользователи", parentCol:4},//5
+	], false);*/
 	
 	interfacesFunction = interfacesFunction || "просмотр";
 	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where 1=1 "+
 	"and `Функции интерфейсов` = '"+interfacesFunction+"' "+
 	"and `id Пользователи` = "+userId+
-	//" ( select id from object where id in ( "+
-	//"		select o1 from link where o2 = (select id from object where n='Пользователи' limit 1) "+
-	//"					and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
-	//"	) and n='user' ) "+
 	" order by case `Ключи интерфейсов` when 'iMainMenu' then 0 else 1 end ";
-	
+	//console.log(query);
 	return orm(query, "col2array")
 };
 

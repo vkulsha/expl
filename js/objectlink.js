@@ -169,7 +169,7 @@ var objectlink = {
 	},*/
 	gOCQ : function(className){
 		return ""+
-			"select id from object where id in ( "+
+			"select * from object where id in ( "+
 			"select o1 from link where o2 = (select id from object where n='"+className+"' limit 1) "+
 			"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
 			") ";
@@ -191,7 +191,7 @@ var objectlink = {
 				"group by o1 "+
 				"having count(*) = "+arr.length+" "+
 				"and (o1 not in (select o1 from link where o2 = (select id from object where n = 'класс')) "+
-				"	or oid1 = (select id from object where n='класс')) "+
+				"	or o1 = (select id from object where n='класс')) "+
 				"order by o1"
 			).result
 			, "col2array"
@@ -329,7 +329,9 @@ var objectlink = {
 	getTableQuery : function(params, groupbyind){
 		var result = [];
 		params = params || [];//[{id:1331, n:"ик", parentCol:0, linkParent:0}]
-		var groupbyind = groupbyind || "0";
+		if (groupbyind != false) {
+			groupbyind = groupbyind || "0";
+		}
 		
 		var head = [];
 		var body = [];
@@ -355,9 +357,15 @@ var objectlink = {
 					head.push(h);
 					body.push(b);
 				} else {
-					var h = ",case when count(distinct o"+i+".id) <= 1 then group_concat(distinct o"+i+".id) else concat(o"+i+".id,'..') end `id "+col+"` "+
+					var h;
+					if (groupbyind) {
+						h = ",case when count(distinct o"+i+".id) <= 1 then group_concat(distinct o"+i+".id) else concat(o"+i+".id,'..') end `id "+col+"` "+
 							",case when count(distinct o"+i+".id) <= 1 then group_concat(distinct o"+i+".n)  else concat(o"+i+".n,'..')  end `"+col+"` "+
 							",count(distinct o"+i+".id) `кол-во "+col+"` \n";
+					} else {
+						h = ",o"+i+".id `id "+col+"` "+
+							",o"+i+".n `"+col+"` ";
+					}
 					//var h = ",case when count(distinct o"+i+".id) <= 1 then o"+i+".n else count(distinct o"+i+".id) end `"+col+"` \n";
 					var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
 					var selecto1o2 = cc.linkParent ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
@@ -377,7 +385,9 @@ var objectlink = {
 			}
 		}
 		
-		foot.push("group by o"+groupbyind+".id having 1=1 \n\n");
+		if (groupbyind) {
+			foot.push("group by o"+groupbyind+".id having 1=1 \n\n");
+		}
 		result = head.join("")+body.join("")+foot.join("foot");
 		return result;
 	},
@@ -449,11 +459,30 @@ var objectlink = {
 	},
 	getObjectByLinkedObject : function(class1Name, class2Name, class2ObjectName){
 		var q = this.getObjectByLinkedObjectQuery(class1Name, class2Name);
-		return orm(q+" and n='"+class2ObjectName+"'", "all2array")[0][0];
+		var ret = orm(q+" and n='"+class2ObjectName+"'", "all2array");
+		if (ret.length) {
+			return ret[0][0];
+		} else {
+			return undefined
+		}
 	},
 	getObjectFromClass : function(className, n){
 		var q = this.gOCQ(className);
-		return orm(q+" and n='"+n+"'", "all2array")[0][0];
+		var ret = orm("select id from ("+q+")xx where 1=1 and n='"+n+"'", "all2array");
+		if (ret.length) {
+			return ret[0][0];
+		} else {
+			return undefined
+		}
+	},
+	getObjectsFromClass : function(className){
+		var q = this.gOCQ(className);
+		var ret = orm(q, "all2array");
+		if (ret.length) {
+			return ret;
+		} else {
+			return undefined
+		}
 	},
 	
 	

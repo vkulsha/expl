@@ -24,7 +24,6 @@
 		{n:"ответственный", parentCol:6},//8
 	]);
 	sel = "select номер, ту, ик, ответственный, объект, адрес, кадастр, широта, долгота from ("+sel+")x where 1=1 ";
-	
 	var query = {
 		select:sel, 
 		order:" order by ту desc, ик, case length(номер) when 1 then concat('00',номер) when 2 then concat('0',номер) else номер end "
@@ -54,7 +53,7 @@
 		new Column({'id' : 7, 'name' : 'широта', 'caption' : 'Широта', 'width' : 80, 'visible' : true, 'class' : currentClass}),
 		new Column({'id' : 8, 'name' : 'долгота', 'caption' : 'Долгота', 'width' : 80, 'visible' : true, 'class' : currentClass}),
 	];
-	currentUser.classes[currentClass].columns = colsOpts;
+	//currentUser.classes[currentClass].columns = colsOpts;
 	var tbHeight = windowHeight() * (380/699);
 	var opts = {tableWidth:1200, tableHeight:tbHeight, columns: colsOpts, rowsColor: colors};
 	var jsTable = new JsTable(query, opts, container);

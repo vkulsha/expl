@@ -66,7 +66,7 @@
 </table>
 
 <script>
-	var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
+	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
 	$("#bDocDownload").bind("click", function(){ passportDownload(objectId) });
 	$("#bToMap").bind("click", function(){bMap(objectId)});
@@ -81,9 +81,23 @@
 	var currImgNum = $("#currImgNum");
 	var imgCount = $("#imgCount");
 	var objectPath = getObjectsDir()+"/"+objectId+"/";
-	var uri = getQueryObject(objectId);
+
+	var sel = objectlink.getTableQuery([
+		{n:"объект"},//0
+		{n:"адрес"},//1
+		{n:"кадастр"},//2
+		{n:"широта"},//3
+		{n:"долгота"},//4
+		{n:"номер"},//5
+		{n:"ик", linkParent:true},//6
+		{n:"ту", linkParent:true, parentCol:6},//7
+		{n:"ответственный", parentCol:6},//8
+	]);
+	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 " + " and rowid = "+objectId;
+
+	var uri = sel;
 	var func = function(dataJSON) {
-		var data = JSON.parse(dataJSON);
+		var data = dataJSON;//JSON.parse(dataJSON);
 		var value = data.data[0];
 		var columns = data.columns;
 		var objectCadastrNumber = value[columns.indexOf("cadastr")];
@@ -127,28 +141,16 @@
 			var allFiles = splitObjectArray(files, {"images" : ["jpg", "png", "gif", "tif", "bmp"], "other" : []} );
 			imageFiles = allFiles.images.sort();
 			otherFiles = allFiles.other;
-			//imagesContainer
-			/*
-			$(".isPhoto").each(function(){
-				this.hidden = !imageFiles.length;
-			});
-			$(".isFiles").each(function(){
-				this.hidden = !otherFiles.length;
-			});
-			*/
+
 			var filesHtml = [];
 			var iconFile = "file.png";
 			for (var i=0; i < otherFiles.length; i++) {
 				iconFile = getIconFile(otherFiles[i].toLowerCase());
-					//(~otherFiles[i].indexOf(".pdf")) ? "pdf.png" : 
-					//(~otherFiles[i].indexOf(".doc")) ? "word.png" : 
-					//(~otherFiles[i].indexOf(".xls")) ? "excel.png" : 
-					//iconFile;
-				
+			
 				var chDel = document.createElement("INPUT");
 				chDel.setAttribute("type", "checkbox");
 				chDel.setAttribute("id", "file"+i);
-				if (!policy.del) chDel.setAttribute("hidden", "");
+				/*if (!policy.del)*/ chDel.setAttribute("hidden", "");
 				filesChbxs.push(chDel);
 				filesHtml.push(
 					"<td>"+
@@ -207,10 +209,17 @@
 				})
 		});
 		
-		var power = getObjectPowerJson(objectId);
+		var power = undefined;//getObjectPowerJson(objectId);
 		if (!power) { power = {contract:"", agreement:"", maxAuthorizedPower:"", maxConsumptionPower:"", powerConsumption:"", excess:"", powerPoint:""}; }
 
-		var manager = getObjectManagerJson(value[columns.indexOf("manager")]);
+		var sel = objectlink.getTableQuery([
+			{n:"Ответственный"},//0
+			{n:"ФИО"},//1
+			{n:"Телефон"},//2
+			{n:"Email"},//2
+		]);
+		sel = "select * from (select Ответственный manager, ФИО fio, Телефон phone, Email email from ("+sel+")x)x where 1=1 and manager = '"+value[columns.indexOf("manager")]+"' ";
+		var manager = orm(sel, "row2object");
 		if (!manager) { manager = {fio:"", phone:"", email:""}; }
 		
 		var node = 
@@ -238,9 +247,6 @@
 				{"name":"Перевыставление, % :", "nodeType":3, "content":(power ? power.excess : "")},
 				{"name":"Источник:", "nodeType":3, "content":(power ? power.powerPoint : "")},
 			]},
-			/*{"name":"Состав объекта", "nodeType":1, "children": [
-				{'name':'...', 'nodeType':3},
-			]}*/
 		]};
 		
 		var domtreecontainer = document.getElementById("domtreecontainer");
@@ -279,7 +285,7 @@
 		document.body.appendChild(domPanelFileDelete);
 
 		bFileUpload = document.getElementById("bFileUpload");
-		bFileUpload.hidden = !policy.add;
+		bFileUpload.hidden = true;//!policy.add;
 		bFileUpload.onclick = function(e){
 			domPanelFileUpload.style.left = e.clientX+2;
 			domPanelFileUpload.style.top = e.clientY+2;
@@ -287,7 +293,7 @@
 		}
 
 		bFileDelete = document.getElementById("bFileDelete");
-		bFileDelete.hidden = !policy.del;
+		bFileDelete.hidden = true;//!policy.del;
 		bFileDelete.onclick = function(e){
 			var arr = [];
 			for (var i=0; i < otherFiles.length; i++){
@@ -309,7 +315,8 @@
 	
 ///indert code here	
 	};
-	getQueryJson(uri, func);
+	//getQueryJson(uri, func);
+	sqlAsync(uri, true, func);
 
 ///stop code	
 </script>

@@ -35,23 +35,25 @@
 		<script src="js/JsObjTable.js"></script>
 
 		<script>
-			var userKey = $_GET("key");
-			var userId = userKey || objectlink.getObjectFromClass('Пользователи',"undefined");
-			var interfaces = getInterfacesAccess(userId, 'просмотр');
-			var curInterface = $_GET(interfaceUrlKey);
-			if (curInterface && ~interfaces.indexOf(curInterface)){
-			} else {
-				curInterface = interfaces[0];
-			}
-			if (curInterface) {
-				$(document).ready(function() {
-					var iGoHome = gDom("iGoHome");
-					iGoHome.setAttribute("href", "?interface=iMainMenu&key="+userKey);
-					var mainContainer = gDom("mainContainer");
-					getHttp(curInterface+".php"+location.search, function(data){
-						$(mainContainer).append(data);
-					}, true);
-				});
+			var userKey = $_GET("key") || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+			var userId = objectlink.gAND([userKey, objectlink.gO("Пользователи")]);
+			if (userId.length){
+				var interfaces = getInterfacesAccess(userId[0], 'просмотр');
+				var curInterface = $_GET(interfaceUrlKey);
+				if (curInterface && ~interfaces.indexOf(curInterface)){
+				} else {
+					curInterface = interfaces[0];
+				}
+				if (curInterface) {
+					$(document).ready(function() {
+						var iGoHome = gDom("iGoHome");
+						iGoHome.setAttribute("href", "?interface=iMainMenu&key="+userKey);
+						var mainContainer = gDom("mainContainer");
+						getHttp(curInterface+".php"+location.search, function(data){
+							$(mainContainer).append(data);
+						}, true);
+					});
+				}
 			}
 		</script>
 

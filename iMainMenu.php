@@ -7,7 +7,7 @@
 		{n:"classes", linkParent:true},//3
 	]);
 	var arrInterfaces = orm(sel, "rows2object");
-	var arr2matrix = lineArray2matrixArray(arrInterfaces, 2, 2);
+	var arr2matrix = lineArray2matrixArray(arrInterfaces, 1, 2);
 	var menuHtml = iMainMenu(arr2matrix);
 	//if (isMobile.any()){
 	//} else {

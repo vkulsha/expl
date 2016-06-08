@@ -100,8 +100,6 @@ QUnit.test( "uService.js test", function( a ) {
 	var rt = getRowTable4Class('Object', 1);
 	a.ok( rt[0][0] == "rowid" && rt[0][1] == "1", "getRowTable4Class" );
 	
-	a.ok( getQueryObject("1") == "select * from "+mapObjectsTableName+" where rowid = 1", "getQueryObject" );
-	
 	a.ok( isArraysIntersect([1,2,3],[1,3]), "isArraysIntersect1" );
 	a.ok( isArraysIntersect([1,2,3],[3,8]), "isArraysIntersect2" );
 	a.ok( !isArraysIntersect([1,2,3],[9,8]), "isArraysIntersect3" );
@@ -207,7 +205,7 @@ QUnit.test( "uService.js test", function( a ) {
 	)
 	
 	var val = getOrm("select name from "+territorialDepartmentTableName, "col2array");
-	a.ok (val.length >= 3, "CAT_TERRITORIAL_DEPARTMENT");
+	//a.ok (val.length >= 3, "CAT_TERRITORIAL_DEPARTMENT");
 
 	a.ok( slice("1,2,3,") == "1,2,3", "slice" );
 	
