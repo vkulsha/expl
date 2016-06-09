@@ -77,6 +77,10 @@
 			b[2].c = opts.n2;
 			cont.appendChild(b[0]);
 
+			b[2].onmouseover = function(){
+				$("#svg"+this.oid).get()[0].onmouseover
+			}
+
 			b[2].onclick = function(){
 				//console.log(this.id);
 				insertDataToModal(this);
@@ -273,7 +277,8 @@
 				}
 				
 				///Файлы
-				var addButtonHtml = "";//policy.add ? "<button id='bFileUpload'>+</button>" : "";
+				var policy = {add:true};
+				var addButtonHtml = policy.add ? "<button id='bFileUpload'>+</button>" : "";
 				var domPanelFileUploadHtml = "<div style='background-color:#fffff0; border:1px solid #ccc' hidden id='domPanelFileUpload'><table cellspacing=5><tr><td>"+
 					"<form enctype='multipart/form-data' action='upload2.php' method='POST'>"+
 					"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+
