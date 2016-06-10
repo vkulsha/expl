@@ -629,43 +629,35 @@ function lineArray2matrixArray(arr, rows, cols, fill){
 Return html table menu from object as [{field1:val11, field2:val12}, {field1:val21, field2:val22}]
 */
 function iMainMenu(interfaces){
-	var table = document.createElement("table");
+	var table = cDom("TABLE");
 	table.classList.add("tMenu");
 	
 	for (var row=0; row < interfaces.length; row++) {
-		var tr = document.createElement("tr");
+		var tr = table.appendChild(cDom("TR"));
 		for (var col=0; col < interfaces[row].length; col++) {
-			var td = document.createElement("td");
-			var but = document.createElement("button");
-			var div = document.createElement("div");
-			var img = new Image();
+			var td = tr.appendChild(cDom("TD"));
+			var but = td.appendChild(cDom("TD"));
+			var img = but.appendChild(cDom("IMG"));
+			var lab = but.appendChild(cDom("LABEL"));
+
+			td.setAttribute("align","center");
 			but.classList.add("menubutton");
 			but.style.width = "200px";
 			but.style.height = "180px";
-			but.style.cursor = "pointer";
-			
-			if (interfaces[row][col]['Ключи интерфейсов']){
-				img.src = domain+interfaces[row][col]['Файлы'];
-				td.row = row;
-				td.col = col;
-				td.onclick = function(){
-					location.href = "?"+interfaceUrlKey+"="+interfaces[this.row][this.col]['Ключи интерфейсов']+"&key="+userKey;
-				}
-				div.innerHTML = interfaces[row][col]['Главное меню'];
-			}
-			
+			img.src = domain+interfaces[row][col]['Файлы'];
 			img.style.height = "130px";
 			img.style.width= "auto";
+			lab.innerHTML = interfaces[row][col]['Главное меню'];
 			
-			$(td).attr("align","center");
-			$(td).append(img);
-			$(td).append("<br><br>");
-			$(td).append(div);
-			//$(td).wrapInner(alink);
-			$(td).wrapInner(but);
-			$(tr).append(td);
+			if (interfaces[row][col]['Ключи интерфейсов']){
+				but.interfaceKey = interfaces[row][col]['Ключи интерфейсов'];
+				but.id = "b"+but.interfaceKey;
+				but.hidden = true;
+				but.onclick = function(){
+					location.href = "?"+interfaceUrlKey+"="+this.interfaceKey+"&key="+userKey;
+				}
+			}
 		}
-		$(table).append(tr);
 	}
 	return table;
 }
@@ -1023,32 +1015,50 @@ function gDom(id){
 	return document.getElementById(id);
 }
 
-function getInterfacesAccess(userId, interfacesFunction){
+function getMainInterfaceKey(userId){
+	var sel = objectlink.getTableQuery([
+		{n:"Пользователи"},//0
+		{n:"Интерфейсы"},//1
+		{n:"Ключи интерфейсов", parentCol:1},//2
+	], false);
+	
+	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where `id Пользователи` = "+userId;
+	var num = orm(query, "col2array");
+	if (num.length) {
+		num = num[0];
+	} else {
+		num = undefined;
+	}
+	return num;
+};
+
+function getInterfaceElements(userId, interfaceKey){
 	var sel = objectlink.getTableQuery([
 		{n:"Пользователи"},//0
 		{n:"Группы прав пользователей", linkParent:true},//1
-		{n:"Права пользователей", parentCol:1},//2
-		{n:"Интерфейсы", parentCol:2},//3
-		{n:"Функции интерфейсов", parentCol:2},//4
-		{n:"Ключи интерфейсов", parentCol:3},//5
+		{n:"Элементы интерфейсов", parentCol:1},//2
+		{n:"Интерфейсы", linkParent:true, parentCol:2},//3
+		{n:"Ключи интерфейсов", parentCol:3},//4
 	], false);
-/*	var sel = objectlink.getTableQuery([
-		{n:"Ключи интерфейсов"},//0
-		{n:"Интерфейсы", linkParent:true},//1
-		{n:"Права пользователей", parentCol:1, linkParent:true},//2
-		{n:"Функции интерфейсов", parentCol:2},//3
-		{n:"Группы прав пользователей", parentCol:2, linkParent:true},//4
-		{n:"Пользователи", parentCol:4},//5
-	], false);*/
 	
-	interfacesFunction = interfacesFunction || "просмотр";
-	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where 1=1 "+
-	"and `Функции интерфейсов` = '"+interfacesFunction+"' "+
-	"and `id Пользователи` = "+userId+
-	" order by case `Ключи интерфейсов` when 'iMainMenu' then 0 else 1 end ";
-	//console.log(query);
-	return orm(query, "col2array")
+	var query = "select `Элементы интерфейсов` from ( "+sel+")xx where `id Пользователи` = "+userId+" and `Ключи интерфейсов` = '"+interfaceKey+"'";
+	var num = orm(query, "col2array");
+	return num;
 };
+
+function showInterfaceElements(userId, interfaceKey){
+	var policy = getInterfaceElements(userId, interfaceKey);
+	for (var i=0; i < policy.length; i++){
+		var dom = gDom(policy[i])
+		if (dom) {
+			dom.hidden = false;
+		}
+	}
+	
+	return policy;
+};
+
+
 
 function $_GET(keyname){
 	var search = location.search.split("?")

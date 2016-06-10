@@ -35,23 +35,30 @@
 		<script src="js/JsObjTable.js"></script>
 
 		<script>
-			var userKey = $_GET("key") || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+			var key = $_GET("key");
+			var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
 			var userId = objectlink.gAND([userKey, objectlink.gO("Пользователи")]);
 			if (userId.length){
-				var interfaces = getInterfacesAccess(userId[0], 'просмотр');
+				userId = userId[0];
+				var mainInterface = getMainInterfaceKey(userId);
 				var curInterface = $_GET(interfaceUrlKey);
-				if (curInterface && ~interfaces.indexOf(curInterface)){
+				
+				if (curInterface && key){
 				} else {
-					curInterface = interfaces[0];
+					curInterface = mainInterface;
 				}
 				if (curInterface) {
 					$(document).ready(function() {
 						var iGoHome = gDom("iGoHome");
-						iGoHome.setAttribute("href", "?interface=iMainMenu&key="+userKey);
+						iGoHome.setAttribute("href", "?interface="+(mainInterface ? mainInterface : "auth")+"&key="+userKey);
+
+						var policy = showInterfaceElements(userId, curInterface);
 						var mainContainer = gDom("mainContainer");
-						getHttp(curInterface+".php"+location.search, function(data){
-							$(mainContainer).append(data);
-						}, true);
+						if (!mainContainer.hidden) {
+							getHttp(curInterface+".php"+location.search, function(data){
+								$(mainContainer).append(data);
+							}, true);
+						}
 					});
 				}
 			}
@@ -73,7 +80,7 @@
 			</td>
 		<tr>
 		<tr height="100%" width="100%">
-			<td align="center" valign="middle" class="mainContainer" id="mainContainer">
+			<td align="center" valign="middle" class="mainContainer" id="mainContainer" hidden>
 			</td>
 		</tr>
 	</body>

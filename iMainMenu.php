@@ -13,5 +13,6 @@
 	//} else {
 		$(".mainContainer").append(menuHtml);
 	//}
+	var policy = showInterfaceElements(userId, curInterface);
 	
 </script>

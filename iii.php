@@ -355,7 +355,8 @@
 		result = prompt("eO (id)", oid);
 		if (result) {
 			objectlink.eO(result);
-			hashchange();
+			history.back();
+			//hashchange();
 			//goHome();
 		} else {
 			alert("Недопустимое значение id!");
