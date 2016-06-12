@@ -167,6 +167,15 @@ var objectlink = {
 		return this.sql.sT(this.cc, "*");
 		
 	},*/
+	gC : function(id, fields){
+		return this.sql.sql("select "+(fields ? fields : "*")+" from object where id in (select o2 from link where o2 in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) and o1 = "+id+")").result.data;
+	},
+	gCn : function(id){
+		return this.gC(id, "n")
+	},
+	gCid : function(id){
+		return this.gC(id, "id")
+	},
 	gOCQ : function(className){
 		return ""+
 			"select * from object where id in ( "+
@@ -350,7 +359,7 @@ var objectlink = {
 						"from (#main class \n"+
 						"	select id, n from object where id in ( \n"+
 						"		select o1 from link where o2 = "+l+" \n"+
-						"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n")+
 						"	) \n"+
 						"	group by id \n"+
 						")o"+i+" \n";
@@ -374,7 +383,7 @@ var objectlink = {
 						"left join ( \n"+
 						"	"+selecto1o2+" \n"+
 						"		select o1 from link where o2 = "+l+" \n"+
-						"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n"+
+						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n")+
 						"	) \n"+
 						"	group by o1, o2 \n"+
 						")l"+i+" on l"+i+".o2 = o"+parentCol+".id left join object o"+i+" on o"+i+".id = l"+i+".o1 \n";
@@ -434,21 +443,17 @@ var objectlink = {
 			}
 		}
 	},
-	getlinkedObjectsQuery : function(){
-		return ""+
-			"select id, n, oid2, n2, n1 from ( "+
-			"	select o0.n n1, l1.o1 oid1, l1.o2 id, o1.n n, o2.id oid2, o2.n n2 from (select o1, o2 from link union all select o2, o1 from link)l1 "+
-			"	left join link l2 on l2.o1 = l1.o2 and l2.o2 in (select o1 from link where o2 = (select id from object where n = 'Класс' limit 1)) "+
-			"	left join object o1 on o1.id = l1.o2 "+
-			"	left join object o2 on o2.id = l2.o2 "+
-			"	left join object o0 on o0.id = l1.o1 "+
-			")lll where 1=1 ";
-		
+	getlinkedObjectsQuery : function(id, className, isParent, isClass){
+		var classes = this.gCn(id);
+		if (classes.length) {
+			var c = classes[0];
+			return this.getTableQuery2([className, c],[],[!isParent ? 1 : 0],(isClass ? [0,1] : []))+" and `id "+c+"` = "+id;
+		}
 		
 	},
-	getlinkedObjects : function(oid1, n2, id){
-		var q = this.getlinkedObjectsQuery();
-		return orm(q+" and oid1="+oid1+(n2 ? " and n2='"+n2+"'" : "")+(id ? " and id='"+id+"'" : ""), "all2array");
+	getlinkedObjects : function(id, className, isParent, isClass){
+		var q = this.getlinkedObjectsQuery(id, className, isParent, isClass);
+		return orm(q, "all2array");
 	},
 	getObjectByLinkedObjectQuery : function(class1Name, class2Name){
 		return ""+
@@ -484,7 +489,26 @@ var objectlink = {
 			return undefined
 		}
 	},
-	
+	getTableQuery2 : function(nArr, parentColArr, linkParentArr, inClassArr){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1]
+		nArr = nArr || [];
+		parentColArr = parentColArr || [];
+		linkParentArr = linkParentArr || [];
+		inClassArr = inClassArr || [];
+		var opts = [];
+		for (var i=0; i < nArr.length; i++){
+			opts.push({n:nArr[i], parentCol:0, linkParent:false});
+		}
+		for (var i=0; i < parentColArr.length; i++){
+			opts[parentColArr[i][0]].parentCol = parentColArr[i][1];
+		}
+		for (var i=0; i < linkParentArr.length; i++){
+			opts[linkParentArr[i]].linkParent = true;
+		}
+		for (var i=0; i < inClassArr.length; i++){
+			opts[inClassArr[i]].inClass = true;
+		}
+		return "select * from ("+objectlink.getTableQuery(opts, false)+")x where true ";
+	},	
 	
 	
 }
