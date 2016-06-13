@@ -1,6 +1,7 @@
 <?php
 require('DB.php');
 require('ObjectLink.php');
+require('SQL.php');
 header('Content-Type: text/html; charset=utf-8');
 
 $conn;
@@ -12,3 +13,4 @@ if ($_SERVER['SERVER_NAME'] == "kulsha.ru") {
 $explDb = $conn->db;
 $explDbType = $explDb->getAttribute(PDO::ATTR_DRIVER_NAME);
 $objectlink = new ObjectLink($conn->db);
+//$sql = new SQL($conn->db);

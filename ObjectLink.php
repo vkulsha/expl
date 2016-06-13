@@ -1,34 +1,31 @@
 <?php
 class ObjectLink {
-	private $db;
-    public function __construct($pdo) {
-		$this->db = $pdo;
+	private $sql;
+	
+    public function __construct(&$pdo) {
+		$this->sql = new SQL($pdo);
     }
 
 	public function cO($n, $pid){
-		$sth = $this->db->prepare("insert into object (n) values (?)");  
-		$sth->execute([$n]);
+		$ret = $this->sql->iT("object", "n", "'".$n."'");  
 		
-		$id = $this->db->lastInsertId();
 		$pid = $pid ? $pid : 1;
 		if ($pid) {
 			$this->cL($id, $pid);
 		}
-		return $id;
+		return $ret;
 		
 	}
 
 	public function cL($o1, $o2){
-		$sth = $this->db->prepare("insert into link (o1, o2) values (?, ?)");  
-		$sth->execute([$o1, $o2]);
-		return $sth;
+		$ret = $this->sql->iT("link", "o1, o2", $o1.",".$o2);  
+		return $ret;
 		
 	}
 
 	public function gO($n){
-		$sth = $this->db->prepare("select id from object where n = ?");  
-		$sth->execute([$n]);
-		return $sth->fetch()[0];
+		$ret = $this->sql->sT("object", "id", "and n = '".$n."'", "order by id", "limit 1");
+		return $ret ? $ret[0][0] : null;
 		
 	}
 	

@@ -24,57 +24,17 @@ var SQL = {
 var objectlink = {
 	oo  : "object",
 	ll  : "link",
-//	cc  : "class",//view return table classes
-//	ol  : "objectlink",//view return table all objects join with links without classes
-//	ola  : "objectlinkall",//view return table all objects join with links with classes
 
 	o1o2 : function(o1, o2){
-		return " and ((o1="+o1+" and o2="+o2+") or (o1="+o2+" and o2="+o1+"));";
+		return " and ((o1="+o1+" and o2="+o2+") or (o1="+o2+" and o2="+o1+")) ";
 	},
 
 	sql : SQL,
 	
 	cD	: function(){
-		this.cT(this.oo, "id bigint not null auto_increment, n char(255), d timestamp, /*x float, y float, z float, */primary key(id), index(n);");
-		this.cT(this.ll, "id bigint not null auto_increment, o1 bigint, o2 bigint, c bigint, primary key(id), index(o1), index(o2), index(c)");
-/*		this.cV(this.cc, 
-			"select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 = (select id from object where n = 'класс')))o1 "+
-			"left join link on o1 = o1.id and o2 <> (select id from object where n = 'класс') "
-		);
-		this.cV(this.ol, 
-			"select o.id, o.n, link.o2 from (select * from object where id not in (select o1 from link where o2 = (select id from object where n = 'класс'))) o "+
-			"left join link on o1 = o.id and o1 not in (select o1 from link where o2 = (select id from object where n = 'класс'))"
-		);
-		this.cV(this.ola, 
-			"select link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c from link "+
-			"join object on object.id = link.o1 "+
-			"left join link class on class.o1 = link.o1 and class.o2 in (select id from object where n='Класс') "
-		);
-*/		
-		var o = this.cO("Система");
-
-		var o2 = this.cO("Время");
-		this.sql.iT(this.oo, "(n)", "select CURRENT_TIMESTAMP()");
-		var o1 = this.sql.sT(this.oo, "max(id)").result.data[0][0];
-		this.cL(o1, o2);
-
+		this.cT(this.oo, "id bigint not null auto_increment, n char(255), d timestamp, c bigint, primary key(id), index(n), index(d), index(c);");
+		this.cT(this.ll, "id bigint not null auto_increment, o1 bigint, o2 bigint, c bigint, d timestamp, primary key(id), index(o1), index(o2), index(c), index(d)");
 		var o = this.cO("Класс");
-		
-		var o2 = this.cO("Правило");
-		var o1 = this.cO("Правило Исполнитель");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило Условие");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило Условие Сравнение");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило Субъект");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило СУбъект Сравнение");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило Статус Исполнено");
-		this.cL(o1, o2);
-		var o1 = this.cO("Правило Статус Неисполнено");
-		this.cL(o1, o2);
 		return {q:"init database", result: "true"};
 	},
 	
@@ -87,46 +47,40 @@ var objectlink = {
 		return oid;
 	},
 	cL : function(o1, o2){//return created/count of updated link.id
-		var lid = this.sql.sT(this.ll, "id", this.o1o2(o1, o2));
-		lid = lid.result.data.length ? lid.result.data[0][0] : undefined;
-		if (lid) {
-			this.sql.uT(this.ll, "c = 1", this.o1o2(o1, o2));
-			return lid;
-		} else {
-			this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
-			return this.sql.sT(this.ll, "max(id)").result.data[0][0];
-		}
+		this.sql.iT(this.ll, "(o1, o2, c)", "values ("+o1+", "+o2+", 1)");
 		var s = parseInt(this.gS(o1))+1 || 1;
 		this.uS(o1, s);
 		var s = parseInt(this.gS(o2))+1 || 1;
 		this.uS(o2, s);
-		
+		return s;
 	},
+	
 	gO : function(n){//return object.id from name
-		var result = this.sql.sT(this.oo, "id", " and n='"+n+"'", "", "limit 1").result.data;
+		var result = this.sql.sT(this.oo, "id", " and n='"+n+"'", "order by id", "limit 1").result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},
 	gN : function(id){//return object.n
-		var result = this.sql.sT(this.oo, "n", " and id="+id).result.data;
+		var result = this.sql.sT(this.oo, "n", " and id="+id, "", "limit 1").result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},
 	gS : function(id){
-		var result = this.sql.sT(this.oo, "c", " and id="+id).result.data;
+		var result = this.sql.sT(this.oo, "c", " and id="+id, "", "limit 1").result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},
 	gD : function(id){
-		var result = this.sql.sT(this.oo, "d", " and id="+id).result.data;
+		var result = this.sql.sT(this.oo, "d", " and id="+id, "", "limit 1").result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},
 	gL : function(o1, o2){//return link.id
-		var result = this.sql.sT(this.ll, "id", this.o1o2(o1, o2)).result.data;
+		var result = this.sql.sT(this.ll, "id", this.o1o2(o1, o2), "", "limit 1").result.data;
 		result = result.length ? result[0][0] : undefined;
 		return result;
 	},
+	
 	uO : function(id, n){//return count of updated objects
 		var result = this.sql.uT(this.oo, "n = '"+n+"'", "and id = "+id).result.data[0][0];
 		//chRs(id);
@@ -140,6 +94,7 @@ var objectlink = {
 		var result = this.sql.uT(this.ll, "c = '"+c+"'", "and id = "+id).result.data[0][0];
 		return result;
 	},
+	
 	dL : function(id){
 		var result = this.uL(id, 0);
 		return result;
@@ -163,17 +118,13 @@ var objectlink = {
 		return this.sql.dT(this.ll, " and ((o1 = "+o1+" and o2="+o2+") or (o2 = "+o1+" and o1="+o2+"))").result.data[0][0];
 	},
 
-/*	gC : function(){//return view `class`
-		return this.sql.sT(this.cc, "*");
-		
-	},*/
-	gC : function(id, fields){
+	gC : function(id, fields){//get class object fields
 		return this.sql.sql("select "+(fields ? fields : "*")+" from object where id in (select o2 from link where o2 in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) and o1 = "+id+")").result.data;
 	},
-	gCn : function(id){
+	gCn : function(id){//get class object names
 		return this.gC(id, "n")
 	},
-	gCid : function(id){
+	gCid : function(id){//get class object ids
 		return this.gC(id, "id")
 	},
 	gOCQ : function(className){
