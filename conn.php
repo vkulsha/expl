@@ -12,5 +12,5 @@ if ($_SERVER['SERVER_NAME'] == "kulsha.ru") {
 };
 $explDb = $conn->db;
 $explDbType = $explDb->getAttribute(PDO::ATTR_DRIVER_NAME);
-$objectlink = new ObjectLink($conn->db);
-//$sql = new SQL($conn->db);
+$sql = new SQL($explDb);
+$objectlink = new ObjectLink($sql);

@@ -67,9 +67,10 @@
 	
 	function gObjects(cont, opts){
 		cont.appendChild(gB(opts.caption ? opts.caption : opts.n2, true)[0]);
-		var sel = objectlink.getTableQuery2([opts.n1, opts.n2]);
-		sel = "select * from (" + sel + ")x where `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "");
-		var objects = orm(sel, "all2array");
+		//var sel = objectlink.getTableQuery2([opts.n1, opts.n2]);
+		//sel = "select * from (" + sel + ")x where `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "");
+		//var objects = orm(sel, "all2array");
+		var objects = objectlink.gOrm("gT",[[opts.n1, opts.n2], [],[],[], "*", "and `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "")]);
 		for (var i=0; i < objects.length; i++){
 			var n = objects[i][opts.n2 ? 3 : 1];
 			var id = objects[i][opts.n2 ? 2 : 0];
@@ -98,10 +99,10 @@
 	}
 
 	function createSVGobjects(svgCont, opts){
-		var sel = objectlink.getTableQuery2(["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]]);
-		sel = "select * from (" + sel + ")x where `id Объект` = "+opts.oid1;
-		
-		var objects = orm(sel, "all2array");
+		//var sel = objectlink.getTableQuery2(["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]]);
+		//sel = "select * from (" + sel + ")x where `id Объект` = "+opts.oid1;
+		//var objects = orm(sel, "all2array");
+		var objects = objectlink.gOrm("gT",[["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]],[],[], "*", "and `id Объект` = "+opts.oid1]);
 		for (var i=0; i < objects.length; i++){
 			var id = objects[i][2];//opts.n2
 			var val = objects[i][5];//`Векторные схемы объектов`
@@ -213,8 +214,11 @@
 	//container2.appendChild(gB("Наличие коммуникаций", true)[0]);
 	container2.appendChild(tr);
 	//var objects = objectlink.getlinkedObjects(oid, "Класс", true, true);
-	var sel = objectlink.getTableQuery2(["Класс", "Объект", "Фото"],[],[],[0])+" and `id Объект`="+oid;
-	var objects = orm(sel, "all2array");
+
+	//var sel = objectlink.getTableQuery2(["Класс", "Объект", "Фото"],[],[],[0])+" and `id Объект`="+oid;
+	//var objects = orm(sel, "all2array");
+
+	var objects = objectlink.gOrm("gT",[["Класс", "Объект", "Фото"],[],[],[0], "*", "and `id Объект` = "+oid]);
 
 	for (var i=0; i < objects.length; i++){
 		var n = objects[i][1];

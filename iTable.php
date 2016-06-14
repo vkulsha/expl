@@ -12,7 +12,7 @@
 	var container = document.getElementsByClassName("jsTableContainer")[0];
 	currentClass = "Object";
 
-	var sel = objectlink.getTableQuery([
+/*	var sel = objectlink.getTableQuery([
 		{n:"объект"},//0
 		{n:"адрес"},//1
 		{n:"кадастр"},//2
@@ -22,10 +22,11 @@
 		{n:"ик", linkParent:true},//6
 		{n:"ту", linkParent:true, parentCol:6},//7
 		{n:"ответственный", parentCol:6},//8
-	]);
+	]);*/
+	var sel = objectlink.gOrm("gTq",[["Объект","Адрес","Кадастр","Широта","Долгота","Номер","ИК","ТУ","Ответственный"],[[7,6],[8,6]],[6,7]]);
 	sel = "select номер, ту, ик, ответственный, объект, адрес, кадастр, широта, долгота from ("+sel+")x where 1=1 ";
 	var query = {
-		select:sel, 
+		select:sel,
 		order:" order by ту desc, ик, case length(номер) when 1 then concat('00',номер) when 2 then concat('0',номер) else номер end "
 	};
 	var colors = [

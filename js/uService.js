@@ -157,12 +157,23 @@ function postJSON(uri, data, async, func, funcError, funcFinnaly) {
 function sqlAsync(query, async, func, funcError, funcFinnaly) {
 	postJSON(domain+"sql2json.php", {q : query}, async, func, funcError, funcFinnaly)
 };
+
+function postOrm(params, async, func, funcError, funcFinnaly) {
+	postJSON(domain+"orm.php", {f : params.f, p : JSON.stringify(params.p)}, async, func, funcError, funcFinnaly)
+};
 	
 function sql(query, funcError, funcFinnaly){
 	var result;
 	sqlAsync(query, false, function(data){ result = data; }, funcError, funcFinnaly)
 	return result;
 };
+
+function sqlOrm(params, funcError, funcFinnaly){
+	var result;
+	postOrm(params, false, function(data){ result = data; }, function(e){console.log(e);}, funcFinnaly)
+	return result;
+};
+//sqlOrm({f:"gT",p:[["Объект", "Земельные участки"],[],[],[],"*"," and `id Объект`=115"]})	
 
 function orm(query, type) {
 	return getOrmObject(sql(query), type)

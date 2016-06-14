@@ -157,9 +157,9 @@ var objectlink = {
 			, "col2array"
 		);
 	},
-	gT : function(){
-		return this.gAND([this.gO("время")])[0]
-	},
+	//gT : function(){
+	//	return this.gAND([this.gO("время")])[0]
+	//},
 	cR : function(ruleName, executor, condObjectFrom, condObjTo, subjectFrom, subjectTo){//return created object-rule
 		var result = this.cO(ruleName);
 		var ruleclass = this.gO("правило") || this.cO("правило");
@@ -288,7 +288,7 @@ var objectlink = {
 	},
 	getTableQuery : function(params, groupbyind){
 		var result = [];
-		params = params || [];//[{id:1331, n:"ик", parentCol:0, linkParent:0}]
+		params = params || [];//[{id:1331, n:"ик", parentCol:0, linkParent:false}]
 		if (groupbyind != false) {
 			groupbyind = groupbyind || "0";
 		}
@@ -459,9 +459,11 @@ var objectlink = {
 			opts[inClassArr[i]].inClass = true;
 		}
 		return "select * from ("+objectlink.getTableQuery(opts, false)+")x where true ";
-	},	
-	
-	
+	},
+	gOrm : function(funcName, params){
+		return sqlOrm({f:funcName, p:params})	
+		
+	},
 }
 
 

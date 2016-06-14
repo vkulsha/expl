@@ -48,5 +48,7 @@
         <File name="ObjectLink.php" />
         <File name="shemaPaint.php" />
         <File name="test.php" />
+        <File name="SQL.php" />
+        <File name="orm.php" />
     </Project>
 </NotepadPlus>
