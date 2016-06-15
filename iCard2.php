@@ -30,10 +30,16 @@
 </table>
 
 <script>
+	var data = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	var classes = getOrmObject({"columns":["n","id"],"data":data}, "rows2object");
 	//var d = new Date();
 	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
-	var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
+	//var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
+	var numberCid = objectlink.gOrm("gO",["Номер",true]);
+	var numId = parseInt(objectlink.gOrm("gAnd",[[numberCid],"id",true,"and n='"+objectId+"'"]));
+	var objectCid = objectlink.gOrm("gO",["Объект",true]);
+	var oid = objectlink.gOrm("gAnd",[[objectCid,numId],"id",true]);
 	
 	var modal = document.getElementById('myModal');
 	var span = document.getElementsByClassName("close")[0];
@@ -67,10 +73,7 @@
 	
 	function gObjects(cont, opts){
 		cont.appendChild(gB(opts.caption ? opts.caption : opts.n2, true)[0]);
-		//var sel = objectlink.getTableQuery2([opts.n1, opts.n2]);
-		//sel = "select * from (" + sel + ")x where `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "");
-		//var objects = orm(sel, "all2array");
-		var objects = objectlink.gOrm("gT",[[opts.n1, opts.n2], [],[],[], "*", "and `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "")]);
+		var objects = objectlink.gOrm("gT",[[opts.n1, opts.n2], [],[],[],false, "*", "and `id "+opts.n1+"` = "+opts.id + (opts.n2 ? " order by `id "+opts.n2+"`" : "")]);
 		for (var i=0; i < objects.length; i++){
 			var n = objects[i][opts.n2 ? 3 : 1];
 			var id = objects[i][opts.n2 ? 2 : 0];
@@ -93,16 +96,12 @@
 
 			b[2].onclick = function(){
 				insertDataToModal(this);
-				modal.style.display = "block";
 			}
 		}
 	}
 
 	function createSVGobjects(svgCont, opts){
-		//var sel = objectlink.getTableQuery2(["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]]);
-		//sel = "select * from (" + sel + ")x where `id Объект` = "+opts.oid1;
-		//var objects = orm(sel, "all2array");
-		var objects = objectlink.gOrm("gT",[["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]],[],[], "*", "and `id Объект` = "+opts.oid1]);
+		var objects = objectlink.gOrm("gT",[["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]],[],[],false, "*", "and `id Объект` = "+opts.oid1]);
 		for (var i=0; i < objects.length; i++){
 			var id = objects[i][2];//opts.n2
 			var val = objects[i][5];//`Векторные схемы объектов`
@@ -155,6 +154,40 @@
 			.attr("x", point[0]-5)
 			.attr("y", point[1]+5);
 		txt[0][0].innerHTML = el.caption;
+		
+		if (false){//pseudo-3D
+			var arr2 = [];
+			for (var i=0; i < arr.length; i++){
+				var point = arr[i].split(",");
+				var x1 = point[0];
+				var y1 = point[1];
+				var x2 = parseInt(x1) + 10;
+				var y2 = parseInt(y1) - 10;
+				arr2.push(x2+" "+y2);
+				var el2 = svgCont
+					.append("line")
+					.attr("x1", x1)
+					.attr("y1", y1)
+					.attr("x2", x2)
+					.attr("y2", y2)
+					.attr("stroke-width", 1)
+					.attr("stroke", "#7b5401")
+					.attr("fill", "transparent");
+				
+			}
+			var el2 = svgCont
+				.append("polygon")
+				.attr("points", arr2.join(" "))
+				.attr("stroke-width", 1)
+				.attr("stroke", "#7b5401")
+				.attr("fill", "transparent");
+			var el2 = el2[0][0];
+			el2.id = "svg"+id;
+			el2.oid = id;
+			el2.onmouseover = el.onmouseover;
+			el2.onmouseout = el.onmouseout;
+			el2.onclick = el.onclick;
+		}
 	}
 	
 	var container = gDom("container");
@@ -213,12 +246,7 @@
 	var trbut = td.appendChild(cDom("TABLE").appendChild(cDom("TR")));
 	//container2.appendChild(gB("Наличие коммуникаций", true)[0]);
 	container2.appendChild(tr);
-	//var objects = objectlink.getlinkedObjects(oid, "Класс", true, true);
-
-	//var sel = objectlink.getTableQuery2(["Класс", "Объект", "Фото"],[],[],[0])+" and `id Объект`="+oid;
-	//var objects = orm(sel, "all2array");
-
-	var objects = objectlink.gOrm("gT",[["Класс", "Объект", "Фото"],[],[],[0], "*", "and `id Объект` = "+oid]);
+	var objects = objectlink.gOrm("gT",[["Класс", "Объект", "Фото"],[],[],[0],false, "*", "and `id Объект` = "+oid]);
 
 	for (var i=0; i < objects.length; i++){
 		var n = objects[i][1];
@@ -230,12 +258,12 @@
 		b.classList.add("card");
 		
 		b.setAttribute("title", n);
-		b.id = id;
+		b.id = "b"+id;
+		b.oid = id;
 		b.n = n;
 		b.c = "Коммуникации";
 		b.onclick = function(){
 			insertDataToModal(this);
-			modal.style.display = "block";
 		}
 		if (imgFn) {
 			b.innerHTML = "";
@@ -254,23 +282,100 @@
 		$("#modalFooter").html("");
 		var maincont = $("#modalCont");
 		var cont = $(modalBody).get()[0];
+
+		var tb = cont.appendChild(cDom("TABLE"));
+		var tr = tb.appendChild(cDom("TR"));
+		tb.style.width = "100%";
+		//tb.setAttribute("border",1)
+		var tdData = tr.appendChild(cDom("TD"));
+		var tdImg = tr.appendChild(cDom("TD"));
+		tdData.setAttribute("valign","top");
+		tdData.setAttribute("align", "left");
+		//tdData.style.border = "1px solid #000";
+		tdImg.setAttribute("align", "right");
+
+		var dataContainer = cDom("DIV");
+		dataContainer.style.width = "100%";
+		dataContainer.style.height = "1px";
 		
 		switch (object.c) {
 			case "Земельные участки":
 			case "Здания и сооружения":
+				//информация
+				var td = tdData;
+				//dataContainer.style.height = cont.getBoundingClientRect().bottom - cont.getBoundingClientRect().top;
+				dataContainer.style.overflow = "auto";
+				td.appendChild(dataContainer);
+
+				//gObjects(dataContainer, {n1:"Объект", n2:"Земельные участки", id:oid, caption:"Земельные участки:"});
+				$(dataContainer).append("<tr><td><b>Свидетельство о гос регистрации</b></td></tr>");
+				$(dataContainer).append("<tr><td>"+
+				"серия № <br>"+
+				"дата <br>"+
+				"собственник <br>"+
+				"обременения <br>"+
+				"");
+
+				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				$(dataContainer).append("<tr><td><b>Технический паспорт</b></td></tr>");
+				$(dataContainer).append("<tr><td>"+
+				"дата техпаспорта <br>"+
+				"площадь общая <br>"+
+				"площадь полезная <br>"+
+				"площадь застройки <br>"+
+				"этажность <br>"+
+				"год постройки <br>"+
+				"высота этажей <br>"+
+				"стены и перегородки <br>"+
+				"перекрытия <br>"+
+				"фундамент <br>"+
+				"состояние <br>"+
+				"процент износа <br>"+
+				"");
+
+				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				$(dataContainer).append("<tr><td><b>Данные бухучета</b></td></tr>");
+				$(dataContainer).append("<tr><td>"+
+				"Инвентарный или условный номер <br>"+
+				"Балансовая стоимость <br>"+
+				"Остаточная стоимость на <br>"+
+				"");
+
+				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				$(dataContainer).append("<tr><td><b>Материально ответственное лицо</b></td></tr>");
+				$(dataContainer).append("<tr><td>"+
+				"ФИО <br>"+
+				"Должность <br>"+
+				"Телефон <br>"+
+				"Email <br>"+
+				"");
+
+				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				$(dataContainer).append("<tr><td><b>Дополнительная информация</b></td></tr>");
+				$(dataContainer).append("<tr><td>"+
+				"Инженерные коммуникации <br>"+
+				"");
+
+				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				
 				///Фото
-				var images = objectlink.getlinkedObjects(object.oid, "Фото");
+				//var images = objectlink.getlinkedObjects(object.oid, "Фото");
+				var cid = objectlink.gOrm("gO",["Фото",true]);
+				var images = objectlink.gOrm("gAnd",[[object.oid, cid]]);
 				if (images && images.length) {
 					var imgInd = 0;
 					var imgContainer = cDom("DIV");
+					var td = tdImg;
+					td.appendChild(imgContainer);
+					
 					var imgObject = new Image();
 					$(imgObject).attr("src", domain+images[imgInd][1]);
 					$(imgObject).css("cursor", "pointer");
 					imgContainer.appendChild(imgObject);
-					$(cont).append(imgContainer);
+					
 					
 					$(imgContainer)
-						.css("height", windowHeight()-300+"px")
+						.css("height", windowHeight()-230+"px")
 						.css("width", maincont.css("width")-50+"px");
 					
 					$(imgObject)
@@ -321,7 +426,9 @@
 					}
 				}
 
-				var otherFiles = objectlink.getlinkedObjects(object.oid, "Файлы");
+				//var otherFiles = objectlink.getlinkedObjects(object.oid, "Файлы");
+				var cid = objectlink.gOrm("gO",["Файлы",true]);
+				var otherFiles = objectlink.gOrm("gAnd",[[object.oid, cid]]);
 				var filesHtml = [];
 				var iconFile = "file.png";
 				for (var i=0; i < otherFiles.length; i++) {
@@ -347,6 +454,8 @@
 			default:
 			break;
 		}
+		modal.style.display = "block";
+		dataContainer.style.height = modalBody.getBoundingClientRect().bottom - modalBody.getBoundingClientRect().top;
 		
 	}
 		

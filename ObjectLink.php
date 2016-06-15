@@ -56,8 +56,9 @@ class ObjectLink {
 	public function gO($params){//get object id by name
 		try {
 			$n = $params[0];
+			$isClass = isset($params[1]) ? "and id in (select o1 from link where o2 = 1) " : "";
 			
-			$ret = $this->sql->sT(["object", "id", "and n = '$n'", "order by id", "limit 1"]);
+			$ret = $this->sql->sT(["object", "id", "and n = '$n' $isClass", "order by id", "limit 1"]);
 			return $ret ? $ret[0][0] : null;
 			
 		} catch (Exception $e) {
@@ -241,14 +242,13 @@ class ObjectLink {
 		}
 	}
 	
-	public function gTq($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1]
+	public function gTq($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1], false
 		try {
 			$nArr = isset($params[0]) ? $params[0] : [];
 			$parentColArr = isset($params[1]) ? $params[1] : [];
 			$linkParentArr = isset($params[2]) ? $params[2] : [];
 			$inClassArr = isset($params[3]) ? $params[3] : [];
-			//$fields = isset($params[4]) ? $params[4] : "*";
-			//$cond = isset($params[5]) ? $params[5] : "";
+			$groupByInd = isset($params[4]) ? $params[4] : false;
 
 			$opts = [];
 			for ($i=0; $i < count($nArr); $i++){
@@ -263,10 +263,7 @@ class ObjectLink {
 			for ($i=0; $i < count($inClassArr); $i++){
 				$opts[$inClassArr[$i]]["inClass"] = true;
 			}
-			return $this->getTableQuery([$opts, false]);
-			//return "select ".$fields." from (".($this->getTableQuery([$opts, false])).")x where true ".$cond;
-			//$sel = $this->getTableQuery([$opts, false]);
-			//return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
+			return $this->getTableQuery([$opts, $groupByInd]);
 			
 		} catch (Exception $e){
 			print($e);
@@ -274,10 +271,11 @@ class ObjectLink {
 		}
 	}	
 	
-	public function gT($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1], "*", "and a = 115"
+	public function gT($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1], false, "*", "and a = 115"
 		try {
-			$fields = isset($params[4]) ? $params[4] : "*";
-			$cond = isset($params[5]) ? $params[5] : "";
+			$fields = isset($params[5]) ? $params[5] : "*";
+			$cond = isset($params[6]) ? $params[6] : "";
+			
 			$sel = $this->gTq($params);
 			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
 			
@@ -287,6 +285,33 @@ class ObjectLink {
 		}
 	}	
 
+	public function gAnd($params){
+		try {
+			$objects = join(",",$params[0]);
+			$count = count($params[0]);
+			$fields = isset($params[1]) ? $params[1] : "*";
+			$notIsClass = isset($params[2]) ? "not in (select o1 from link where o2 = 1)" : "";
+			$notIsClass1 = $notIsClass ? "and o1 $notIsClass" : "";
+			$notIsClass2 = $notIsClass ? "and o2 $notIsClass" : "";
+			$cond = isset($params[3]) ? $params[3] : "";
+			$parent = isset($params[4]) ? "and not parent" : "";
+			
+			$sel = "and id in ( ".
+					"select o1 from ( ".
+					"select o1, o2, false parent from link where o2 in ($objects) $notIsClass1 ".
+					"union all ".
+					"select o2, o1, true  parent from link where o1 in ($objects) $notIsClass2 ".
+					")x where 1=1 ".
+					"$parent".
+					"group by o1 ".
+					"having count(o1) = $count ".
+				") $cond";
+			return $this->sql->sT(["object", $fields, $sel]);
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 	
 }
 
