@@ -12,11 +12,11 @@
 	bLogin.onclick = function(){
 		var eUser = $("#eUser").val();
 		var password = document.fLogin.ePassword.value;
-
-		var u = objectlink.getObjectFromClass("Пользователи", eUser);
-		var p = objectlink.getObjectFromClass("Пароли пользователей", password);
+	
+		var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);//objectlink.getObjectFromClass("Пользователи", eUser);
+		var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);//objectlink.getObjectFromClass("Пароли пользователей", password);
 		if (u && p){
-			var key = objectlink.gAND([u, p, objectlink.gO("Ключи доступа пользователей")]);
+			var key = objectlink.gAND([u, p, classes["Ключи доступа пользователей"]]);
 			if (key.length){
 				location.href = "?interface=iMainMenu&key="+key[0];
 				

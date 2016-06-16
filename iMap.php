@@ -129,16 +129,9 @@
 	
 	function setManagers4tu(dom, tu){
 		var val = tu;
-		val = val == "Все" ? "" : " and tu = '"+val+"'";
-
-		var sel = objectlink.getTableQuery([
-			{n:"ответственный"},//0
-			{n:"ик", linkParent:true},//1
-			{n:"ту", linkParent:true, parentCol:1},//2
-		]);
-		sel = "select ту tu, ик ik, ответственный manager from ("+sel+")x where 1=1 ";
-
-		var managers = orm("select distinct `manager` from ("+sel+")x where 1=1 "+val, "col2array");
+		val = val == "Все" ? "" : " and ТУ = '"+val+"'";
+		var managers = objectlink.gOrm("gT",[["Ответственный","ИК","ТУ"],[[2,1]],[1,2],[],0,"Ответственный",val]);
+		
 		dom.innerHTML = "";
 		var opt = document.createElement("OPTION");
 		opt.innerHTML = "Все";

@@ -30,15 +30,12 @@
 </table>
 
 <script>
-	var data = objectlink.gOrm("gAnd",[[1],"n,id"]);
-	var classes = getOrmObject({"columns":["n","id"],"data":data}, "rows2object");
 	//var d = new Date();
 	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
-	//var oid = objectlink.getObjectByLinkedObject("Объект", "Номер", objectId);
-	var numberCid = objectlink.gOrm("gO",["Номер",true]);
+	var numberCid = classes["Номер"];
 	var numId = parseInt(objectlink.gOrm("gAnd",[[numberCid],"id",true,"and n='"+objectId+"'"]));
-	var objectCid = objectlink.gOrm("gO",["Объект",true]);
+	var objectCid = classes["Объект"];
 	var oid = objectlink.gOrm("gAnd",[[objectCid,numId],"id",true]);
 	
 	var modal = document.getElementById('myModal');
@@ -359,8 +356,7 @@
 				$(dataContainer).append("<tr height='10'><td></td></tr>");
 				
 				///Фото
-				//var images = objectlink.getlinkedObjects(object.oid, "Фото");
-				var cid = objectlink.gOrm("gO",["Фото",true]);
+				var cid = classes["Фото"];
 				var images = objectlink.gOrm("gAnd",[[object.oid, cid]]);
 				if (images && images.length) {
 					var imgInd = 0;
@@ -426,8 +422,7 @@
 					}
 				}
 
-				//var otherFiles = objectlink.getlinkedObjects(object.oid, "Файлы");
-				var cid = objectlink.gOrm("gO",["Файлы",true]);
+				var cid = classes["Файлы"];
 				var otherFiles = objectlink.gOrm("gAnd",[[object.oid, cid]]);
 				var filesHtml = [];
 				var iconFile = "file.png";
@@ -438,7 +433,7 @@
 						iconFile = getIconFile(otherFiles[i][1].toLowerCase());
 						
 						filesHtml.push(
-							"<td><a href='#' onclick='openImageWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
+							"<td><a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
 							"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
 							"<tr align='middle'><td style='font-size:11px; width:10px'>"+cap+"</td></tr></table></a></td>"
 						);

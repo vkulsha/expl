@@ -130,28 +130,28 @@ var objectlink = {
 	gOCQ : function(className){
 		return ""+
 			"select * from object where id in ( "+
-			"select o1 from link where o2 = (select id from object where n='"+className+"' limit 1) "+
-			"			and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) "+
+			"select o1 from link where o2 = "+classes[className]+" "+
+			"			and o1 not in (select o1 from link where o2 = 1) "+
 			") ";
 		
 	},
 	gCQ : function(){
-		return "select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 = (select id from object where n = 'класс')))o1 "+
-				"left join link on o1 = o1.id and o2 <> (select id from object where n = 'класс') ";
+		return "select o1.id, ifnull(link.o2, '#') parent, o1.n text from (select * from object where id in (select o1 from link where o2 = 1))o1 "+
+				"left join link on o1 = o1.id and o2 <> 1 ";
 		
 	},
 	gAND : function(arr){//return objects linked with every object from list arr //analog AND logic
 		return getOrmObject(
 			this.sql.sql(
 				"select o1 from ( "+
-				"	select o1 from link where o2 in ("+arr.join(",")+") and o1 is not null and o2 <> (select id from object where n = 'класс') "+
+				"	select o1 from link where o2 in ("+arr.join(",")+") and o1 is not null and o2 <> 1 "+
 				"	union all "+
-				"	select o2 from link where o1 in ("+arr.join(",")+") and o2 is not null and o1 <> (select id from object where n = 'класс') "+
+				"	select o2 from link where o1 in ("+arr.join(",")+") and o2 is not null and o1 <> 1 "+
 				")o "+
 				"group by o1 "+
 				"having count(*) = "+arr.length+" "+
-				"and (o1 not in (select o1 from link where o2 = (select id from object where n = 'класс')) "+
-				"	or o1 = (select id from object where n='класс')) "+
+				"and (o1 not in (select o1 from link where o2 = 1) "+
+				"	or o1 = 1) "+
 				"order by o1"
 			).result
 			, "col2array"
@@ -303,14 +303,16 @@ var objectlink = {
 			if (cc.n) {
 				//i++;
 				var col = cc.n;
+				var cid = classes[cc.n] || "null";
+				
 				if (i==0){
 					var h = "select o"+i+".id `id "+col+"`, o"+i+".n `"+col+"` \n";
-					var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+					var l = cc.id ? cc.id : cid;
 					var b = 
 						"from (#main class \n"+
 						"	select id, n from object where id in ( \n"+
 						"		select o1 from link where o2 = "+l+" \n"+
-						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n")+
+						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n")+
 						"	) \n"+
 						"	group by id \n"+
 						")o"+i+" \n";
@@ -327,14 +329,14 @@ var objectlink = {
 							",o"+i+".n `"+col+"` ";
 					}
 					//var h = ",case when count(distinct o"+i+".id) <= 1 then o"+i+".n else count(distinct o"+i+".id) end `"+col+"` \n";
-					var l = cc.id ? cc.id : "(select id from object where n='"+cc.n+"' limit 1)";
+					var l = cc.id ? cc.id : cid;
 					var selecto1o2 = cc.linkParent ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
 					var parentCol = cc.parentCol ? cc.parentCol : 0;
 					var b = 
 						"left join ( \n"+
 						"	"+selecto1o2+" \n"+
 						"		select o1 from link where o2 = "+l+" \n"+
-						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n")+
+						(cc.inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n")+
 						"	) \n"+
 						"	group by o1, o2 \n"+
 						")l"+i+" on l"+i+".o2 = o"+parentCol+".id left join object o"+i+" on o"+i+".id = l"+i+".o1 \n";
@@ -350,8 +352,9 @@ var objectlink = {
 		}
 		result = head.join("")+body.join("")+foot.join("foot");
 		return result;
+		//return objectlink.gOrm("getTableQuery", [params, groupbyind]);
 	},
-	getClassLinkLevelQuery : function(fromClassName, toClassId, maxLevel){
+/*	getClassLinkLevelQuery : function(fromClassName, toClassId, maxLevel){
 		maxLevel = maxLevel || 1;
 		var result = "";
 		var head = [];
@@ -365,7 +368,7 @@ var objectlink = {
 			body.push((i==1 ? "from" : "left join")+" (select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link)level"+i+" "+(i == 1 ? "" : "on level"+i+".o2 = level"+(i-1)+".o1")+"\n");
 			body2.push("left join object obj"+i+" on obj"+i+".id = level"+i+".o1 \n");
 			cond1.push("level"+i+".o1 = "+toClassId+(i < maxLevel ? " or " : ""));
-			cond2.push("and level"+i+".o1 in (select o1 from link where o2 = (select id from object where n='класс' limit 1) and o1 <> (select id from object where n='класс' limit 1)) \n");
+			cond2.push("and level"+i+".o1 in (select o1 from link where o2 = 1 and o1 <> 1) \n");
 			order.push(" when level"+i+".o1 = "+toClassId+" then "+i+" ");
 		}
 		result = "select "+
@@ -375,7 +378,7 @@ var objectlink = {
 			"where 1=1 \n"+
 			cond2.join("")+
 			"and ("+cond1.join("")+
-			") \n"+"and level1.o2 = (select id from object where n='"+fromClassName+"') \n"+
+			") \n"+"and level1.o2 = "+classes[fromClassName]+" \n"+
 			" order by case "+
 			order.join("")+
 			" else 1000 end";
@@ -409,8 +412,8 @@ var objectlink = {
 	getObjectByLinkedObjectQuery : function(class1Name, class2Name){
 		return ""+
 			"select o2 from ( "+
-			"	select o1, o2 from link where o1 in (select o1 from link where o2 = (select id from object where n = '"+class2Name+"' limit 1)) "+
-			"	and o2 in (select o1 from link where o2 = (select id from object where n = '"+class1Name+"' limit 1) and o1 not in (select o1 from link where o2 = (select id from object where n='Класс' limit 1))) "+
+			"	select o1, o2 from link where o1 in (select o1 from link where o2 = "+classes[class2Name]+") "+
+			"	and o2 in (select o1 from link where o2 = "+classes[class1Name]+" and o1 not in (select o1 from link where o2 = (select id from object where n='Класс' limit 1))) "+
 			")link join object on object.id = link.o1 ";
 	},
 	getObjectByLinkedObject : function(class1Name, class2Name, class2ObjectName){
@@ -421,7 +424,7 @@ var objectlink = {
 		} else {
 			return undefined
 		}
-	},
+	},*/
 	getObjectFromClass : function(className, n){
 		var q = this.gOCQ(className);
 		var ret = orm("select id from ("+q+")xx where 1=1 and n='"+n+"'", "all2array");
@@ -431,7 +434,7 @@ var objectlink = {
 			return undefined
 		}
 	},
-	getObjectsFromClass : function(className){
+/*	getObjectsFromClass : function(className){
 		var q = this.gOCQ(className);
 		var ret = orm(q, "all2array");
 		if (ret.length) {
@@ -439,7 +442,7 @@ var objectlink = {
 		} else {
 			return undefined
 		}
-	},
+	},*/
 	getTableQuery2 : function(nArr, parentColArr, linkParentArr, inClassArr){//["a","b","c"], [[1,0],[2,0],[3,1]], [1,2], [1]
 		nArr = nArr || [];
 		parentColArr = parentColArr || [];
@@ -458,7 +461,7 @@ var objectlink = {
 		for (var i=0; i < inClassArr.length; i++){
 			opts[inClassArr[i]].inClass = true;
 		}
-		return "select * from ("+objectlink.getTableQuery(opts, false)+")x where true ";
+		return "select * from ("+this.getTableQuery(opts, false)+")x where true ";
 	},
 	gOrm : function(funcName, params){
 		return sqlOrm({f:funcName, p:params})	

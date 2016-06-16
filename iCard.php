@@ -21,17 +21,6 @@
 					<td>
 						<button onclick='bCard(location.href.split("&")[1].split("=")[1],2);'>Новая версия</button>
 					</td>
-					<!--
-					<td align="center" class="isPhoto">
-						<button id="bPhoto" class="buttons"><img src="images/bPhoto.png" width="48" title="Показать/скрыть фотоматериал"/>
-						<div>Фотоматериал</div>
-						</button>
-					</td>
-					<td align="center" class="isFiles">
-						<button id="bFiles" class="buttons"><img src="images/bFiles.png" width="48" title="Показать/скрыть файлы объекта"/>
-						<div>Файлы</div>
-						</button>
-					</td>-->
 				</tr>
 			</table>
 		</td>
@@ -81,21 +70,10 @@
 	var currImgNum = $("#currImgNum");
 	var imgCount = $("#imgCount");
 	var objectPath = getObjectsDir()+"/"+objectId+"/";
-
-	var sel = objectlink.getTableQuery([
-		{n:"объект"},//0
-		{n:"адрес"},//1
-		{n:"кадастр"},//2
-		{n:"широта"},//3
-		{n:"долгота"},//4
-		{n:"номер"},//5
-		{n:"ик", linkParent:true},//6
-		{n:"ту", linkParent:true, parentCol:6},//7
-		{n:"ответственный", parentCol:6},//8
-	]);
+	var sel = objectlink.gOrm("gTq",[["Объект","Адрес","Кадастр","Широта","Долгота","Номер","ИК","ТУ","Ответственный"],[[7,6],[8,6]],[6,7],[],0]);
 	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 " + " and rowid = "+objectId;
-
 	var uri = sel;
+
 	var func = function(dataJSON) {
 		var data = dataJSON;//JSON.parse(dataJSON);
 		var value = data.data[0];
@@ -155,10 +133,9 @@
 				filesHtml.push(
 					"<td>"+
 					chDel.outerHTML+
-					"<a href='#' onclick='openImageWindow(\""+
+					"<a href='#' onclick='openWindow(\""+
 						domain+objectPath+url2cp1251(otherFiles[i])+
 					"\")' title='скачать файл' >"+
-					//"<table><tr align='middle'><td><img src='images/"+iconFile+"' width='32'/></td></tr>"+
 					"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
 					"<tr align='middle'><td style='font-size:11px; width:10px'>"+otherFiles[i]+"</td></tr></table></a></td>"
 				);
@@ -205,21 +182,12 @@
 				.css('cursor','pointer')
 				.unbind("click")
 				.bind("click", function(){
-					openImageWindow(this.src);
+					openWindow(this.src);
 				})
 		});
-		
-		var power = undefined;//getObjectPowerJson(objectId);
-		if (!power) { power = {contract:"", agreement:"", maxAuthorizedPower:"", maxConsumptionPower:"", powerConsumption:"", excess:"", powerPoint:""}; }
 
-		var sel = objectlink.getTableQuery([
-			{n:"Ответственный"},//0
-			{n:"ФИО"},//1
-			{n:"Телефон"},//2
-			{n:"Email"},//2
-		]);
-		sel = "select * from (select Ответственный manager, ФИО fio, Телефон phone, Email email from ("+sel+")x)x where 1=1 and manager = '"+value[columns.indexOf("manager")]+"' ";
-		var manager = orm(sel, "row2object");
+		var manager = objectlink.gOrm("gT",[["Ответственный","ФИО","Телефон","Email"],[],[],[],0,"Ответственный, ФИО, Телефон, Email","and Ответственный = '"+value[columns.indexOf("manager")]+"' "]);
+		manager = getOrmObject({columns:["manager","fio","phone","email"], data:manager}, "row2object");
 		if (!manager) { manager = {fio:"", phone:"", email:""}; }
 		
 		var node = 
@@ -238,28 +206,11 @@
 				{"name":"Тел:", "nodeType":3, "content":manager.phone},
 				{"name":"Email:", "nodeType":3, "content":manager.email}
 			]},
-			{"name":"Мощности", "nodeType":1, "children": [
-				{"name":"", "nodeType":3, "content":(power ? power.contract : "")},
-				{"name":"Доп:", "nodeType":3, "content":(power ? power.agreement : "")},
-				{"name":"Макс разреш мощ, кВт:", "nodeType":3, "content":(power ? power.maxAuthorizedPower : "")},
-				{"name":"Макс потреб мощ, кВт:", "nodeType":3, "content":(power ? power.maxConsumptionPower : "")},
-				{"name":"Портребл средн, кВт*ч:", "nodeType":3, "content":(power ? power.powerConsumption : "")},
-				{"name":"Перевыставление, % :", "nodeType":3, "content":(power ? power.excess : "")},
-				{"name":"Источник:", "nodeType":3, "content":(power ? power.powerPoint : "")},
-			]},
 		]};
 		
 		var domtreecontainer = document.getElementById("domtreecontainer");
 		domtreecontainer.style.height = (windowHeight() * (398/699))+"px";
-		drawHtmlTree(node, 'div.domtree', 550*1.5, 21 *30+13);
-		/* + see domtreecontainer height and width
-		drawHtmlTree(node, 'div.domtree', width, height);
-			height = elemCount*barHeight+13
-			width = barWidth*1.5
-				barWidth = 250,
-				barHeight = 30,
-				elemCount = ?
-		*/
+		drawHtmlTree(node, 'div.domtree', 550*1.5, 13 *30+13);
 	
 		domPanelFileUpload = document.createElement("DIV");
 		domPanelFileUpload.style.position = "absolute";
@@ -315,7 +266,6 @@
 	
 ///indert code here	
 	};
-	//getQueryJson(uri, func);
 	sqlAsync(uri, true, func);
 
 ///stop code	

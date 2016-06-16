@@ -84,10 +84,6 @@ function openWindow(url, title, params) {
 	return w;
 }
 
-function openImageWindow(src) {
-    openWindow(src);
-}
-
 function bDocDownload(objectId, docName) {
 	openWindow(getObjectUri(objectId)+"/"+docName);
 }
@@ -118,6 +114,7 @@ function bCard(objectId, version) {
 function bCadastr(objectCadastrNumber) {
 	if (objectCadastrNumber)
 		openWindow('http://maps.rosreestr.ru/PortalOnline/?cn='+objectCadastrNumber);
+		//openWindow('http://pkk5.rosreestr.ru/#text='+objectCadastrNumber+'&x=&y=&z=&type=1&app=search&opened=1');
 	
 }
 
@@ -354,13 +351,21 @@ function getOrm(uri, type){//alias for getOrmObjectFromQuery
 }
 
 function obj4arr(arr){//return the object with fields and values from array
-	result = {};
+	var result = {};
 	for (var i = 0; i < arr.length; i++) {
 		if (typeof(arr[i]) == 'object') {
 			result[arr[i][0]] = arr[i];
 		} else {
 			result[arr[i]] = arr[i];
 		}
+	}		
+	return result;
+}
+
+function hash4arr(arr){//return the object with fields and values from array
+	var result = {};
+	for (var i = 0; i < arr.length; i++) {
+		result[arr[i][0]] = arr[i][1];
 	}		
 	return result;
 }
@@ -524,24 +529,16 @@ function splitObjectArray(obj1, obj2){
 }
 
 function iMap(opts, callback, dblclick, funcError, funcFinnaly){
-	var CAT_TERRITORIAL_DEPARTMENT = orm("select n from ("+objectlink.gOCQ("ТУ")+")xx", "col2array");//getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
+	var tu = objectlink.gOrm("gAnd",[[classes["ТУ"]],"n",true]);//orm("select n from ("+objectlink.gOCQ("ТУ")+")xx", "col2array");//getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
+	var CAT_TERRITORIAL_DEPARTMENT = getOrmObject({columns:["n"],data:tu}, "col2array");
 	var whereCond = opts.whereCond || "";
-	var sel = objectlink.getTableQuery([
-		{n:"объект"},//0
-		{n:"адрес"},//1
-		{n:"кадастр"},//2
-		{n:"широта"},//3
-		{n:"долгота"},//4
-		{n:"номер"},//5
-		{n:"ик", linkParent:true},//6
-		{n:"ту", linkParent:true, parentCol:6},//7
-		{n:"ответственный", parentCol:6},//8
-	]);
+
+	var sel = objectlink.gOrm("gTq",[["Объект","Адрес","Кадастр","Широта","Долгота","Номер","ИК","ТУ","Ответственный"],[[7,6],[8,6]],[6,7],[],0]);
 	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 "+whereCond+" order by rowid ";
+
 	var func = function(dataJSON) {
 		var data = dataJSON;//JSON.parse(dataJSON);
 		if (data.columns[0] == "result" && data.data[0][0] == false) {callback(undefined); return;};
-
 		var ObjectIcon = L.Icon.extend({
 			options: {
 				iconSize:     [40, 40],
@@ -552,9 +549,9 @@ function iMap(opts, callback, dblclick, funcError, funcFinnaly){
 
 		var objectIcons = [
 			new ObjectIcon({iconUrl: 'images/marker20.png'}), 
-			new ObjectIcon({iconUrl: 'images/marker21.png'}), 
 			new ObjectIcon({iconUrl: 'images/marker22.png'}), 
 			new ObjectIcon({iconUrl: 'images/marker23.png'}),
+			new ObjectIcon({iconUrl: 'images/marker21.png'}), 
 		];
 		
 		var getButtonCardHTML = function(id){
@@ -642,7 +639,6 @@ Return html table menu from object as [{field1:val11, field2:val12}, {field1:val
 function iMainMenu(interfaces){
 	var table = cDom("TABLE");
 	table.classList.add("tMenu");
-	
 	for (var row=0; row < interfaces.length; row++) {
 		var tr = table.appendChild(cDom("TR"));
 		for (var col=0; col < interfaces[row].length; col++) {
@@ -1027,14 +1023,9 @@ function gDom(id){
 }
 
 function getMainInterfaceKey(userId){
-	var sel = objectlink.getTableQuery([
-		{n:"Пользователи"},//0
-		{n:"Интерфейсы"},//1
-		{n:"Ключи интерфейсов", parentCol:1},//2
-	], false);
-	
-	var query = "select `Ключи интерфейсов` from ( "+sel+")xx where `id Пользователи` = "+userId;
-	var num = orm(query, "col2array");
+	var num = objectlink.gOrm("gT",[["Пользователи","Интерфейсы","Ключи интерфейсов"],[[2,1]],[],[],0,"`Ключи интерфейсов`","and `id Пользователи` = "+userId]);
+	num = getOrmObject({columns:["Ключи интерфейсов"],data:num},"col2array");
+
 	if (num.length) {
 		num = num[0];
 	} else {
@@ -1044,16 +1035,8 @@ function getMainInterfaceKey(userId){
 };
 
 function getInterfaceElements(userId, interfaceKey){
-	var sel = objectlink.getTableQuery([
-		{n:"Пользователи"},//0
-		{n:"Группы прав пользователей", linkParent:true},//1
-		{n:"Элементы интерфейсов", parentCol:1},//2
-		{n:"Интерфейсы", linkParent:true, parentCol:2},//3
-		{n:"Ключи интерфейсов", parentCol:3},//4
-	], false);
-	
-	var query = "select `Элементы интерфейсов` from ( "+sel+")xx where `id Пользователи` = "+userId+" and `Ключи интерфейсов` = '"+interfaceKey+"'";
-	var num = orm(query, "col2array");
+	var num = objectlink.gOrm("gT",[["Пользователи","Группы прав пользователей","Элементы интерфейсов","Интерфейсы","Ключи интерфейсов"],[[2,1],[3,2],[4,3]],[1,3],[],false,"`Элементы интерфейсов`","and `id Пользователи` = "+userId+" and `Ключи интерфейсов` = '"+interfaceKey+"'"]);
+	num = getOrmObject({columns:["Элементы интерфейсов"],data:num},"col2array");
 	return num;
 };
 
@@ -1068,8 +1051,6 @@ function showInterfaceElements(userId, interfaceKey){
 	
 	return policy;
 };
-
-
 
 function $_GET(keyname){
 	var search = location.search.split("?")

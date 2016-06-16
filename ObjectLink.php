@@ -132,7 +132,7 @@ class ObjectLink {
 			$id = $params[0];
 			$fields = isset($params[1]) ? $params[1] : "*";
 			
-			$ret = $this->sql->sT(["object",$fields,"and id in (select o2 from link where o2 in (select o1 from link where o2 = (select id from object where n='Класс' limit 1)) and o1 = $id)"]);
+			$ret = $this->sql->sT(["object",$fields,"and id in (select o2 from link where o2 in (select o1 from link where o2 = 1) and o1 = $id)"]);
 			return $ret;
 			
 		} catch (Exception $e){
@@ -196,7 +196,7 @@ class ObjectLink {
 							"from (\n".
 							"	select id, n from object where id in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
-							($inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n").
+							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by id \n".
 							")o".$i." \n";
@@ -219,7 +219,7 @@ class ObjectLink {
 							"left join ( \n".
 							"	".$selecto1o2." \n".
 							"		select o1 from link where o2 = ".$l." \n".
-							($inClass ? "" : "and o1 not in (select o1 from link where o2 = (select id from object where n='класс' limit 1)) \n").
+							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by o1, o2 \n".
 							")l".$i." on l".$i.".o2 = o".$parentCol.".id left join object o".$i." on o".$i.".id = l".$i.".o1 \n";
@@ -311,6 +311,10 @@ class ObjectLink {
 			print($e);
 			return null;
 		}
+	}
+	
+	public function test($params){
+		return $params;
 	}
 	
 }

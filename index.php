@@ -35,9 +35,12 @@
 		<script src="js/JsObjTable.js"></script>
 
 		<script>
+			var data = objectlink.gOrm("gAnd",[[1],"n,id"]);
+			var classes = hash4arr(data);
+
 			var key = $_GET("key");
 			var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
-			var userId = objectlink.gAND([userKey, objectlink.gO("Пользователи")]);
+			var userId = objectlink.gAND([userKey, classes["Пользователи"]]);
 			if (userId.length){
 				userId = userId[0];
 				var mainInterface = getMainInterfaceKey(userId);
