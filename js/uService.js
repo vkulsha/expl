@@ -370,6 +370,10 @@ function hash4arr(arr){//return the object with fields and values from array
 	return result;
 }
 
+function decorateArr(arr, decorator){//return the object with fields and values from array
+	return (decorator+arr.join(decorator+"|"+decorator)+decorator).split("|");
+}
+
 function eventsList(element) {
 	var events = element.data('events');
 	if (events !== undefined) return events;

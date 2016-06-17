@@ -62,6 +62,8 @@
 </table>
 
 <script>
+	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	var classes = hash4arr(classes_);
 	var fs = 12;
 	var oid1 = "";
 	var oid2 = "";
@@ -89,6 +91,9 @@
 	var isFile = false;
 	var isClass = false;
 	var arrChbxs = [];
+	var countClass = 0;
+	var countObjects = 0;
+	var countAll = 0;
 
 	var ORDER = " order by c desc, t desc, o1 asc ";
 	var order = ORDER;
@@ -114,9 +119,9 @@
 		if (!data.length) return false;
 		
 		dom.innerHTML = "";
-		var countClass = 0;
-		var countObjects = 0;
-		var countAll = data.length;
+		countClass = 0;
+		countObjects = 0;
+		countAll = data.length;
 		
 		for (var i=0; i < data.length; i++){
 			var cell = document.createElement("BUTTON");
@@ -297,7 +302,7 @@
 
 	var bCO = document.getElementById("bCO");
 	bCO.onclick = function(){
-		result = prompt("cO(n); cL(o1,"+oid+")", undefined);
+		result = prompt("cO(n); cL(o1,"+oid+")", txt.value+" "+(countObjects+1));
 		if (result) {
 			var o1 = objectlink.cO(result);
 			if (oid) objectlink.cL(o1, oid);

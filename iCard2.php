@@ -294,43 +294,63 @@
 		var dataContainer = cDom("DIV");
 		dataContainer.style.width = "100%";
 		dataContainer.style.height = "1px";
+
+		var imgContainer = cDom("DIV");
+		$(imgContainer)
+			.css("height", windowHeight()-230+"px")
+			.css("width", maincont.css("width")-50+"px");
+		var imgObject = new Image();
+		
+		//информация
+		dataContainer.style.overflow = "auto";
+		tdData.appendChild(dataContainer);
+		tdImg.appendChild(imgContainer);
 		
 		switch (object.c) {
 			case "Земельные участки":
 			case "Здания и сооружения":
-				//информация
-				var td = tdData;
-				//dataContainer.style.height = cont.getBoundingClientRect().bottom - cont.getBoundingClientRect().top;
-				dataContainer.style.overflow = "auto";
-				td.appendChild(dataContainer);
+				
+				var func = function(arr) {
+					var cn = arr[0];
+					var cid = objectlink.gOrm("gO",[cn]);
+					$(dataContainer).append("<tr><td><h3>"+cn+"</h3></td></tr>");
 
-				//gObjects(dataContainer, {n1:"Объект", n2:"Земельные участки", id:oid, caption:"Земельные участки:"});
-				$(dataContainer).append("<tr><td><b>Свидетельство о гос регистрации</b></td></tr>");
-				$(dataContainer).append("<tr><td>"+
-				"серия № <br>"+
-				"дата <br>"+
-				"собственник <br>"+
-				"обременения <br>"+
-				"");
+					var arrC = arr;
+					var inf = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+object.c+"` = "+object.oid]);
+					inf = lineArray2matrixArray(inf[0], arrC.length, 2, true);
+					var txt = [];
+					var start = 1;
+					var end   = arrC.length-1;
+					for (var i=start; i < end; i++){
+						if (inf.length && inf[i] && inf[i].length && inf[i][1]){
+							var cellData = (i < (end-1)) ? inf[i][1] : getFileButtonHtml(inf[i][1]);
+						} else {
+							var cellData = "";
+						}
+						txt.push("<tr><td style='border-bottom:1px solid'>"+arrC[i]+":</td><td style='border-bottom:1px solid'><b>"+cellData+"</b></td></tr>");
+						
+					}
+					$(dataContainer).append("<tr><td><table>"+txt.join("")+"</table></td></tr>");
+					$(dataContainer).append("<tr height='10'><td></td></tr>");
+				}
 
-				$(dataContainer).append("<tr height='10'><td></td></tr>");
-				$(dataContainer).append("<tr><td><b>Технический паспорт</b></td></tr>");
-				$(dataContainer).append("<tr><td>"+
-				"дата техпаспорта <br>"+
-				"площадь общая <br>"+
-				"площадь полезная <br>"+
-				"площадь застройки <br>"+
-				"этажность <br>"+
-				"год постройки <br>"+
-				"высота этажей <br>"+
-				"стены и перегородки <br>"+
-				"перекрытия <br>"+
-				"фундамент <br>"+
-				"состояние <br>"+
-				"процент износа <br>"+
-				"");
+				func(["Свидетельство о государственной регистрации права", "Дата документа","Документы-основания","Субъект права","Вид права","Объект права","Кадастровый номер","Обременения","Номер записи регистрации","Файлы",object.c]);
 
-				$(dataContainer).append("<tr height='10'><td></td></tr>");
+				if (object.c == "Земельные участки") {
+					$(dataContainer).append("<tr><td><b>Кадастровый паспорт</b></td></tr>");
+					$(dataContainer).append("<tr><td>"+
+					"дата документа <br>"+
+					"кадастровый номер <br>"+
+					"категория земель <br>"+
+					"разрешенное использование <br>"+
+					"кадастровая стоимость <br>"+
+					"");
+					$(dataContainer).append("<tr height='10'><td></td></tr>");
+				} else {
+					func(["Технический паспорт", "Дата документа", "Общая площадь", "Полезная площадь", "Площадь застройки", "Этажность", "Год постройки", "Высота этажа", "Стены", "Перегородки", "Перекрытия", "Фундамент", "Состояние", "Процент износа", "Файлы", object.c]);
+
+				}
+				
 				$(dataContainer).append("<tr><td><b>Данные бухучета</b></td></tr>");
 				$(dataContainer).append("<tr><td>"+
 				"Инвентарный или условный номер <br>"+
@@ -357,22 +377,14 @@
 				
 				///Фото
 				var cid = classes["Фото"];
-				var images = objectlink.gOrm("gAnd",[[object.oid, cid]]);
+				//var images = objectlink.gOrm("gAnd",[[object.oid, cid]]);
+				var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+object.oid]);
 				if (images && images.length) {
 					var imgInd = 0;
-					var imgContainer = cDom("DIV");
-					var td = tdImg;
-					td.appendChild(imgContainer);
 					
-					var imgObject = new Image();
-					$(imgObject).attr("src", domain+images[imgInd][1]);
+					$(imgObject).attr("src", domain+images[imgInd][3]);
 					$(imgObject).css("cursor", "pointer");
 					imgContainer.appendChild(imgObject);
-					
-					
-					$(imgContainer)
-						.css("height", windowHeight()-230+"px")
-						.css("width", maincont.css("width")-50+"px");
 					
 					$(imgObject)
 						.css("max-width", "100%")
@@ -386,10 +398,10 @@
 					
 					imgObject.onclick = function(){
 						imgInd = (imgInd >= (images.length-1)) ? 0 : imgInd+1;
-						$(this).attr("src", domain+images[imgInd][1]);
+						$(this).attr("src", domain+images[imgInd][3]);
 					}
 				}
-				
+/*
 				///Файлы
 				var policy = {add:true};
 				var addButtonHtml = policy.add ? "<button id='bFileUpload'>+</button>" : "";
@@ -423,14 +435,15 @@
 				}
 
 				var cid = classes["Файлы"];
-				var otherFiles = objectlink.gOrm("gAnd",[[object.oid, cid]]);
+				//var otherFiles = objectlink.gOrm("gAnd",[[object.oid, cid]]);
+				var otherFiles = objectlink.gOrm("gT",[["Здания и сооружения","Файлы"],[],[],[],false,"*","and `id Здания и сооружения` ="+object.oid]);
 				var filesHtml = [];
 				var iconFile = "file.png";
 				for (var i=0; i < otherFiles.length; i++) {
-					var fn = otherFiles[i][1];
+					var fn = otherFiles[i][3];
 					var cap = fn.split("/")[fn.split("/").length-1];
 					if (fn.split(".")[fn.split(".").length-1] == "pdf") {
-						iconFile = getIconFile(otherFiles[i][1].toLowerCase());
+						iconFile = getIconFile(otherFiles[i][3].toLowerCase());
 						
 						filesHtml.push(
 							"<td><a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
@@ -440,7 +453,7 @@
 					}
 				}
 				$("#trFileContainer").append(filesHtml.join(""));
-
+*/
 			break;
 			case "Объект":
 				
@@ -454,6 +467,13 @@
 		
 	}
 		
-	
+	function getFileButtonHtml(fn){
+		var cap = fn.split("/")[fn.split("/").length-1];
+		iconFile = getIconFile(fn.toLowerCase());
+		return "<a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
+			"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
+			"<tr align='middle'><td style='font-size:11px; width:10px'>"+cap+"</td></tr></table></a>";
+		
+	}
 
 </script>

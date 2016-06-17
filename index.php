@@ -35,8 +35,8 @@
 		<script src="js/JsObjTable.js"></script>
 
 		<script>
-			var data = objectlink.gOrm("gAnd",[[1],"n,id"]);
-			var classes = hash4arr(data);
+			var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+			var classes = hash4arr(classes_);
 
 			var key = $_GET("key");
 			var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
