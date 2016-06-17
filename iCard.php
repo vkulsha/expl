@@ -19,7 +19,7 @@
 						</button>
 					</td>
 					<td>
-						<button onclick='bCard(location.href.split("&")[1].split("=")[1],2);'>Новая версия</button>
+						<button id='newVersion'>Новая версия</button>
 					</td>
 				</tr>
 			</table>
@@ -57,6 +57,7 @@
 <script>
 	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
+
 	$("#bDocDownload").bind("click", function(){ passportDownload(objectId) });
 	$("#bToMap").bind("click", function(){bMap(objectId)});
 	var bImgPrev = $("#bImgPrev");
@@ -69,6 +70,18 @@
 	var bFiles = $("#bFiles");
 	var currImgNum = $("#currImgNum");
 	var imgCount = $("#imgCount");
+	var newVersion = gDom("newVersion");
+	
+	var numberCid = classes["Номер"];
+	var numId = parseInt(objectlink.gOrm("gAnd",[[numberCid],"id",true,"and n='"+objectId+"'"]));
+	var objectCid = classes["Объект"];
+	var oid = objectlink.gOrm("gAnd",[[objectCid,numId],"id",true]);
+	newVersion.oid = oid;
+	newVersion.onclick = function(){
+		//bCard(location.href.split("&")[1].split("=")[1],2);
+		bCard(this.oid,2);
+	}
+	
 	var objectPath = getObjectsDir()+"/"+objectId+"/";
 	var sel = objectlink.gOrm("gTq",[["Объект","Адрес","Кадастр","Широта","Долгота","Номер","ИК","ТУ","Ответственный"],[[7,6],[8,6]],[6,7],[],0]);
 	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 " + " and rowid = "+objectId;

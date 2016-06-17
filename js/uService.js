@@ -111,6 +111,16 @@ function bCard(objectId, version) {
 	openWindow(domain+'?interface=iCard'+(version ? version : '')+'&objectId='+objectId+"&key="+userKey);
 }
 
+function getCardVersionByOid(oid){
+	var ret = objectlink.gOrm("gCid",[oid]);
+	if (ret && ret.length){
+		return ret[0]
+	} else {
+		return "2";
+	}
+	
+}
+
 function bCadastr(objectCadastrNumber) {
 	if (objectCadastrNumber)
 		openWindow('http://maps.rosreestr.ru/PortalOnline/?cn='+objectCadastrNumber);
@@ -877,7 +887,15 @@ function getIconFile(filename){
 		"file.png";
 	return "images/"+iconFile;
 }
-
+				
+function getFileButtonHtml(fn){
+	var cap = fn.split("/")[fn.split("/").length-1];
+	var iconFile = getIconFile(fn.toLowerCase());
+	return "<a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
+		"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
+		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></a>";
+	
+}
 
 ////////////codedecode charset
 var t = {};

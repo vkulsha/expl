@@ -30,13 +30,8 @@
 </table>
 
 <script>
-	//var d = new Date();
-	//var policy = arr2obj(currentUser.policy[currentUser.classes["Object"].ind], true);
 	var objectId = $_GET(objectIdUrlKey);
-	var numberCid = classes["Номер"];
-	var numId = parseInt(objectlink.gOrm("gAnd",[[numberCid],"id",true,"and n='"+objectId+"'"]));
-	var objectCid = classes["Объект"];
-	var oid = objectlink.gOrm("gAnd",[[objectCid,numId],"id",true]);
+	var oid = objectId;
 	
 	var modal = document.getElementById('myModal');
 	var span = document.getElementsByClassName("close")[0];
@@ -92,7 +87,7 @@
 			}
 
 			b[2].onclick = function(){
-				insertDataToModal(this);
+				bCard(this.oid, getCardVersionByOid(this.oid));
 			}
 		}
 	}
@@ -260,7 +255,7 @@
 		b.n = n;
 		b.c = "Коммуникации";
 		b.onclick = function(){
-			insertDataToModal(this);
+			bCard(this.oid, getCardVersionByOid(this.oid));
 		}
 		if (imgFn) {
 			b.innerHTML = "";
@@ -271,209 +266,6 @@
 		} else {
 			b.hidden = true;
 		}
-	}
-
-	function insertDataToModal(object){
-		$("#modalTitle").html(object.n);
-		$("#modalBody").html("");
-		$("#modalFooter").html("");
-		var maincont = $("#modalCont");
-		var cont = $(modalBody).get()[0];
-
-		var tb = cont.appendChild(cDom("TABLE"));
-		var tr = tb.appendChild(cDom("TR"));
-		tb.style.width = "100%";
-		//tb.setAttribute("border",1)
-		var tdData = tr.appendChild(cDom("TD"));
-		var tdImg = tr.appendChild(cDom("TD"));
-		tdData.setAttribute("valign","top");
-		tdData.setAttribute("align", "left");
-		//tdData.style.border = "1px solid #000";
-		tdImg.setAttribute("align", "right");
-
-		var dataContainer = cDom("DIV");
-		dataContainer.style.width = "100%";
-		dataContainer.style.height = "1px";
-
-		var imgContainer = cDom("DIV");
-		$(imgContainer)
-			.css("height", windowHeight()-230+"px")
-			.css("width", maincont.css("width")-50+"px");
-		var imgObject = new Image();
-		
-		//информация
-		dataContainer.style.overflow = "auto";
-		tdData.appendChild(dataContainer);
-		tdImg.appendChild(imgContainer);
-		
-		switch (object.c) {
-			case "Земельные участки":
-			case "Здания и сооружения":
-				
-				var func = function(arr) {
-					var cn = arr[0];
-					var cid = objectlink.gOrm("gO",[cn]);
-					$(dataContainer).append("<tr><td><h3>"+cn+"</h3></td></tr>");
-
-					var arrC = arr;
-					var inf = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+object.c+"` = "+object.oid]);
-					inf = lineArray2matrixArray(inf[0], arrC.length, 2, true);
-					var txt = [];
-					var start = 1;
-					var end   = arrC.length-1;
-					for (var i=start; i < end; i++){
-						if (inf.length && inf[i] && inf[i].length && inf[i][1]){
-							var cellData = (i < (end-1)) ? inf[i][1] : getFileButtonHtml(inf[i][1]);
-						} else {
-							var cellData = "";
-						}
-						txt.push("<tr><td style='border-bottom:1px solid'>"+arrC[i]+":</td><td style='border-bottom:1px solid'><b>"+cellData+"</b></td></tr>");
-						
-					}
-					$(dataContainer).append("<tr><td><table>"+txt.join("")+"</table></td></tr>");
-					$(dataContainer).append("<tr height='10'><td></td></tr>");
-				}
-
-				func(["Свидетельство о государственной регистрации права", "Дата документа","Документы-основания","Субъект права","Вид права","Объект права","Кадастровый номер","Обременения","Номер записи регистрации","Файлы",object.c]);
-
-				if (object.c == "Земельные участки") {
-					$(dataContainer).append("<tr><td><b>Кадастровый паспорт</b></td></tr>");
-					$(dataContainer).append("<tr><td>"+
-					"дата документа <br>"+
-					"кадастровый номер <br>"+
-					"категория земель <br>"+
-					"разрешенное использование <br>"+
-					"кадастровая стоимость <br>"+
-					"");
-					$(dataContainer).append("<tr height='10'><td></td></tr>");
-				} else {
-					func(["Технический паспорт", "Дата документа", "Общая площадь", "Полезная площадь", "Площадь застройки", "Этажность", "Год постройки", "Высота этажа", "Стены", "Перегородки", "Перекрытия", "Фундамент", "Состояние", "Процент износа", "Файлы", object.c]);
-
-				}
-				
-				$(dataContainer).append("<tr><td><b>Данные бухучета</b></td></tr>");
-				$(dataContainer).append("<tr><td>"+
-				"Инвентарный или условный номер <br>"+
-				"Балансовая стоимость <br>"+
-				"Остаточная стоимость на <br>"+
-				"");
-
-				$(dataContainer).append("<tr height='10'><td></td></tr>");
-				$(dataContainer).append("<tr><td><b>Материально ответственное лицо</b></td></tr>");
-				$(dataContainer).append("<tr><td>"+
-				"ФИО <br>"+
-				"Должность <br>"+
-				"Телефон <br>"+
-				"Email <br>"+
-				"");
-
-				$(dataContainer).append("<tr height='10'><td></td></tr>");
-				$(dataContainer).append("<tr><td><b>Дополнительная информация</b></td></tr>");
-				$(dataContainer).append("<tr><td>"+
-				"Инженерные коммуникации <br>"+
-				"");
-
-				$(dataContainer).append("<tr height='10'><td></td></tr>");
-				
-				///Фото
-				var cid = classes["Фото"];
-				//var images = objectlink.gOrm("gAnd",[[object.oid, cid]]);
-				var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+object.oid]);
-				if (images && images.length) {
-					var imgInd = 0;
-					
-					$(imgObject).attr("src", domain+images[imgInd][3]);
-					$(imgObject).css("cursor", "pointer");
-					imgContainer.appendChild(imgObject);
-					
-					$(imgObject)
-						.css("max-width", "100%")
-						.css("max-height", "100%")
-						.attr("title", "кликните для перехода на следующее фото");
-
-					if (parseInt($(imgObject).css("width")) / parseInt($(imgObject).css("height")) > 1)
-						$(imgObject).css("width", $(imgContainer).css("width"))
-					else
-						$(imgObject).css("height", $(imgContainer).css("height"));
-					
-					imgObject.onclick = function(){
-						imgInd = (imgInd >= (images.length-1)) ? 0 : imgInd+1;
-						$(this).attr("src", domain+images[imgInd][3]);
-					}
-				}
-/*
-				///Файлы
-				var policy = {add:true};
-				var addButtonHtml = policy.add ? "<button id='bFileUpload'>+</button>" : "";
-				var domPanelFileUploadHtml = "<div style='background-color:#fffff0; border:1px solid #ccc' hidden id='domPanelFileUpload'><table cellspacing=5><tr><td>"+
-					"<form enctype='multipart/form-data' action='upload2.php' method='POST'>"+
-					"<input type='hidden' name='MAX_FILE_SIZE' value='0' />"+
-					"<input type='hidden' name='uploadPath' value='data/"+object.oid+"/' />"+
-					"<input type='hidden' name='uploadId' value='"+object.oid+"' />"+
-					"Загрузить файл: <input name='userfile[]' type='file' multiple /><br><br>"+
-					"<input type='submit' value='Загрузить' />"+
-					"</form></td></tr></table></div>";
-				var html = "<div id='fileContainer' style='border: 1px dashed #999; padding: 10px; height:100%; background-color:inherit; overflow-x:auto'><table cellpadding='5'><tr id='trFileContainer'><td>"+addButtonHtml+"</td><td>"+domPanelFileUploadHtml+"</td></tr></table></div>";
-					
-				$("#modalFooter").html("");
-				$("#modalFooter").append(html);
-				//$("#modalFooter").append(domPanelFileUploadHtml);
-
-				var fileContainer = $("#fileContainer");
-				//fileContainer.css("width", imgContainer.css("width"));
-				fileContainer.css("height", "100px");
-				
-				//fileContainer.find("table").find("tr").append(domPanelFileUploadHtml);
-				var domPanelFileUpload = gDom("domPanelFileUpload")
-				var bFileUpload = gDom("bFileUpload");
-				if (bFileUpload && domPanelFileUpload) {
-					bFileUpload.onclick = function(e){
-						domPanelFileUpload.style.left = e.clientX+2;
-						domPanelFileUpload.style.top = e.clientY+2;
-						domPanelFileUpload.hidden = !domPanelFileUpload.hidden;
-					}
-				}
-
-				var cid = classes["Файлы"];
-				//var otherFiles = objectlink.gOrm("gAnd",[[object.oid, cid]]);
-				var otherFiles = objectlink.gOrm("gT",[["Здания и сооружения","Файлы"],[],[],[],false,"*","and `id Здания и сооружения` ="+object.oid]);
-				var filesHtml = [];
-				var iconFile = "file.png";
-				for (var i=0; i < otherFiles.length; i++) {
-					var fn = otherFiles[i][3];
-					var cap = fn.split("/")[fn.split("/").length-1];
-					if (fn.split(".")[fn.split(".").length-1] == "pdf") {
-						iconFile = getIconFile(otherFiles[i][3].toLowerCase());
-						
-						filesHtml.push(
-							"<td><a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
-							"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
-							"<tr align='middle'><td style='font-size:11px; width:10px'>"+cap+"</td></tr></table></a></td>"
-						);
-					}
-				}
-				$("#trFileContainer").append(filesHtml.join(""));
-*/
-			break;
-			case "Объект":
-				
-			break;
-
-			default:
-			break;
-		}
-		modal.style.display = "block";
-		dataContainer.style.height = modalBody.getBoundingClientRect().bottom - modalBody.getBoundingClientRect().top;
-		
-	}
-		
-	function getFileButtonHtml(fn){
-		var cap = fn.split("/")[fn.split("/").length-1];
-		iconFile = getIconFile(fn.toLowerCase());
-		return "<a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
-			"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
-			"<tr align='middle'><td style='font-size:11px; width:10px'>"+cap+"</td></tr></table></a>";
-		
 	}
 
 </script>

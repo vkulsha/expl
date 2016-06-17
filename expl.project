@@ -50,5 +50,6 @@
         <File name="test.php" />
         <File name="SQL.php" />
         <File name="orm.php" />
+        <File name="iCard1425.php" />
     </Project>
 </NotepadPlus>
