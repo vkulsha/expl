@@ -77,21 +77,58 @@
 			cont.appendChild(b[0]);
 
 			b[2].onmouseover = function(){
+				var that = this;
+				butmouseover(that);
+
 				var svg = $("#svg"+this.oid).get()[0];
-				if (svg) svg.onmouseover();
+				if (svg) svgmouseover(svg);
 			}
 
 			b[2].onmouseout = function(){
+				var that = this;
+				butmouseout(that);
+
 				var svg = $("#svg"+this.oid).get()[0];
-				if (svg) svg.onmouseout();
+				if (svg) svgmouseout(svg);
 			}
 
 			b[2].onclick = function(){
-				bCard(this.oid, getCardVersionByOid(this.oid));
+				var ver = getCardVersionByOid(this.oid);
+				if (ver) {
+					bCard(this.oid, ver);
+				}
 			}
 		}
 	}
 
+	function svgmouseover(that){
+			if (_fill) {
+				that.setAttribute("fill", _fill);
+			}
+			if (_stroke) {
+				that.setAttribute("stroke", _stroke);
+			}
+			that.style.cursor = "pointer";
+		
+	}
+
+	function svgmouseout(that){
+			that.setAttribute("fill", "transparent");
+			that.setAttribute("stroke", "#7b5401");
+			that.style.cursor = "auto";
+		
+	}
+
+	function butmouseover(that){
+			that.style.backgroundColor = "#d3b989";
+		
+	}
+
+	function butmouseout(that){
+			that.style.backgroundColor = "#f8f1da";
+		
+	}
+	
 	function createSVGobjects(svgCont, opts){
 		var objects = objectlink.gOrm("gT",[["Объект", opts.n2, "Векторные схемы объектов"],[[2,1]],[],[],false, "*", "and `id Объект` = "+opts.oid1]);
 		for (var i=0; i < objects.length; i++){
@@ -101,6 +138,8 @@
 		}
 	}
 	
+	var _fill;
+	var _stroke;
 	function createSVGpolygon(svgCont, points, id, fill, funcClick, caption, stroke){
 		var el = svgCont
 			.append("polygon")
@@ -113,27 +152,24 @@
 		el.id = "svg"+id;
 		el.oid = id;
 		el.caption = caption;
+
+		_fill = fill;
+		_stroke = stroke;
 		
 		el.onmouseover = function(){
-			if (fill) {
-				this.setAttribute("fill", fill);
-			}
-			if (stroke) {
-				this.setAttribute("stroke", stroke);
-			}
-			this.style.cursor = "pointer";
+			var that = this;
+			svgmouseover(that);
 			
-			//var but = $("#b"+this.oid).get()[0];
-			//if (but) but.onmouseover();
+			var but = $("#b"+this.oid).get()[0];
+			if (but) butmouseover(but);
 		};
 		
 		el.onmouseout = function(){
-			this.setAttribute("fill", "transparent");
-			this.setAttribute("stroke", "#7b5401");
-			this.style.cursor = "auto";
+			var that = this;
+			svgmouseout(that);
 			
-			//var but = $("#b"+this.oid).get()[0];
-			//if (but) but.onmouseout();
+			var but = $("#b"+this.oid).get()[0];
+			if (but) butmouseout(but);
 		};
 		
 		el.onclick = funcClick;
@@ -185,11 +221,79 @@
 	var container = gDom("container");
 	var container2 = gDom("container2");
 	
-	gObjects(container, {n1:"Объект", id:oid, caption:"Общая информация по объекту:"});
+//	gObjects(container, {n1:"Объект", id:oid, caption:"Общая информация по объекту:"});
+//	$(container).append("<tr height='10'><td></td></tr>");
+	gObjects(container, {n1:"Объект", n2:"Адрес", id:oid, caption:"Адрес объекта:"});
+	
 	$(container).append("<tr height='10'><td></td></tr>");
 	gObjects(container, {n1:"Объект", n2:"Земельные участки", id:oid, caption:"Земельные участки:"});
 	$(container).append("<tr height='10'><td></td></tr>");
-	gObjects(container, {n1:"Объект", n2:"Здания и сооружения", id:oid, isNum:true, caption:"Состав имущества:"});
+	gObjects(container, {n1:"Объект", n2:"Здания и сооружения", id:oid/*, isNum:true*/, caption:"Состав имущества:"});
+	$(container).append("<tr height='10'><td></td></tr>");
+
+	funcbuttonclick = function(){
+		var ver = "1424";
+		if (ver) {
+			bCard("1441", ver);
+		}
+	}
+
+	funcbuttonclick2 = function(){
+		var ver = "1425";
+		if (ver) {
+			bCard("1426", ver);
+		}
+	}
+
+	var b = gB("Наличие коммуникаций", true)[0];
+	container.appendChild(b);
+	
+	var b = gB("Электроснабжение", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+
+	var b = gB("ХВС", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+
+	var b = gB("Отопление", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+
+	var b = gB("Канализация", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+
+	var b = gB("Охрана", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+	
+	$(container).append("<tr height='10'><td></td></tr>");
+	var b = gB("Материально ответственное лицо", true)[0];
+	container.appendChild(b);
+
+	var b = gB("Солтан Н.П.", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+	
+	$(container).append("<tr height='10'><td></td></tr>");
+	var b = gB("Наличие текущих ремонтов", true)[0];
+	container.appendChild(b);
+
+	var b = gB("Ремонт кровли", false)[0];
+	b.onclick = funcbuttonclick2;
+	container.appendChild(b);
+
+	$(container).append("<tr height='10'><td></td></tr>");
+	var b = gB("Регистрация инцидентов на объекте", true)[0];
+	container.appendChild(b);
+
+	var b = gB("Инциденты не обнаружены", false)[0];
+	b.onclick = funcbuttonclick;
+	container.appendChild(b);
+	
+	$(container).append("<tr height='10'><td></td></tr>");
+	$(container).append("<tr height='10'><td></td></tr>");
 
 	container2.appendChild(gB("Схема объекта и наличие коммуникаций", true)[0]);
 	var tr = cDom("TR");
@@ -206,7 +310,7 @@
 		el.onclick();
 	}
 	createSVGobjects(svgContainer,  {oid1:oid, n2:"Земельные участки", funcClick:func/*, stroke:"#d3b989"*/});
-	createSVGobjects(svgContainer,  {oid1:oid, n2:"Здания и сооружения", fill:"#d3b989", funcClick:func, caption:true});
+	createSVGobjects(svgContainer,  {oid1:oid, n2:"Здания и сооружения", fill:"#d3b989", funcClick:func/*, caption:true*/});
 	
 	function getMinMaxCoordFromPoints(points, coordNum, minOrMax){
 		var resultCoord = points[0].split(",")[coordNum];
@@ -238,7 +342,7 @@
 	var trbut = td.appendChild(cDom("TABLE").appendChild(cDom("TR")));
 	//container2.appendChild(gB("Наличие коммуникаций", true)[0]);
 	container2.appendChild(tr);
-	var objects = objectlink.gOrm("gT",[["Класс", "Объект", "Фото"],[],[],[0],false, "*", "and `id Объект` = "+oid]);
+	var objects = objectlink.gOrm("gT",[["Класс", "Объект", "Фото"],[],[],[0],false, "*", "and `id Объект` = "+oid+" order by `id Класс`"]);
 
 	for (var i=0; i < objects.length; i++){
 		var n = objects[i][1];
@@ -255,7 +359,10 @@
 		b.n = n;
 		b.c = "Коммуникации";
 		b.onclick = function(){
-			bCard(this.oid, getCardVersionByOid(this.oid));
+				var ver = getCardVersionByOid(this.oid);
+				if (ver) {
+					bCard(this.oid, ver);
+				}
 		}
 		if (imgFn) {
 			b.innerHTML = "";

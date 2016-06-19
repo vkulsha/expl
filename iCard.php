@@ -19,7 +19,7 @@
 						</button>
 					</td>
 					<td>
-						<button id='newVersion'>Новая версия</button>
+						<button id='newVersion' hidden>Новая версия</button>
 					</td>
 				</tr>
 			</table>
@@ -76,6 +76,8 @@
 	var numId = parseInt(objectlink.gOrm("gAnd",[[numberCid],"id",true,"and n='"+objectId+"'"]));
 	var objectCid = classes["Объект"];
 	var oid = objectlink.gOrm("gAnd",[[objectCid,numId],"id",true]);
+	newVersion.hidden = (oid != 115);
+
 	newVersion.oid = oid;
 	newVersion.onclick = function(){
 		//bCard(location.href.split("&")[1].split("=")[1],2);

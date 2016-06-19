@@ -113,10 +113,11 @@ function bCard(objectId, version) {
 
 function getCardVersionByOid(oid){
 	var ret = objectlink.gOrm("gCid",[oid]);
-	if (ret && ret.length){
+	var arr = ["1424","1425"];
+	if (ret && ret.length && (arr.indexOf(ret[0][0]) >= 0)){
 		return ret[0]
 	} else {
-		return "2";
+		return undefined;
 	}
 	
 }
