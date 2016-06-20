@@ -1087,3 +1087,44 @@ function $_GET(keyname){
 	}
 	return undefined;
 }
+
+///get coord from SAS format from SQL ttt and create Polygon object class
+function coordsFromSas(){
+	var ret = [];
+	var coords = orm("select f1 from ttt", "col2array");
+	for (var i=0; i < coords.length; i=i+2){
+		var lon = coords[i].split("=")[1];
+		var lat = coords[i+1].split("=")[1];
+		ret.push([lat, lon]);
+	}
+	return ret;
+}
+
+function createPolygonObject(coords, oid, newObjectName){
+	return objectlink.gOrm("createPolygonObject",[coords, oid, newObjectName]);
+	
+}
+
+function createPolygonFromSas(oid){
+	return createPolygonObject(coordsFromSas(), oid);
+	
+}
+///////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

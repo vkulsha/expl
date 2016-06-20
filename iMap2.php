@@ -1,43 +1,11 @@
-<style>
-	#map {width: 1200px; height: 500px; }
-</style>
-
-<table border=0>
+<table border=0 width="100%" height="100%">
 	<tr>
-		<td>
-			<table cellspacing="3">
-				<tr>
-					<td>
-						<input type="text" id="addressSearch" autofocus placeholder="Поиск адреса на карте" title="Введите адрес и нажмите ENTER" style="width:200px" />
-					</td>
-					<td>
-						<select id='tu' title="Выберите территориальное управление">
-							<option selected>Все</option>
-							<option>УЭИ</option>
-							<option>СЗТП</option>
-							<option>СиДВ</option>
-						</select>
-					</td>
-					<td>
-						<select id='manager' title="Выберите руководителя имущественного комплекса">
-						</select>
-					</td>
-					<td>
-						<button onClick="bMap(undefined, false)" id="bFiltersDel" title="Удалить фильтры" hidden ><img src="images/filter_del.png" width="15"/></button>
-					</td>
-				</tr>
-			</table>
+		<td id='tdHeader'>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="1">
-			<div id="map"></div>
-		</td>
-	</tr>
-	<tr>
-		<td>
-			<label id="caption"></label>
-
+		<td height="100%">
+			<div id="map" width="100%" height="100%"></div>
 		</td>
 	</tr>
 </table>
@@ -53,51 +21,35 @@
 	
 	L.tileLayer( '//mt{s}.googleapis.com/vt?lyrs=s,h&x={x}&y={y}&z={z}',
 	{
-	  attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
+	  //attribution: '&copy; <a rel="nofollow" href="http://osm.org/copyright">OpenStreetMap</a> contributors',
 	  maxZoom: 18,
 	  subdomains: [ 0, 1, 2, 3 ]
 	} ).addTo( map );
 	
+	
+	//$("#map").style.width = "100";
+	//$("#map").style.height = "100";
 	var cont = map.getContainer();
-	cont.style.height = (windowHeight() * (450/699)) + "px";
-	cont.style.width = (windowWidth() - 50)+"px"
+	cont.style.height = "100%";//(windowHeight() * (500/699)) + "px";
+	cont.style.width = "100%";//(windowWidth() - 20)+"px"
 	
 	var markers = L.layerGroup();
 	var addressMarker = L.marker([0, 0]);
 	isAddressAdd = false;
 
-////////
-	var eSearch = document.getElementById('addressSearch');
-	eSearch.onkeydown = function(e){
-		var query = this.value;
-		if (e.which == 13) {
-			var q = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode="+query;
-				$.getJSON( q, {
-				format: "json"
-			})
-			.done(function( data ) {
-				var pos = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos;
-				var lonLat = pos.split(" ");
-				var latlng = L.latLng(lonLat[1],lonLat[0]);
-				
-				if (!isAddressAdd) {
-					isAddressAdd = true;
-					addressMarker.addTo(map);
-					
-					addressMarker
-						.setLatLng(latlng)
-						.bindPopup(query);
-				}
-				map.setView([lonLat[1], lonLat[0]], 17);
-				bFiltersDel.hidden = false;
-			})
-			.fail(function(e) {
-				console.log( e );
-			})
-		}
+////////search Address
+	function searchAddress(query){
+		var q = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode="+query;
+		var result;
+		getHttp(q, function(data){
+			var data = data;
+			var pos = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos;
+			result = pos.split(" ");
+		}, false);
+		
+		return result;
 	}
 ////////	
-
 	function callback(val){
 		markers.clearLayers();
 		markers = val.markers;
@@ -115,78 +67,56 @@
 				[maxLat, maxLon]
 			]);
 		}
-		$("#caption").html( "Объектов на карте: " + val['rowsCount'] )
+		//$("#caption").html( "Объектов на карте: " + val['rowsCount'] )
 	}
 
-	function dblclick(val) {
-		map.setView([val.lat, val.lon], 17);
-	}
-
-	if (objectId) {
-		bFiltersDel.hidden = false;
-	}
-	
 	iMap({"whereCond" : (objectId ? " and rowid in ("+objectId+") " : "")}, 
-		callback, 
-		dblclick 
+		callback 
 	);
 
-	//var polyline = L.polygon([[44,36],[65,36],[65,90],[44,90],[44,36]], {color: 'red'}).addTo(map);
-	var coords = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте","Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`", "and `id Объект` = "+115+" and `id Координаты на карте` is not null order by `id Координаты на карте`"]);
-	var poly = [];
-	for (var i=0; i < coords.length; i++){
-		var coord = [];
-		var coord_ = coords[i][0].split(" ");
-		coord.push(coord_[1]);
-		coord.push(coord_[0]);
-		poly.push(coord);
-	}
-	var polyline = L.polygon(poly, {color: '#ff5555'}).addTo(map);
-/*
-	var coords = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте","Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`", "and `id Объект` = "+115+" and `id Координаты на карте` is not null order by `id Координаты на карте`"]);
-	var poly = [];
-	for (var i=0; i < coords.length; i++){
-		var coord = [];
-		var coord_ = coords[i][0].split(" ");
-		coord.push(coord_[1]);
-		coord.push(coord_[0]);
-		poly.push(coord);
-	}
-	var polyline = L.polygon(poly, {color: '#ff5555'}).addTo(map);*/
-///select tu and managers	
-	var domManager = document.getElementById('manager');
-	
-	function setManagers4tu(dom, tu){
-		var val = tu;
-		val = val == "Все" ? "" : " and ТУ = '"+val+"'";
-		var managers = objectlink.gOrm("gT",[["Ответственный","ИК","ТУ"],[[2,1]],[1,2],[],0,"Ответственный",val]);
-		
-		dom.innerHTML = "";
-		var opt = document.createElement("OPTION");
-		opt.innerHTML = "Все";
-		opt.selected = true;
-		dom.appendChild(opt);
+	var polylines = [];
 
-		for (var i=0; i < managers.length; i++){
-			var opt = document.createElement("OPTION");
-			opt.innerHTML = managers[i];
-			dom.appendChild(opt);
+	var paint = function(coords){
+		var poly = [];
+		var polyId = coords[0][1];
+		for (var i=0; i < coords.length; i++){
+			if (polyId != coords[i][1] && poly.length) {
+				var p = L.polygon(poly, {color: '#ff5555'}).addTo(map);
+				p.oid = oid;
+				polylines.push(p);
+				poly = [];
+			}
+			var oid = coords[i][2];
+			var coord = coords[i][0].split(" ");
+			poly.push(coord);
+			polyId = coords[i][1];
+			if (i == coords.length-1){
+				var p = L.polygon(poly, {color: '#ff5555'}).addTo(map);
+				p.oid = oid;
+				polylines.push(p);
+				
+			}
 		}
 	}
-	setManagers4tu(domManager, "Все");
+
+	var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+115+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+	var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+115+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+	paint(zu);
+	paint(zd);
 	
-	$("select#tu").on("change", function(){
-		setManagers4tu(domManager, this.options[this.selectedIndex].text);
-	});
-///	
-	$("select").on("change", function(){
-		var val = this.options[this.selectedIndex].text;
-		iMap({"whereCond" : val == "Все" ? "" : " and "+this.id+"='"+val+"' "}, 
-			callback, 
-			dblclick
-		);
-		bFiltersDel.hidden = false;
-	});
+	for (var i=0; i < polylines.length; i++){
+		polylines[i].on('mouseover', function(e) {
+			this.setStyle({color : "#00ff00"});
+		});
+		
+		polylines[i].on('mouseout', function(e) {
+			this.setStyle({color : "#ff5555"});
+		});	
+
+		polylines[i].on('click', function(e) {
+			console.log(this);
+		});	
+	}
 
 	
 </script>

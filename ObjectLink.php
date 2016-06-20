@@ -317,6 +317,51 @@ class ObjectLink {
 		return $params;
 	}
 	
+	public function createPolygonObject($params){
+		try {
+			$coords = $params[0];
+			$oid = $params[1];
+			$caption = isset($params[2]) ? $params[2] : "полигон на карте объекта $oid";
+			
+			$cid = $this->gO(["Полигоны на карте", true]);
+			$cid2 = $this->gO(["Координаты на карте", true]);
+			$id = $this->cO([$caption, $cid]);
+			$this->cL([$id, $oid]);
+			
+			foreach($coords as $coord){
+				$lat = $coord[0];
+				$lon = $coord[1];
+				$latlon = "$lat $lon";
+				$xy = $this->cO([$latlon, $cid2]);
+				$this->cL([$xy, $id]);
+			}
+			
+			return $id;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ?>

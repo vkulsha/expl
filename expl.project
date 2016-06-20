@@ -3,54 +3,36 @@
         <Folder name="css">
             <File name="css\expl.css" />
             <File name="css\jsTable.css" />
-            <File name="css\leaflet.css" />
-        </Folder>
-        <Folder name="benchmark">
-            <File name="benchmark\bench.js" />
-            <File name="benchmark\index.php" />
-        </Folder>
-        <Folder name="test">
-            <File name="test\test.js" />
-            <File name="test\index.php" />
-        </Folder>
-        <Folder name="alg">
-            <File name="alg\createRule.txt" />
-            <File name="alg\rule.txt" />
         </Folder>
         <Folder name="js">
+            <File name="js\objectlink.js" />
             <File name="js\uService.js" />
             <File name="js\JsTable.js" />
             <File name="js\Filter.js" />
-            <File name="js\uodb.js" />
             <File name="js\Column.js" />
             <File name="js\GetSet.js" />
-            <File name="js\domtree.js" />
-            <File name="js\objectlink.js" />
         </Folder>
         <File name="index.php" />
         <File name="iMap.php" />
-        <File name="iTable.php" />
+        <File name="iMap2.php" />
         <File name="iCard.php" />
         <File name="iCard2.php" />
-        <File name="iPower.php" />
-        <File name="iMainMenu.php" />
-        <File name="iControl.php" />
-        <File name="conn.php" />
-        <File name="auth.php" />
-        <File name="scanDir.php" />
-        <File name="upload.php" />
-        <File name="delete.php" />
-        <File name="sql2json.php" />
-        <File name="iObjectLink.php" />
-        <File name="iii.php" />
-        <File name="upload2.php" />
-        <File name="DB.php" />
-        <File name="ObjectLink.php" />
-        <File name="shemaPaint.php" />
-        <File name="test.php" />
-        <File name="SQL.php" />
-        <File name="orm.php" />
         <File name="iCard1425.php" />
         <File name="iCard1424.php" />
+        <File name="orm.php" />
+        <File name="iTable.php" />
+        <File name="iMainMenu.php" />
+        <File name="auth.php" />
+        <File name="conn.php" />
+        <File name="DB.php" />
+        <File name="SQL.php" />
+        <File name="ObjectLink.php" />
+        <File name="sql2json.php" />
+        <File name="scanDir.php" />
+        <File name="upload.php" />
+        <File name="upload2.php" />
+        <File name="delete.php" />
+        <File name="test.php" />
+        <File name="iii.php" />
     </Project>
 </NotepadPlus>
