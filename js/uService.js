@@ -119,7 +119,6 @@ function getCardVersionByOid(oid){
 	} else {
 		return undefined;
 	}
-	
 }
 
 function bCadastr(objectCadastrNumber) {
@@ -629,6 +628,63 @@ function iMap(opts, callback, dblclick, funcError, funcFinnaly){
 	
 }
 
+function mapLoad(arrLatLon, opts, click){
+	var ObjectIcon = L.Icon.extend({
+		options: {
+			iconSize:     [40, 40],
+			iconAnchor:   [20, 40],
+			popupAnchor:  [0, -40]
+		}
+	});
+
+	var objectIcons = [
+		new ObjectIcon({iconUrl: opts && opts.marker || 'images/marker00.png'}), 
+	];
+
+	var minLat = 1000, minLon = 1000, maxLat = 0, maxLon = 0;
+	var markers = L.layerGroup();
+	var arrLat = [];
+	var arrLon = [];
+	var arrOid = [];
+	
+	$.each(arrLatLon, function(ind, value){
+		var lat = value[0];
+		var lon = value[1];
+		var oid = value[2];
+		minLat = Math.min(lat, minLat);
+		minLon = Math.min(lon, minLon);
+		maxLat = Math.max(lat, maxLat);
+		maxLon = Math.max(lon, maxLon);
+		
+		var icon = {icon:objectIcons[0]};
+		
+		var marker = L.marker([lat, lon], icon)
+			.addTo(markers)
+			.on("click", function(){
+				click( {"lat":lat, "lon":lon, "oid":oid} )
+			});
+
+		arrOid.push(oid);
+		arrLat.push(lat);
+		arrLon.push(lon);
+			
+//		marker.
+	});
+	
+	return {
+		"markers":markers, 
+		"objects":{"oid": arrOid, "lat" : arrLat, "lon" : arrLon},
+		"bounds":{
+			"minLat":minLat, 
+			"minLon":minLon, 
+			"maxLat":maxLat, 
+			"maxLon":maxLon
+		}
+	};
+	
+}
+
+
 /*
 Return matrix array as [[1,2,3],[4,5,6]] from line array as [1,2,3,4,5,6]
 */
@@ -1075,8 +1131,9 @@ function showInterfaceElements(userId, interfaceKey){
 	return policy;
 };
 
-function $_GET(keyname){
-	var search = location.search.split("?")
+function $_GET(keyname, delimiter, uri){
+	var searchline = uri || location.search;
+	var search = searchline.split(delimiter || "?")
 	search = search.length > 1 ? search[1] : "";
 	var params = search.split("&");
 	for (var i=0; i < params.length; i++){

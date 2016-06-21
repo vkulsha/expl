@@ -12,20 +12,6 @@
 		<script src="js/d3.min.js"></script>
 		<script src="js/leaflet.js"></script>		
 		<script src="js/jstree/jstree.min.js"></script>
-
-		<script>
-		<?php
-			session_start();
-			echo "
-				var sessionLogin = '';
-			";
-			if (isset($_SESSION['auth'])) {
-				echo "
-					sessionLogin = '".$_SESSION['login']."';
-					";
-			}
-		?>
-		</script>
 		<script src="js/Column.js"></script>
 		<script src="js/uService.js"></script>
 		<script src="js/GetSet.js"></script>

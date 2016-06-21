@@ -268,6 +268,7 @@
 	b.onclick = funcbuttonclick;
 	container.appendChild(b);
 	
+/*	
 	$(container).append("<tr height='10'><td></td></tr>");
 	var b = gB("Материально ответственное лицо", true)[0];
 	container.appendChild(b);
@@ -275,7 +276,7 @@
 	var b = gB("Солтан Н.П.", false)[0];
 	b.onclick = funcbuttonclick;
 	container.appendChild(b);
-	
+
 	$(container).append("<tr height='10'><td></td></tr>");
 	var b = gB("Наличие текущих ремонтов", true)[0];
 	container.appendChild(b);
@@ -283,7 +284,6 @@
 	var b = gB("Ремонт кровли", false)[0];
 	b.onclick = funcbuttonclick2;
 	container.appendChild(b);
-
 	$(container).append("<tr height='10'><td></td></tr>");
 	var b = gB("Регистрация инцидентов на объекте", true)[0];
 	container.appendChild(b);
@@ -291,6 +291,7 @@
 	var b = gB("Инциденты не обнаружены", false)[0];
 	b.onclick = funcbuttonclick;
 	container.appendChild(b);
+*/
 	
 	$(container).append("<tr height='10'><td></td></tr>");
 	$(container).append("<tr height='10'><td></td></tr>");
