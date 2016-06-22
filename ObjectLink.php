@@ -322,8 +322,9 @@ class ObjectLink {
 			$coords = $params[0];
 			$oid = $params[1];
 			$caption = isset($params[2]) ? $params[2] : "полигон на карте объекта $oid";
+			$class = isset($params[3]) ? $params[3] : "Полигоны на карте";
 			
-			$cid = $this->gO(["Полигоны на карте", true]);
+			$cid = $this->gO([$class, true]);
 			$cid2 = $this->gO(["Координаты на карте", true]);
 			$id = $this->cO([$caption, $cid]);
 			$this->cL([$id, $oid]);

@@ -128,6 +128,40 @@ function bCadastr(objectCadastrNumber) {
 	
 }
 
+function loadXML(url, isGet, async, asText, func) {
+	var req = null;
+	if (window.XMLHttpRequest) {
+		try {
+			req = new XMLHttpRequest();
+		} catch (e){}
+	} else if (window.ActiveXObject) {
+		try {
+			req = new ActiveXObject('Msxml2.XMLHTTP');
+		} catch (e){
+			try {
+				req = new ActiveXObject('Microsoft.XMLHTTP');
+			} catch (e){}
+		}
+	}
+
+	if (req) {       
+		req.open(isGet ? "GET" : "POST", url, async);
+		req.onreadystatechange = function(){
+			try {
+			if (req.readyState == 4) {
+				if (req.status == 200) {
+					func(asText ? req.responseText : req.responseXML);
+				} else {
+					console.log("Не удалось получить данные:\n"+req.statusText);
+				}
+			}
+			} catch( e ) {
+			}							
+		};
+		req.send(null);
+	}
+}				
+
 function getHttp(uri, func, async, funcError, funcFinnaly) {
 	if (async === undefined) async = true;
 
@@ -1157,6 +1191,30 @@ function coordsFromSas(){
 	return ret;
 }
 
+///////	get coord from KML format from uri of kml file
+function coordsFromKml(uri){
+	var result;
+	loadXML("data/path.kml", true, false, false, function(data){
+		var ret = data.getElementsByTagName("coordinates")[0].innerHTML;
+		if (ret) {
+			var coords = ret.split(" ");
+			var arr = [];
+			for (var i=0; i < coords.length; i++) {
+				if (coords[i]) {
+					var coord = coords[i].split(",");
+					if (coord) {
+						var lon = coord[0];
+						var lat = coord[1];
+						arr.push([lat, lon]);
+					}
+				}
+			}
+			result = arr;
+		}
+	})
+	return result;
+}
+
 function createPolygonObject(coords, oid, newObjectName){
 	return objectlink.gOrm("createPolygonObject",[coords, oid, newObjectName]);
 	
@@ -1166,7 +1224,7 @@ function createPolygonFromSas(oid){
 	return createPolygonObject(coordsFromSas(), oid);
 	
 }
-///////
+////////////
 
 function fillCard(arr, oid){
 	var cn_ = arr[0];
@@ -1203,7 +1261,6 @@ function fillCard(arr, oid){
 	$(dataContainer).append("<tr><td>"+txt.join("")+"</td></tr>");
 	$(dataContainer).append("<tr height='10'><td colspan='2'></td></tr>");
 }	
-
 
 
 

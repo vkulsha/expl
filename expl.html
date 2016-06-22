@@ -205,9 +205,9 @@
 				};
 
 				function showModal(uri, oid){
-					$("#modalTitle").html("");
-					$("#modalBody").html("");
-					$("#modalFooter").html("");
+					gDom("modalTitle").innerHTML = "";
+					gDom("modalBody").innerHTML = "";
+					gDom("modalFooter").innerHTML = "";
 					
 					if (oid) location.href = "expl.html#"+objectIdUrlKey+"="+oid;
 					
@@ -238,6 +238,7 @@
 
 					return [centX, centY];
 				}
+				
 				
 			})
 		</script>
