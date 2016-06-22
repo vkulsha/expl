@@ -1168,7 +1168,41 @@ function createPolygonFromSas(oid){
 }
 ///////
 
+function fillCard(arr, oid){
+	var cn_ = arr[0];
+	$(dataContainer).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 
+	var arrC = arr;
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+oid]);
+	var row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
+	var txt = [];
+	var start = 1;
+	var end   = arrC.length-1;
+	var sliceNum = arrC.indexOf("Файлы")-arrC.length-1;
+	for (var i=start; i < end; i++){
+		var cellData = "";
+		if (row.length && row[i] && row[i].length && row[i][1]){
+			if (i < (end-1)){
+				cellData = ""+row[i][1]+"";
+			} else {
+				if (rows.length == 1) {
+					cellData = getFileButtonHtml(row[i][1]);
+				} else {
+					for (var j=0; j < rows.length; j++) {
+						cellData = cellData + "<td>" + getFileButtonHtml(rows[j].slice(sliceNum)[0]) + "</td>";
+					}
+					cellData = "<table><tr>"+cellData+"</tr></table>"
+				}
+			}
+		} else {
+			var cellData = "<label style='color:#333'>нет данных</label>";
+		}
+		txt.push("<tr><td style='border-bottom:1px solid #333; color:#999'>"+arrC[i]+":</td><td style='border-bottom:1px solid #333'>"+cellData+"</td></tr>");
+		
+	}
+	$(dataContainer).append("<tr><td>"+txt.join("")+"</td></tr>");
+	$(dataContainer).append("<tr height='10'><td colspan='2'></td></tr>");
+}	
 
 
 

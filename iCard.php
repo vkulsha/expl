@@ -81,7 +81,8 @@
 	newVersion.oid = oid;
 	newVersion.onclick = function(){
 		//bCard(location.href.split("&")[1].split("=")[1],2);
-		bCard(this.oid,2);
+		//bCard(this.oid,2);
+		location.href = "expl.html?object=115";
 	}
 	
 	var objectPath = getObjectsDir()+"/"+objectId+"/";

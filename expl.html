@@ -1,0 +1,267 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		
+		<link rel="stylesheet" href="css/leaflet.css" />
+		<link rel="stylesheet" type="text/css" href="css/main.css">
+
+		<script src="js/jquery-2.2.0.min.js"></script>
+		<script src="js/d3.min.js"></script>
+		<script src="js/leaflet.js"></script>		
+		<script src="js/uService.js"></script>
+		<script src="js/objectlink.js"></script></head>
+
+		<script>
+			/////policy
+			var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+			var classes = hash4arr(classes_);
+
+			var key = $_GET("key");
+			var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+			var userId = objectlink.gAND([userKey, classes["Пользователи"]]);
+			if (userId.length){
+				userId = userId[0];
+				var mainInterface = getMainInterfaceKey(userId);
+				var curInterface = $_GET(interfaceUrlKey);
+				
+				if (curInterface && key){
+				} else {
+					curInterface = mainInterface;
+				}
+				if (curInterface) {
+					$(document).ready(function() {
+						var policy = showInterfaceElements(userId, curInterface);
+						var mainContainer = gDom("mainContainer");
+						if (!mainContainer.hidden) {
+							//getHttp(curInterface+".htm", function(data){ $(mainContainer).append(data); }, true);
+						}
+					});
+				}
+			}
+			
+			////////search Address
+			function searchAddress(query){
+				var q = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode="+query;
+				var result;
+				getHttp(q, function(data){
+					var data = data;
+					var pos = data.response.GeoObjectCollection.featureMember[0].GeoObject.Point.pos;
+					result = pos.split(" ");
+				}, false);
+				
+				return result;
+			}
+			
+			////documentReady
+			$(document).ready(function(){
+				//var objectId = $_GET(objectIdUrlKey);
+				
+				//////map init
+				var map = L.map('map');
+				
+				L.tileLayer( '//mt{s}.googleapis.com/vt?lyrs=s,h&x={x}&y={y}&z={z}',
+				{
+				  maxZoom: 18,
+				  subdomains: [ 0, 1, 2, 3 ]
+				} ).addTo( map );
+				
+				var cont = map.getContainer();
+				cont.style.height = "100%";
+				cont.style.width = "100%";
+				
+				var markers = L.layerGroup();
+				var addressMarker = L.marker([0, 0]);
+
+				////////
+				var markerClick = function(val){
+					//val.oid, val.lat, val.lon
+					map.setView([val.lat, val.lon], 18)
+					
+				}
+				
+				var arrObjects = objectlink.gOrm("gT",[["Объект","Широта","Долгота"],[],[],[],false,"`Широта`, `Долгота`, `id Объект`"]);
+				var load = mapLoad(arrObjects, {}, markerClick);
+
+				markers.clearLayers();
+				markers = load.markers;
+				markers.addTo(map);
+				map.fitBounds([
+					[load.bounds.minLat, load.bounds.minLon],
+					[load.bounds.maxLat, load.bounds.maxLon]
+				]);
+				
+				var oid = 115;
+				var ind = load.objects.oid.indexOf("115");
+				if (~ind) map.setView([load.objects.lat[ind], load.objects.lon[ind]], 18);
+				
+
+				/////polygons objects
+				var polylines = [];
+
+				var paint = function(coords){
+					var poly = [];
+					var polyId = coords[0][1];
+					for (var i=0; i < coords.length; i++){
+						if (polyId != coords[i][1] && poly.length) {
+							var p = L.polygon(poly, {color: '#00ff00'}).addTo(map);
+							p.oid = oid;
+							polylines.push(p);
+							poly = [];
+						}
+						var oid = coords[i][2];
+						var coord = coords[i][0].split(" ");
+						poly.push(coord);
+						polyId = coords[i][1];
+						if (i == coords.length-1){
+							var p = L.polygon(poly, {color: '#00ff00'}).addTo(map);
+							p.oid = oid;
+							polylines.push(p);
+							
+						}
+					}
+				}
+
+				var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				paint(zu);
+				paint(zd);
+				
+				for (var i=0; i < polylines.length; i++){
+					polylines[i].on('mouseover', function(e) {
+						this.setStyle({color : "#ff5555"});
+					});
+					
+					polylines[i].on('mouseout', function(e) {
+						this.setStyle({color : "#00ff00"});
+					});	
+
+					polylines[i].on('click', function(e) {
+						showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid);
+					});	
+					
+					////////paint photos
+					var points = [];
+					for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+						var lat = polylines[i].getLatLngs()[0][j].lat;
+						var lng = polylines[i].getLatLngs()[0][j].lng;
+						points.push([lat, lng]);
+					
+					}
+					var center = getCenterFromPoints(points);
+					
+					var oid = polylines[i].oid;
+					var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+oid]);
+
+					var ObjectIcon = L.Icon.extend({
+						options: {
+							iconSize:     [32, 32],
+							iconAnchor:   [16, 16]
+						}
+					});
+					var markers = L.layerGroup();
+
+					function click(that){
+						showModal("cardPhoto.htm",that.oid);
+					}
+					
+					if (foto.length){
+						for (var j=0; j < 1; j++){
+							var fn = foto[j][0];
+						
+							var objectIcon = new ObjectIcon({iconUrl: fn});
+							var marker = L.marker(center, {icon:objectIcon})
+								.addTo(markers)
+							marker.oid = oid;
+							marker.fn = fn;
+							marker
+								.on("click", function(){
+									click( this )
+								});
+							
+						}
+					}
+					markers.addTo(map);
+					
+				}			
+				
+				/////modal
+				var modal = document.getElementById('myModal');
+				var span = document.getElementsByClassName("close")[0];
+
+				span.onclick = function() {
+					modal.style.display = "none";
+				}
+
+				window.onclick = function(event) {
+					if (event.target == modal) {
+						modal.style.display = "none";
+					}
+				}
+				
+				window.onkeydown = function(event) {
+					if (event.keyCode == 27) {
+						modal.style.display = "none";
+					}
+				};
+
+				function showModal(uri, oid){
+					$("#modalTitle").html("");
+					$("#modalBody").html("");
+					$("#modalFooter").html("");
+					
+					if (oid) location.href = "expl.html#"+objectIdUrlKey+"="+oid;
+					
+					getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
+					
+					modal.style.display = "block";
+				
+				}
+
+				function getMinMaxCoordFromPoints(points, coordNum, minOrMax){
+					var resultCoord = points[0][coordNum];
+					for (var i=0; i < points.length; i++){
+						var coord = points[i];
+						resultCoord = 
+							parseFloat(coord[coordNum]) < parseFloat(resultCoord) && minOrMax ? coord[coordNum] : minOrMax ? resultCoord :
+							parseFloat(coord[coordNum]) > parseFloat(resultCoord) ? coord[coordNum] : resultCoord;
+					}
+					return resultCoord;
+				}
+				
+				function getCenterFromPoints(points){
+					var maxX = getMinMaxCoordFromPoints(points, 0, false);
+					var maxY = getMinMaxCoordFromPoints(points, 1, false);
+					var minX = getMinMaxCoordFromPoints(points, 0, true);
+					var minY = getMinMaxCoordFromPoints(points, 1, true);
+					var centX = parseFloat(minX) + ((parseFloat(maxX) - parseFloat(minX)) / 2);
+					var centY = parseFloat(minY) + ((parseFloat(maxY) - parseFloat(minY)) / 2);
+
+					return [centX, centY];
+				}
+				
+			})
+		</script>
+
+	</head>
+	<body>
+		<div id="myModal" class="modal">
+		  <div class="modal-content">
+			<div class="modal-header">
+			  <span class="close">&times;</span>
+			  <h3 id='modalTitle'></h2>
+			</div>
+			<div class="modal-body" id='modalBody'>
+			</div>
+			<div class="modal-footer" id='modalFooter'>
+			</div>
+		  </div>
+		</div>
+		
+		<table id="mainTable">
+		<tr>
+			<td align="center" valign="middle" id="mainContainer">
+				<div id="map" width="100%" height="100%"></div>
+			</td>
+		</tr>
+	</body>
+</html>
