@@ -24,8 +24,8 @@
 <script>
 	var cid = 1424;
 	var cn = objectlink.gOrm("gN",[cid]);
-	var oid = $_GET(objectIdUrlKey);
-	var objectName = objectlink.gOrm("gN",[oid]);
+	var objectId = $_GET(objectIdUrlKey);
+	var objectName = objectlink.gOrm("gN",[objectId]);
 	$("#label").html(objectName);
 	
 	var modal = document.getElementById('myModal');
@@ -83,7 +83,7 @@
 		$(dataContainer).append("<tr><td colspan='2'><h3>"+cn_+"</h3></td></tr>");
 
 		var arrC = arr;
-		var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+oid]);
+		var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+objectId]);
 		row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
 		var txt = [];
 		var start = 1;
@@ -129,7 +129,7 @@
 	func(["Регистрация инцидентов на объекте", "Дата инцидента", "Место инцидента", "Описание инцидента", "Назначенный ответственный за решение", "Срок решения", "Файлы", cn]);
 	
 	///Фото
-	var images = objectlink.gOrm("gT",[["Земельные участки","Фото"],[],[],[],false,"*","and `id Земельные участки` ="+oid+" order by `id Фото`"]);
+	var images = objectlink.gOrm("gT",[["Земельные участки","Фото"],[],[],[],false,"*","and `id Земельные участки` ="+objectId+" order by `id Фото`"]);
 	if (images && images.length) {
 		var imgInd = 0;
 		

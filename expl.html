@@ -9,160 +9,122 @@
 		<script src="js/d3.min.js"></script>
 		<script src="js/leaflet.js"></script>		
 		<script src="js/uService.js"></script>
+		<script src="js/Main.js"></script>
 		<script src="js/objectlink.js"></script></head>
 
-		<script>
+<script>
 ////////////policy
-			var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
-			var classes = hash4arr(classes_);
-
-			var key = $_GET("key");
-			var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
-			var userId = objectlink.gAND([userKey, classes["Пользователи"]]);
-			if (userId.length){
-				userId = userId[0];
-				var mainInterface = getMainInterfaceKey(userId);
-				var curInterface = $_GET(interfaceUrlKey);
-				
-				if (curInterface && key){
-				} else {
-					curInterface = mainInterface;
+	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	var classes = hash4arr(classes_);
+/*
+	var key = $_GET("key");
+	var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+	var userId = objectlink.gAND([userKey, classes["Пользователи"]]);
+	if (userId.length){
+		userId = userId[0];
+		var mainInterface = getMainInterfaceKey(userId);
+		var curInterface = $_GET(interfaceUrlKey);
+		
+		if (curInterface && key){
+		} else {
+			curInterface = mainInterface;
+		}
+		if (curInterface) {
+			$(document).ready(function() {
+				var policy = showInterfaceElements(userId, curInterface);
+				var mainContainer = gDom("mainContainer");
+				if (!mainContainer.hidden) {
+					//getHttp(curInterface+".htm", function(data){ $(mainContainer).append(data); }, true);
 				}
-				if (curInterface) {
-					$(document).ready(function() {
-						var policy = showInterfaceElements(userId, curInterface);
-						var mainContainer = gDom("mainContainer");
-						if (!mainContainer.hidden) {
-							//getHttp(curInterface+".htm", function(data){ $(mainContainer).append(data); }, true);
-						}
-					});
-				}
-			}
-			
-////////////search Address
-			function searchAddress(query){
-				var q = "https://geocode-maps.yandex.ru/1.x/?format=json&geocode="+query;
-				var result;
-				getHttp(q, function(data){
-					var data = data;
-					var res = data.response.GeoObjectCollection.featureMember;
-					if (res.length) {
-						var pos = res[0].GeoObject.Point.pos;
-						result = pos.split(" ");
-					}
-				}, false);
-				
-				return result;
-			}
+			});
+		}
+	}
+*/			
 			
 ////////////documentReady
-			$(document).ready(function(){
-				//var objectId = $_GET(objectIdUrlKey);
-				var pObjects = gDom("pObjects");
-				
+	$(document).ready(function(){
+		//var objectId = $_GET(objectIdUrlKey);
+		var pSearch = gDom("pSearch");
+		var pMain =  gDom("pMain");
+		pMain.style.height = windowHeight()-170+"px";
+		var pObjects = gDom("pObjects");
+////////////////modal
+		var modal = document.getElementById('myModal');
+		var span = document.getElementsByClassName("close")[0];
+
+		span.onclick = function() {
+			modal.style.display = "none";
+		}
+
+		window.onclick = function(event) {
+			if (event.target == modal) {
+				modal.style.display = "none";
+			}
+		}
+		
+		window.onkeydown = function(event) {
+			if (event.keyCode == 27) {
+				modal.style.display = "none";
+			}
+		};
+
+////////////////showModal
+		function showModal(uri, _oid, mainoid){
+			gDom("modalTitle").innerHTML = "";
+			gDom("modalBody").innerHTML = "";
+			gDom("modalFooter").innerHTML = "";
+			
+			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
+			//getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
+			modal.style.display = "block";
+			loadXML(uri, true, true, false, function(data){
+				$("#modalBody").append(data);
+			});
+		
+		}
+		
 ////////////////map init
-				var map = L.map('map');
-				
-				L.tileLayer( '//mt{s}.googleapis.com/vt?lyrs=s,h&x={x}&y={y}&z={z}',
-				{
-				  maxZoom: 18,
-				  subdomains: [ 0, 1, 2, 3 ]
-				} ).addTo( map );
-				
-				var cont = map.getContainer();
-				cont.style.height = "100%";
-				cont.style.width = "100%";
-				
-				var markers = L.layerGroup();
-				var addressMarker = L.marker([0, 0]);
+		var map = L.map('map');
+		var mapObjects = initMap(map);
+		
+		window.onhashchange = function(){
+			hashchange(mapObjects);
+		}
 
-				////////
-				var markerClick = function(val){
-					//val.oid, val.lat, val.lon
-					map.setView([val.lat, val.lon], 18)
-					
-				}
-				
-				var arrObjects = objectlink.gOrm("gT",[["Объект","Широта","Долгота"],[],[],[],false,"`Широта`, `Долгота`, `id Объект`"]);
-				var load = mapLoad(arrObjects, {}, markerClick);
-
-				markers.clearLayers();
-				markers = load.markers;
-				markers.addTo(map);
-				map.fitBounds([
-					[load.bounds.minLat, load.bounds.minLon],
-					[load.bounds.maxLat, load.bounds.maxLon]
-				]);
-				
-				//var oid = $_GET("oid", "#", location.hash) || "115";
-				hashchange();
-				
-				function hashchange(){
-					oid = $_GET("oid", "#", location.hash) || "115";
-					var ind = load.objects.oid.indexOf(oid);
-					if (~ind) map.setView([load.objects.lat[ind], load.objects.lon[ind]], 18);
-					
-					pObjects.innerHTML = "";
-					//var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения"],[],[],[],false, null, "and `id Объект` = "+oid]);
-					var zd = objectlink.gOrm("gT",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]],[3,5],[],false,null, "and `id Объект` = "+oid]);
-					
-					$(pObjects).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
-					$(pObjects).append("Адрес: <label style='color:#00ff00'>"+zd[0][5]+"</label><br>");
-					$(pObjects).append("ТУ: <label style='color:#00ff00'>"+zd[0][7]+"</label><br>");
-					$(pObjects).append("ИК: <label style='color:#00ff00'>"+zd[0][11]+"</label><br>");
-					$(pObjects).append("Ответственный: <label style='color:#00ff00'>"+zd[0][9]+"</label><br>");
-					$(pObjects).append("<br>Состав имущества:<br>");
-					var fclick = function(){
-						showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid);
-					}
-					loadPanel(zd, pObjects, 2, 3, fclick);
-					
-				}
-				
-				window.onhashchange = function(){
-					hashchange();
-				}
-				
+		hashchange(mapObjects);
+		
+		function hashchange(mapObjects){
+			var oid = $_GET("oid", "#", location.hash) || "115";
+			var ind = mapObjects.objects.oid.indexOf(oid);
+			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], 18);
+			
+			pObjects.innerHTML = "";
+			var zd = objectlink.gOrm("gT",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]],[3,5],[],false,null, "and `id Объект` = "+oid+" order by `id Здания и сооружения`"]);
+			
+			$(pObjects).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
+			$(pObjects).append("Адрес: <label style='color:#00ff00'>"+zd[0][5]+"</label><br>");
+			$(pObjects).append("Территориальное управление: <label style='color:#00ff00'>"+zd[0][11]+"</label><br>");
+			$(pObjects).append("Имущественный комплекс: <label style='color:#00ff00'>"+zd[0][7]+" ("+zd[0][9]+") </label><br>");
+			$(pObjects).append("<br>Состав имущества на объекте:<br>");
+			var fclick = function(){
+				showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
+			}
+			loadPanel(zd, pObjects, 2, 3, fclick);
 
 ////////////////polygons objects
-				function mapPaint(coords, funcL, paramsL){
-					var ret = [];
-					var poly = [];
-					paramsL = paramsL || {};
-					funcL = funcL || L.polygon;
-					var polyId = coords[0][1];
-					for (var i=0; i < coords.length; i++){
-						if (polyId != coords[i][1] && poly.length) {
-							var p = funcL(poly, paramsL).addTo(map);
-							p.oid = oid;
-							ret.push(p);
-							poly = [];
-						}
-						var oid = coords[i][2];
-						var coord = coords[i][0].split(" ");
-						poly.push(coord);
-						polyId = coords[i][1];
-						if (i == coords.length-1){
-							var p = funcL(poly, paramsL).addTo(map);
-							p.oid = oid;
-							ret.push(p);
-							
-						}
-					}
-					return ret;
-				}
-				
-				var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var el = objectlink.gOrm("gT",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Электроснабжение`", "and `id Электроснабжение` = "+1899+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+			var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+			var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+			var el = objectlink.gOrm("gT",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Электроснабжение`", "and `id Электроснабжение` = "+1899+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 
-				var polylines = [];
-				polylines = polylines.concat(mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1}));
-				polylines = polylines.concat(mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1}));
-				
+			var polylines = [];
+			paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
+			paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
+			polylines = paintZu ? polylines.concat(paintZu) : polylines;
+			polylines = paintZd ? polylines.concat(paintZd) : polylines;
 ////////////////markers electro				
-				var arrEl = [];
-				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1});
+			var arrEl = [];
+			var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
+			if (elLines && elLines.length){
 				var elCoord = elLines[0].getLatLngs()[0];
 				var markerElectro = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
 				var elCoord = elLines[0].getLatLngs()[6];
@@ -170,204 +132,144 @@
 				var elCoord = elLines[10].getLatLngs()[0];
 				var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
 				arrEl = arrEl.concat(/*elLines, */markerElectro, elCounter1, elCounter2);
-				
-				map.on("zoomend", function(){
-					for (var i=0; i < arrEl.length; i++) {
-						if (map.getZoom() < 17) {
-							arrEl[i].setOpacity(0);
-						} else {
-							arrEl[i].setOpacity(1);
-						}
+			}
+			map.on("zoomend", function(){
+				for (var i=0; i < arrEl.length; i++) {
+					if (map.getZoom() < 17) {
+						arrEl[i].setOpacity(0);
+					} else {
+						arrEl[i].setOpacity(1);
 					}
-				})
-///////////////////////////////				
-				for (var i=0; i < polylines.length; i++){
-					polylines[i].on('mouseover', function(e) {
-						this.setStyle({color : "#ff5555"});
-					});
-					
-					polylines[i].on('mouseout', function(e) {
-						this.setStyle({color : "#00ff00"});
-					});	
+				}
+			})
+////////////////events and paint photos of polylines			
+			for (var i=0; i < polylines.length; i++){
+				polylines[i].on('mouseover', function(e) {
+					this.setStyle({color : "#ff5555"});
+				});
+				
+				polylines[i].on('mouseout', function(e) {
+					this.setStyle({color : "#00ff00"});
+				});	
 
-					polylines[i].on('click', function(e) {
-						showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid);
-					});	
-					
+				polylines[i].on('click', function(e) {
+					showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
+				});	
+						
 ////////////////////paint photos
-					if (false) {
-						var points = [];
-						for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-							var lat = polylines[i].getLatLngs()[0][j].lat;
-							var lng = polylines[i].getLatLngs()[0][j].lng;
-							points.push([lat, lng]);
-						
-						}
-						var center = getCenterFromPoints(points);
-						
-						var oid = polylines[i].oid;
-						var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+oid]);
+				if (false) {
+					var points = [];
+					for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+						var lat = polylines[i].getLatLngs()[0][j].lat;
+						var lng = polylines[i].getLatLngs()[0][j].lng;
+						points.push([lat, lng]);
+					
+					}
+					var center = getCenterFromPoints(points);
+					
+					var _oid = polylines[i].oid;
+					var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+_oid]);
 
-						var ObjectIcon = L.Icon.extend({
-							options: {
-								iconSize:     [32, 32],
-								iconAnchor:   [16, 16]
-							}
-						});
-						var markers = L.layerGroup();
-
-						function click(that){
-							showModal("cardPhoto.htm",that.oid);
+					var ObjectIcon = L.Icon.extend({
+						options: {
+							iconSize:     [32, 32],
+							iconAnchor:   [16, 16]
 						}
+					});
+					var markers = L.layerGroup();
+
+					function click(that){
+						showModal("cardPhoto.htm", that.oid, oid);
+					}
+					
+					if (foto.length){
+						for (var j=0; j < 1; j++){
+							var fn = foto[j][0];
 						
-						if (foto.length){
-							for (var j=0; j < 1; j++){
-								var fn = foto[j][0];
+							var objectIcon = new ObjectIcon({iconUrl: fn});
+							var marker = L.marker(center, {icon:objectIcon})
+								.addTo(markers)
+							marker.oid = _oid;
+							marker.fn = fn;
+							marker
+								.on("click", function(){
+									click( this )
+								});
 							
-								var objectIcon = new ObjectIcon({iconUrl: fn});
-								var marker = L.marker(center, {icon:objectIcon})
-									.addTo(markers)
-								marker.oid = oid;
-								marker.fn = fn;
-								marker
-									.on("click", function(){
-										click( this )
-									});
-								
-							}
 						}
-						markers.addTo(map);
 					}
-					
+					markers.addTo(map);
+				}
+						
 /////////////////////////////					
-				}
-				
-////////////////modal
-				var modal = document.getElementById('myModal');
-				var span = document.getElementsByClassName("close")[0];
-
-				span.onclick = function() {
-					modal.style.display = "none";
-				}
-
-				window.onclick = function(event) {
-					if (event.target == modal) {
-						modal.style.display = "none";
-					}
-				}
-				
-				window.onkeydown = function(event) {
-					if (event.keyCode == 27) {
-						modal.style.display = "none";
-					}
-				};
-
-////////////////showModal
-				function showModal(uri, _oid){
-					gDom("modalTitle").innerHTML = "";
-					gDom("modalBody").innerHTML = "";
-					gDom("modalFooter").innerHTML = "";
-					
-					if (_oid) location.href = "expl.html#oid="+oid+"&"+objectIdUrlKey+"="+_oid;
-					getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
-					
-					modal.style.display = "block";
-				
-				}
-
-////////////////center point from arr points
-				function getMinMaxCoordFromPoints(points, coordNum, minOrMax){
-					var resultCoord = points[0][coordNum];
-					for (var i=0; i < points.length; i++){
-						var coord = points[i];
-						resultCoord = 
-							parseFloat(coord[coordNum]) < parseFloat(resultCoord) && minOrMax ? coord[coordNum] : minOrMax ? resultCoord :
-							parseFloat(coord[coordNum]) > parseFloat(resultCoord) ? coord[coordNum] : resultCoord;
-					}
-					return resultCoord;
-				}
-				
-				function getCenterFromPoints(points){
-					var maxX = getMinMaxCoordFromPoints(points, 0, false);
-					var maxY = getMinMaxCoordFromPoints(points, 1, false);
-					var minX = getMinMaxCoordFromPoints(points, 0, true);
-					var minY = getMinMaxCoordFromPoints(points, 1, true);
-					var centX = parseFloat(minX) + ((parseFloat(maxX) - parseFloat(minX)) / 2);
-					var centY = parseFloat(minY) + ((parseFloat(maxY) - parseFloat(minY)) / 2);
-
-					return [centX, centY];
-				}
-				
+			}
+		}
+										
 ////////////////marker add to map
-				function markerAddToMap(map, latlng, iconUrl, iconSize){
-					iconUrl = iconUrl || "images/marker00.png";
-					iconSize = iconSize || "32";
-					var icon = L.icon({
-						"iconUrl":iconUrl, 
-						"iconSize":[iconSize,iconSize], 
-						"iconAnchor":[Math.round(iconSize/2), Math.round(iconSize/2)]});
-					return L.marker(
-						latlng, 
-						{"icon":icon}
-					).addTo(map);
-				}
+		function markerAddToMap(map, latlng, iconUrl, iconSize){
+			iconUrl = iconUrl || "images/marker00.png";
+			iconSize = iconSize || "32";
+			var icon = L.icon({
+				"iconUrl":iconUrl, 
+				"iconSize":[iconSize,iconSize], 
+				"iconAnchor":[Math.round(iconSize/2), Math.round(iconSize/2)]});
+			return L.marker(
+				latlng, 
+				{"icon":icon}
+			).addTo(map);
+		}
 				
 ////////////////load to panel
-				function loadPanel(arr, container, idInd, valInd, funcClick){
-					for (var i=0; i < arr.length; i++){
-						var row = arr[i];
-						var drow = container.appendChild(cDom("DIV"));
-						drow.classList.add("div-table-row");
-						drow.classList.add("alpha");
-						var dcol = drow.appendChild(cDom("DIV"));
-						dcol.classList.add("div-table-col");
-						dcol.classList.add("alpha");
-						dcol.style.backgroundColor = "rgba(0,0,0,0.1)";
-						var but = dcol.appendChild(cDom("BUTTON"));
-						but.oid = row[idInd];
-						but.row = row;
-						but.innerHTML = row[valInd];
-						but.style.width = "100%";
-						but.classList.add("alpha");
+		function loadPanel(arr, container, idInd, valInd, funcClick){
+			for (var i=0; i < arr.length; i++){
+				var row = arr[i];
+				var drow = container.appendChild(cDom("DIV"));
+				drow.classList.add("div-table-row");
+				drow.classList.add("alpha");
+				var dcol = drow.appendChild(cDom("DIV"));
+				dcol.classList.add("div-table-col");
+				dcol.classList.add("alpha");
+				dcol.style.backgroundColor = "rgba(0,0,0,0.1)";
+				var but = dcol.appendChild(cDom("BUTTON"));
+				but.oid = row[idInd];
+				but.row = row;
+				but.innerHTML = row[valInd];
+				but.style.width = "100%";
+				but.classList.add("alpha");
 
-						but.onclick = funcClick;
-					}
-				}
+				but.onclick = funcClick;
+			}
+		}
 
 ////////////////search objects or addres
-				var addressMarker;
-				var eSearch = document.getElementById('addressSearch');
-				eSearch.onkeydown = function(e){
-					if (e.which == 13) {
-						//var objects = objectlink.gOrm("getObjectLikeName",[this.value]);
-						var objects = objectlink.gOrm("gT",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]],[3,5],[],false,"distinct `id Объект`,`Объект`,`Широта`,`Долгота`",
-						"and (`Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
-						if (objects.length) {
-							pObjects.innerHTML = "";
+		var addressMarker = L.marker([0, 0]);
+		var eSearch = document.getElementById('addressSearch');
+		eSearch.onkeydown = function(e){
+			if (e.which == 13) {
+				var objects = objectlink.gOrm("gT",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]],[3,5],[],false,"distinct `id Объект`,`Объект`,`Широта`,`Долгота`",
+				"and (`Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
+				if (objects.length) {
+					pObjects.innerHTML = "";
 
-							fclick = function(){
-								location.href = "expl.html#oid="+this.oid;
-								
-							}
-							loadPanel(objects, pObjects, 0, 1, fclick);
-
-							//var objects = objectlink.gOrm("gT",[["Объект", "Здания и сооружения"],[],[],[],false, null, "and `id Объект` = "+oid]);
-							
-						} else {
-							var coord = searchAddress(this.value);
-							addressMarker.setOpacity(0);
-							if (coord) {
-								addressMarker = markerAddToMap(map, [coord[1], coord[0]], "images/marker21.png", 32);
-								map.setView([coord[1], coord[0]],17);
-							}
+					fclick = function(){
+						location.href = mainHtmlPage+"#oid="+this.oid;
 						
-						}
 					}
-				}
-
+					loadPanel(objects, pObjects, 0, 1, fclick);							
+				} else {
+					var coord = searchAddress(this.value);
+					addressMarker.setOpacity(0);
+					if (coord) {
+						addressMarker = markerAddToMap(map, [coord[1], coord[0]], "images/marker21.png", 32);
+						map.setView([coord[1], coord[0]],18);
+					}
 				
-			})
-		</script>
+				}
+			}
+		}
+
+	})
+</script>
 
 	</head>
 	<body>
@@ -391,10 +293,12 @@
 			</td>
 		</tr>
 		
-		<div id='pSearch' style='position:absolute; left:10px; top:100px; background-color:rgba(0,0,0,0.1); z-index:100000' class='div-table'>
-			<input type="text" id="addressSearch" autofocus placeholder="Поиск" style="width:200px; color:#fff; border: 1px solid #999" class='alpha' />
+		<div id='pSearch' style='position:absolute; left:10px; top:100px; background-color:rgba(0,0,0,0.3); z-index:100000; width:300px' class='div-table'>
+			<input type="text" id="addressSearch" autofocus placeholder="Поиск" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
 		</div>
-		<div id='pObjects' style='position:absolute; left:10px; top:140px; background-color:rgba(0,0,0,0.1); z-index:100000; overflow-y:auto; height:500px; width:300px' class='div-table'>
+		<div id='pMain' style='position:absolute; left:10px; top:140px; background-color:rgba(0,0,0,0.3); z-index:100000; overflow-y:auto; overflow-x:hidden; height:600px; width:300px'>
+			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
+			</div>
 		</div>
 	</body>
 </html>

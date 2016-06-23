@@ -11,8 +11,8 @@
 <script>
 	var cid = 1425;
 	var cn = objectlink.gOrm("gN",[cid]);
-	var oid = $_GET(objectIdUrlKey, "#", location.hash);
-	var objectName = objectlink.gOrm("gN",[oid]);
+	var objectId = $_GET(objectIdUrlKey, "#", location.hash);
+	var objectName = objectlink.gOrm("gN",[objectId]);
 	$("#label").html(objectName);
 	
 	var container = gDom("container");
@@ -45,7 +45,7 @@
 	fillCard(["Правоустанавливающие документы", "Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа", "Файлы",cn], oid);
 	fillCard(["Технические данные", "Общая площадь", "Полезная площадь", "Площадь застройки", "Число этажей", "Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент", "Год постройки", "Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа", "Файлы", cn], oid);
 
-	fillCard(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", cn], oid);
+	fillCard(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", cn], objectId);
 	//fillCard(["Текущие ремонты", "Наименование ремонта", "Ответственный за проведения ремонта", "Планируемая дата начала ремонта", "Планируемая дата завершения ремонта", "Дата составления дефектной ведомости", "Дата согласования сметы", "Ответственный за проверку сметы", "Дата заключения договора", "Подрядчик", "Представитель подрядчика", "Файлы", cn], oid);
 	
 	var size = $("#inModal").parent()[0].getBoundingClientRect();
@@ -56,7 +56,7 @@
 		.css("height", dataContainer.style.height)
 		//.css("width", dataContainer.getBoundingClientRect().right - dataContainer.getBoundingClientRect().left);
 
-	var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+oid+" order by `id Фото`"]);
+	var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+objectId+" order by `id Фото`"]);
 	if (images && images.length) {
 		var imgInd = 0;
 		

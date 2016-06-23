@@ -9,10 +9,8 @@
 </table>
 
 <script>
-	var cid = 1425;
-	var cn = objectlink.gOrm("gN",[cid]);
-	var oid = $_GET(objectIdUrlKey, "#", location.hash);
-	var objectName = objectlink.gOrm("gN",[oid]);
+	var objectId = $_GET(objectIdUrlKey, "#", location.hash);
+	var objectName = objectlink.gOrm("gN",[objectId]);
 	$("#label").html(objectName);
 	
 	var container = gDom("container");
@@ -34,7 +32,7 @@
 		.css("height", windowHeight() - 150 + "px")
 		//.css("width", dataContainer.getBoundingClientRect().right - dataContainer.getBoundingClientRect().left);
 
-	var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+oid+" order by `id Фото`"]);
+	var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+objectId+" order by `id Фото`"]);
 	if (images && images.length) {
 		var imgInd = 0;
 		

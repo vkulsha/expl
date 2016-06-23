@@ -11,8 +11,8 @@
 <script>
 	var cid = 1424;
 	var cn = objectlink.gOrm("gN",[cid]);
-	var oid = $_GET(objectIdUrlKey, "#", location.hash);
-	var objectName = objectlink.gOrm("gN",[oid]);
+	var objectId = $_GET(objectIdUrlKey, "#", location.hash);
+	var objectName = objectlink.gOrm("gN",[objectId]);
 	$("#label").html(objectName);
 	
 	var container = gDom("container");
@@ -47,7 +47,7 @@
 		$(dataContainer).append("<tr><td colspan='2'><h3>"+cn_+"</h3></td></tr>");
 
 		var arrC = arr;
-		var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+oid]);
+		var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+objectId]);
 		row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
 		var txt = [];
 		var start = 1;
@@ -87,9 +87,9 @@
 	fillCard(["Канализация", "Договоры", "Линии передачи", "Счетчик номер", "Предоставляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", cn], oid);
 	
 	//fillCard(["Охрана", "Организации", "Договоры", "Работники", "Файлы", cn]);
-	fillCard(["Охрана", "Вид охраны", "Количество постов", "Количество человек", "Файлы", cn], oid);
+	fillCard(["Охрана", "Вид охраны", "Количество постов", "Количество человек", "Файлы", cn], objectId);
 	
-	fillCard(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", cn], oid);
+	fillCard(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", cn], objectId);
 	fillCard(["Регистрация инцидентов на объекте", "Дата инцидента", "Место инцидента", "Описание инцидента", "Назначенный ответственный за решение", "Срок решения", "Файлы", cn], oid);
 	
 	var size = $("#inModal").parent()[0].getBoundingClientRect();
@@ -100,7 +100,7 @@
 		.css("height", dataContainer.style.height)
 		//.css("width", dataContainer.getBoundingClientRect().right - dataContainer.getBoundingClientRect().left);
 
-	var images = objectlink.gOrm("gT",[["Земельные участки","Фото"],[],[],[],false,"*","and `id Земельные участки` ="+oid+" order by `id Фото`"]);
+	var images = objectlink.gOrm("gT",[["Земельные участки","Фото"],[],[],[],false,"*","and `id Земельные участки` ="+objectId+" order by `id Фото`"]);
 	if (images && images.length) {
 		var imgInd = 0;
 		

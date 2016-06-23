@@ -150,7 +150,7 @@ function loadXML(url, isGet, async, asText, func) {
 			try {
 			if (req.readyState == 4) {
 				if (req.status == 200) {
-					func(asText ? req.responseText : req.responseXML);
+					func(asText ? req.responseText : req.response /*responseXML*/);
 				} else {
 					console.log("Не удалось получить данные:\n"+req.statusText);
 				}
@@ -659,62 +659,6 @@ function iMap(opts, callback, dblclick, funcError, funcFinnaly){
 		
 	};
 	sqlAsync(sel, true, func, funcError, funcFinnaly);
-	
-}
-
-function mapLoad(arrLatLon, opts, click){
-	var ObjectIcon = L.Icon.extend({
-		options: {
-			iconSize:     [40, 40],
-			iconAnchor:   [20, 40],
-			popupAnchor:  [0, -40]
-		}
-	});
-
-	var objectIcons = [
-		new ObjectIcon({iconUrl: opts && opts.marker || 'images/marker00.png'}), 
-	];
-
-	var minLat = 1000, minLon = 1000, maxLat = 0, maxLon = 0;
-	var markers = L.layerGroup();
-	var arrLat = [];
-	var arrLon = [];
-	var arrOid = [];
-	
-	$.each(arrLatLon, function(ind, value){
-		var lat = value[0];
-		var lon = value[1];
-		var oid = value[2];
-		minLat = Math.min(lat, minLat);
-		minLon = Math.min(lon, minLon);
-		maxLat = Math.max(lat, maxLat);
-		maxLon = Math.max(lon, maxLon);
-		
-		var icon = {icon:objectIcons[0]};
-		
-		var marker = L.marker([lat, lon], icon)
-			.addTo(markers)
-			.on("click", function(){
-				click( {"lat":lat, "lon":lon, "oid":oid} )
-			});
-
-		arrOid.push(oid);
-		arrLat.push(lat);
-		arrLon.push(lon);
-			
-//		marker.
-	});
-	
-	return {
-		"markers":markers, 
-		"objects":{"oid": arrOid, "lat" : arrLat, "lon" : arrLon},
-		"bounds":{
-			"minLat":minLat, 
-			"minLon":minLon, 
-			"maxLat":maxLat, 
-			"maxLon":maxLon
-		}
-	};
 	
 }
 

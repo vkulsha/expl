@@ -13,7 +13,6 @@ html, body, table {
 	font-size: 12px;
 	
 }
-
 ::-webkit-scrollbar {
     width: 12px;
 }
@@ -40,7 +39,7 @@ html, body, table {
     width: 100%; /* Full width */
 	height: 100%;
     overflow: hidden; /* Enable scroll if needed */
-    background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
+    background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
 }
 
 /* Modal Content */
@@ -51,6 +50,7 @@ html, body, table {
     padding: 0;
     width: 90%;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
+	background-color: rgba(0,0,0,0.5)
     animation-name: animatetop;
     animation-duration: 0.8s
 }
@@ -83,7 +83,7 @@ html, body, table {
 
 .modal-body {
 	padding: 2px 2px;
-    background-color: #000;
+    background-color: rgba(0,0,0,0.5);
 }
 
 .modal-footer {
@@ -92,11 +92,11 @@ html, body, table {
 }
 
 .alpha {
-	background-color: rgba(0,0,0,0.1)
+	background-color: rgba(0,0,0,0.3)
 }
 
 .alpha:hover{
-	background-color: rgba(255,0,0,0.1)
+	background-color: rgba(255,0,0,0.3)
 	
 }
 
@@ -120,12 +120,18 @@ html, body, table {
 }
 
 button {
-	background-color: rgba(0,0,0,0.1);
+	background-color: rgba(0,0,0,0.3);
 	color : #eee;
 }
 
 button:hover{
-	background-color: rgba(255,0,0,0.1);
+	background-color: rgba(255,0,0,0.3);
 	color : #fff;
 	
 }
+
+table, div, tr, td {
+	background-color: rgba(0,0,0,0.5);
+	
+}
+

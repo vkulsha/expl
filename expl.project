@@ -13,6 +13,12 @@
             <File name="js\Column.js" />
             <File name="js\GetSet.js" />
         </Folder>
+        <File name="expl.html" />
+        <File name="iCard1424.htm" />
+        <File name="iCard1425.htm" />
+        <File name="cardPhoto.htm" />
+        <File name="auth.htm" />
+        <File name="addObjectToClassCard.htm" />
         <File name="index.php" />
         <File name="iMap.php" />
         <File name="iCard.php" />
