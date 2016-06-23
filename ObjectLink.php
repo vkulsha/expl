@@ -56,9 +56,10 @@ class ObjectLink {
 	public function gO($params){//get object id by name
 		try {
 			$n = $params[0];
-			$isClass = isset($params[1]) ? "and id in (select o1 from link where o2 = 1) " : "";
+			$isClass = isset($params[1]) && $params[1] ? "and id in (select o1 from link where o2 = 1) " : "";
+			$isLike = isset($params[2]) && $params[2] ? " and n like '%$n%' " : " and n = '$n' ";
 			
-			$ret = $this->sql->sT(["object", "id", "and n = '$n' $isClass", "order by id", "limit 1"]);
+			$ret = $this->sql->sT(["object", "id", "$isLike $isClass", "order by id", "limit 1"]);
 			return $ret ? $ret[0][0] : null;
 			
 		} catch (Exception $e) {
@@ -290,7 +291,7 @@ class ObjectLink {
 			$objects = join(",",$params[0]);
 			$count = count($params[0]);
 			$fields = isset($params[1]) ? $params[1] : "*";
-			$notIsClass = isset($params[2]) ? "not in (select o1 from link where o2 = 1)" : "";
+			$notIsClass = isset($params[2]) && $params[2] ? "not in (select o1 from link where o2 = 1)" : "";
 			$notIsClass1 = $notIsClass ? "and o1 $notIsClass" : "";
 			$notIsClass2 = $notIsClass ? "and o2 $notIsClass" : "";
 			$cond = isset($params[3]) ? $params[3] : "";
@@ -338,6 +339,17 @@ class ObjectLink {
 			}
 			
 			return $id;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
+	public function getObjectLikeName($params){
+		try {
+			$n = $params[0];
+			return $this->sql->sT(["object", "id, n", " and n like '%$n%' and id not in (select o1 from link where o2 = 1)", "order by id", ""]);
 			
 		} catch (Exception $e){
 			print($e);

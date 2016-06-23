@@ -1194,7 +1194,7 @@ function coordsFromSas(){
 ///////	get coord from KML format from uri of kml file
 function coordsFromKml(uri){
 	var result;
-	loadXML("data/path.kml", true, false, false, function(data){
+	loadXML(uri, true, false, false, function(data){
 		var ret = data.getElementsByTagName("coordinates")[0].innerHTML;
 		if (ret) {
 			var coords = ret.split(" ");
@@ -1222,6 +1222,13 @@ function createPolygonObject(coords, oid, newObjectName){
 
 function createPolygonFromSas(oid){
 	return createPolygonObject(coordsFromSas(), oid);
+	
+}
+
+function createPolygonFromKml(uri, oid){
+	var arr = uri.split("/");
+	var fn = arr[arr.length-1];
+	return createPolygonObject(coordsFromKml(uri), oid, "полигон на карте объекта "+oid+" "+fn);
 	
 }
 ////////////

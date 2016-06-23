@@ -281,7 +281,7 @@
 	bOrderBy = document.getElementById("bOrderBy");
 	bOrderBy.onclick = function(){
 		this.innerHTML = order == ORDER ? "id" : "n";
-		order = order == ORDER ? " order by c desc, o1 desc " : ORDER;
+		order = order == ORDER ? " order by c desc, n asc " : ORDER;
 		reload();
 	};
 
