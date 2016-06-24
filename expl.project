@@ -1,17 +1,12 @@
 <NotepadPlus>
     <Project name="expl">
         <Folder name="css">
-            <File name="css\expl.css" />
             <File name="css\main.css" />
-            <File name="css\jsTable.css" />
         </Folder>
         <Folder name="js">
+            <File name="js\Main.js" />
             <File name="js\objectlink.js" />
             <File name="js\uService.js" />
-            <File name="js\JsTable.js" />
-            <File name="js\Filter.js" />
-            <File name="js\Column.js" />
-            <File name="js\GetSet.js" />
         </Folder>
         <File name="expl.html" />
         <File name="iCard1424.htm" />
@@ -20,15 +15,7 @@
         <File name="auth.htm" />
         <File name="addObjectToClassCard.htm" />
         <File name="index.php" />
-        <File name="iMap.php" />
-        <File name="iCard.php" />
-        <File name="iCard2.php" />
-        <File name="iCard1425.php" />
-        <File name="iCard1424.php" />
         <File name="orm.php" />
-        <File name="iTable.php" />
-        <File name="iMainMenu.php" />
-        <File name="auth.php" />
         <File name="conn.php" />
         <File name="DB.php" />
         <File name="SQL.php" />

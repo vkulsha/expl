@@ -1177,12 +1177,15 @@ function createPolygonFromKml(uri, oid){
 }
 ////////////
 
-function fillCard(arr, oid){
+function fillCard(arr, oid, cont){
+	if (!cont || !arr || !arr.length) {
+		$(cont).append("<h3 style='color:#999'>Нет данных</h3>");
+		return;
+	}
 	var cn_ = arr[0];
-	$(dataContainer).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
-
+	$(cont).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 	var arrC = arr;
-	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+cn+"` = "+oid]);
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+arr[arr.length-1]+"` = "+oid]);
 	var row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
 	var txt = [];
 	var start = 1;
@@ -1192,27 +1195,27 @@ function fillCard(arr, oid){
 		var cellData = "";
 		if (row.length && row[i] && row[i].length && row[i][1]){
 			if (i < (end-1)){
-				cellData = ""+row[i][1]+"";
+				cellData = row[i][1];
+				
 			} else {
 				if (rows.length == 1) {
 					cellData = getFileButtonHtml(row[i][1]);
 				} else {
 					for (var j=0; j < rows.length; j++) {
-						cellData = cellData + "<td>" + getFileButtonHtml(rows[j].slice(sliceNum)[0]) + "</td>";
+						cellData = cellData + (rows.length < 3 ? "<td>" : "<tr><td align='center'>") + getFileButtonHtml(rows[j].slice(sliceNum)[0]) + (rows.length < 3 ? "</td>" : "</td></tr>");
 					}
-					cellData = "<table><tr>"+cellData+"</tr></table>"
+					cellData = "<table>"+(rows.length < 3 ? "<tr>" : "")+cellData+(rows.length < 3 ? "</tr>" : "")+"</table>"
 				}
 			}
 		} else {
-			var cellData = "<label style='color:#333'>нет данных</label>";
+			var cellData = "<label style='color:#555'>нет данных</label>";
 		}
-		txt.push("<tr><td style='border-bottom:1px solid #333; color:#999'>"+arrC[i]+":</td><td style='border-bottom:1px solid #333'>"+cellData+"</td></tr>");
+		txt.push("<tr><td style='border-bottom:1px solid #333; color:#999'>"+arrC[i]+":</td><td style='border-bottom:1px solid #333; width:50%'>"+cellData+"</td></tr>");
 		
 	}
-	$(dataContainer).append("<tr><td>"+txt.join("")+"</td></tr>");
-	$(dataContainer).append("<tr height='10'><td colspan='2'></td></tr>");
+	$(cont).append("<tr><td>"+txt.join("")+"</td></tr>");
+	$(cont).append("<tr height='10'><td colspan='2'></td></tr>");
 }	
-
 
 
 

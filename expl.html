@@ -16,6 +16,7 @@
 ////////////policy
 	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
 	var classes = hash4arr(classes_);
+	var oids = [];
 /*
 	var key = $_GET("key");
 	var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
@@ -45,9 +46,16 @@
 	$(document).ready(function(){
 		//var objectId = $_GET(objectIdUrlKey);
 		var pSearch = gDom("pSearch");
+
 		var pMain =  gDom("pMain");
 		pMain.style.height = windowHeight()-170+"px";
 		var pObjects = gDom("pObjects");
+		
+		var pDop =  gDom("pDop");
+		pDop.style.left = windowWidth()-parseInt(pDop.style.width)-5+"px";
+		pDop.style.top = windowHeight()-parseInt(pDop.style.height)-5+"px";
+		var pDopData = gDom("pDopData");
+		
 ////////////////modal
 		var modal = document.getElementById('myModal');
 		var span = document.getElementsByClassName("close")[0];
@@ -75,12 +83,22 @@
 			gDom("modalFooter").innerHTML = "";
 			
 			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
-			//getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
 			modal.style.display = "block";
-			loadXML(uri, true, true, false, function(data){
-				$("#modalBody").append(data);
-			});
+			getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
+			//loadXML(uri, true, true, false, function(data){
+			//	$("#modalBody").append(data);
+			//});
 		
+		}
+
+		function showInf(uri, _oid, mainoid){
+			pDopData.innerHTML = "";
+			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
+			getHttp(uri, function(data){ $("#pDopData").append(data); pDop.hidden = false; }, true);
+			//loadXML(uri, true, true, false, function(data){
+			//	$("#modalBody").append(data);
+			//});
+			
 		}
 		
 ////////////////map init
@@ -99,12 +117,47 @@
 			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], 18);
 			
 			pObjects.innerHTML = "";
+			pDop.hidden = true;
+////////////about object			
 			var zd = objectlink.gOrm("gT",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]],[3,5],[],false,null, "and `id Объект` = "+oid+" order by `id Здания и сооружения`"]);
-			
 			$(pObjects).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
 			$(pObjects).append("Адрес: <label style='color:#00ff00'>"+zd[0][5]+"</label><br>");
 			$(pObjects).append("Территориальное управление: <label style='color:#00ff00'>"+zd[0][11]+"</label><br>");
 			$(pObjects).append("Имущественный комплекс: <label style='color:#00ff00'>"+zd[0][7]+" ("+zd[0][9]+") </label><br>");
+////////////object communications
+			arrParamsComm = [
+				["Электроснабжение", "Договоры", "Счетчик номер", "Предоставляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
+				["ХВС", "Договоры", "Счетчик номер", "Предоставляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
+				["Отопление", "Договоры", "Счетчик номер", "Предоставляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
+				["Канализация", "Договоры", "Счетчик номер", "Предоставляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
+				["Интернет", "Файлы", "Объект"],
+				["Вывоз КГМ и ТБО", "Файлы", "Объект"],
+				["Охрана", "Вид охраны", "Количество постов", "Количество человек", "ФИО", "Файлы", "Объект"],
+			]
+			$(pObjects).append("<br>Коммуникации на объекте:<br>");
+			var el = [
+				[0,"Электроснабжение","images/electro2.png", [arrParamsComm[0]]],
+				[1,"Водоснабжение","images/coldwater2.png", [arrParamsComm[1]]],
+				[2,"Отопление","images/batery2.png", [arrParamsComm[2]]],
+				[3,"Канализация","images/unitaz2.png", [arrParamsComm[3]]],
+			];
+			var fclick = function(){
+				pDopData.innerHTML = "";
+				for (var i=0; i < this.params.length; i++){
+					fillCard(this.params[i], oid, pDopData);
+				}
+				pDop.hidden = false;				
+			}
+			loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+////////////other object information
+			$(pObjects).append("Дополнительно:<br>");
+			var el = [
+				[0,"Интернет","images/vols2.png", [arrParamsComm[4]]],
+				[1,"Вывоз КГМ и ТБО","images/tbo.png", [arrParamsComm[5]]],
+				[2,"Охрана","images/security2.png", [arrParamsComm[6]]],
+			];
+			loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+////////////include object properties
 			$(pObjects).append("<br>Состав имущества на объекте:<br>");
 			var fclick = function(){
 				showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
@@ -112,95 +165,99 @@
 			loadPanel(zd, pObjects, 2, 3, fclick);
 
 ////////////////polygons objects
-			var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-			var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-			var el = objectlink.gOrm("gT",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Электроснабжение`", "and `id Электроснабжение` = "+1899+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+			if (oids.indexOf(oid) == -1) {
+				oids.push(oid);
+			
+			
+				var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var el = objectlink.gOrm("gT",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Электроснабжение`", "and `id Электроснабжение` = "+1899+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 
-			var polylines = [];
-			paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
-			paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
-			polylines = paintZu ? polylines.concat(paintZu) : polylines;
-			polylines = paintZd ? polylines.concat(paintZd) : polylines;
+				var polylines = [];
+				paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
+				paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1}, map);
+				polylines = paintZu ? polylines.concat(paintZu) : polylines;
+				polylines = paintZd ? polylines.concat(paintZd) : polylines;
 ////////////////markers electro				
-			var arrEl = [];
-			var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
-			if (elLines && elLines.length){
-				var elCoord = elLines[0].getLatLngs()[0];
-				var markerElectro = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
-				var elCoord = elLines[0].getLatLngs()[6];
-				var elCounter1 = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectroCounter.png")
-				var elCoord = elLines[10].getLatLngs()[0];
-				var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
-				arrEl = arrEl.concat(/*elLines, */markerElectro, elCounter1, elCounter2);
-			}
-			map.on("zoomend", function(){
-				for (var i=0; i < arrEl.length; i++) {
-					if (map.getZoom() < 17) {
-						arrEl[i].setOpacity(0);
-					} else {
-						arrEl[i].setOpacity(1);
-					}
+				var arrEl = [];
+				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
+				if (elLines && elLines.length){
+					var elCoord = elLines[0].getLatLngs()[0];
+					var markerElectro = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
+					var elCoord = elLines[0].getLatLngs()[6];
+					var elCounter1 = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectroCounter.png")
+					var elCoord = elLines[10].getLatLngs()[0];
+					var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
+					arrEl = arrEl.concat(/*elLines, */markerElectro, elCounter1, elCounter2);
 				}
-			})
+				map.on("zoomend", function(){
+					for (var i=0; i < arrEl.length; i++) {
+						if (map.getZoom() < 17) {
+							arrEl[i].setOpacity(0);
+						} else {
+							arrEl[i].setOpacity(1);
+						}
+					}
+				})
 ////////////////events and paint photos of polylines			
-			for (var i=0; i < polylines.length; i++){
-				polylines[i].on('mouseover', function(e) {
-					this.setStyle({color : "#ff5555"});
-				});
-				
-				polylines[i].on('mouseout', function(e) {
-					this.setStyle({color : "#00ff00"});
-				});	
+				for (var i=0; i < polylines.length; i++){
+					polylines[i].on('mouseover', function(e) {
+						this.setStyle({color : "#ff5555"});
+					});
+					
+					polylines[i].on('mouseout', function(e) {
+						this.setStyle({color : "#00ff00"});
+					});	
 
-				polylines[i].on('click', function(e) {
-					showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
-				});	
+					polylines[i].on('click', function(e) {
+						showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
+					});	
 						
 ////////////////////paint photos
-				if (false) {
-					var points = [];
-					for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-						var lat = polylines[i].getLatLngs()[0][j].lat;
-						var lng = polylines[i].getLatLngs()[0][j].lng;
-						points.push([lat, lng]);
-					
-					}
-					var center = getCenterFromPoints(points);
-					
-					var _oid = polylines[i].oid;
-					var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+_oid]);
-
-					var ObjectIcon = L.Icon.extend({
-						options: {
-							iconSize:     [32, 32],
-							iconAnchor:   [16, 16]
-						}
-					});
-					var markers = L.layerGroup();
-
-					function click(that){
-						showModal("cardPhoto.htm", that.oid, oid);
-					}
-					
-					if (foto.length){
-						for (var j=0; j < 1; j++){
-							var fn = foto[j][0];
+					if (false) {
+						var points = [];
+						for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+							var lat = polylines[i].getLatLngs()[0][j].lat;
+							var lng = polylines[i].getLatLngs()[0][j].lng;
+							points.push([lat, lng]);
 						
-							var objectIcon = new ObjectIcon({iconUrl: fn});
-							var marker = L.marker(center, {icon:objectIcon})
-								.addTo(markers)
-							marker.oid = _oid;
-							marker.fn = fn;
-							marker
-								.on("click", function(){
-									click( this )
-								});
+						}
+						var center = getCenterFromPoints(points);
+						
+						var _oid = polylines[i].oid;
+						var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+_oid]);
+
+						var ObjectIcon = L.Icon.extend({
+							options: {
+								iconSize:     [32, 32],
+								iconAnchor:   [16, 16]
+							}
+						});
+						var markers = L.layerGroup();
+
+						function click(that){
+							showModal("cardPhoto.htm", that.oid, oid);
+						}
+						
+						if (foto.length){
+							for (var j=0; j < 1; j++){
+								var fn = foto[j][0];
 							
+								var objectIcon = new ObjectIcon({iconUrl: fn});
+								var marker = L.marker(center, {icon:objectIcon})
+									.addTo(markers)
+								marker.oid = _oid;
+								marker.fn = fn;
+								marker
+									.on("click", function(){
+										click( this )
+									});
+								
+							}
 						}
+						markers.addTo(map);
 					}
-					markers.addTo(map);
 				}
-						
 /////////////////////////////					
 			}
 		}
@@ -220,21 +277,32 @@
 		}
 				
 ////////////////load to panel
-		function loadPanel(arr, container, idInd, valInd, funcClick){
-			for (var i=0; i < arr.length; i++){
-				var row = arr[i];
-				var drow = container.appendChild(cDom("DIV"));
+		function loadPanel(arr, container, idInd, valInd, funcClick, iconInd, cells2row, paramsInd){
+			var drow;
+			if (cells2row) {
+				drow = container.appendChild(cDom("DIV"));
 				drow.classList.add("div-table-row");
 				drow.classList.add("alpha");
+			}
+			for (var i=0; i < arr.length; i++){
+				var row = arr[i];
+				if (!cells2row) {
+					drow = container.appendChild(cDom("DIV"));
+					drow.classList.add("div-table-row");
+					drow.classList.add("alpha");
+				}
 				var dcol = drow.appendChild(cDom("DIV"));
-				dcol.classList.add("div-table-col");
+				if (!cells2row) { dcol.classList.add("div-table-col") } else { dcol.style.display = "inline" };
 				dcol.classList.add("alpha");
 				dcol.style.backgroundColor = "rgba(0,0,0,0.1)";
 				var but = dcol.appendChild(cDom("BUTTON"));
 				but.oid = row[idInd];
+				but.params = row[paramsInd];
 				but.row = row;
-				but.innerHTML = row[valInd];
-				but.style.width = "100%";
+				var iconUrl = row[iconInd];
+				but.innerHTML = iconUrl ? "<img src='"+iconUrl+"' style='width:32px'>" : row[valInd];
+				but.setAttribute("title", iconUrl ? row[valInd] : "");
+				but.style.width = cells2row ? "auto" : "100%";
 				but.classList.add("alpha");
 
 				but.onclick = funcClick;
@@ -253,6 +321,8 @@
 
 					fclick = function(){
 						location.href = mainHtmlPage+"#oid="+this.oid;
+						//hashchange(mapObjects);
+
 						
 					}
 					loadPanel(objects, pObjects, 0, 1, fclick);							
@@ -298,6 +368,10 @@
 		</div>
 		<div id='pMain' style='position:absolute; left:10px; top:140px; background-color:rgba(0,0,0,0.3); z-index:100000; overflow-y:auto; overflow-x:hidden; height:600px; width:300px'>
 			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
+			</div>
+		</div>
+		<div id='pDop' hidden style='position:absolute; left:1030px; top:540px; background-color:rgba(0,0,0,0.8); z-index:100000; overflow-y:auto; overflow-x:hidden; height:250px; width:400px'>
+			<div id='pDopData' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
 			</div>
 		</div>
 	</body>
