@@ -95,7 +95,7 @@
 	var countObjects = 0;
 	var countAll = 0;
 
-	var ORDER = " order by c desc, t desc, o1 asc ";
+	var ORDER = " order by c desc, o1 desc, t desc ";
 	var order = ORDER;
 	var query = "select * from ( \n"+
 			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c, link.t from ( \n"+
@@ -386,10 +386,26 @@
 		}
 	}
 	
+	function createClass(){
+		result = prompt("cC(n)", txt.value+" "+(countObjects+1));
+		if (result) {
+			var o1 = objectlink.cO(result);
+			if (oid) objectlink.cL(o1, oid);
+			if (oid) objectlink.cL(o1, 1);
+			reload();
+		} else {
+			alert("Недопустимое значение объекта!");
+		}
+	}
+	
 	window.onkeydown = function(event) {
+		if (event.keyCode == 118 && event.shiftKey) {
+			createClass();
+		} else 
 		if (event.keyCode == 118) {
 			bCO.onclick();
 		}
+		
 		if (event.keyCode == 115) {
 			bCL.onclick();
 		}
@@ -444,9 +460,10 @@
 		switch (ci){
 			case "select":
 			case "ls":
+			case "go":
 			case "выбрать":
 				if (objects[0]) {
-					location.href = "#."+objectlink.gO(objects[0]);
+					location.href = "#."+objectlink.gOrm("gO",[objects[0], true]);//objectlink.gO(objects[0]);
 				}
 			break;
 			case "create":

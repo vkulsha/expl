@@ -150,7 +150,7 @@ function loadXML(url, isGet, async, asText, func) {
 			try {
 			if (req.readyState == 4) {
 				if (req.status == 200) {
-					func(asText ? req.responseText : req.response /*responseXML*/);
+					func(asText ? req.responseText : req.responseXML);
 				} else {
 					console.log("Не удалось получить данные:\n"+req.statusText);
 				}
@@ -414,8 +414,9 @@ function hash4arr(arr){//return the object with fields and values from array
 	return result;
 }
 
-function decorateArr(arr, decorator){//return the object with fields and values from array
-	return (decorator+arr.join(decorator+"|"+decorator)+decorator).split("|");
+function decorateArr(arr, decorator1, decorator2){//return the object with fields and values from array
+	decorator2 = decorator2 || decorator1;
+	return (decorator1+arr.join(decorator2+"|"+decorator1)+decorator2).split("|");
 }
 
 function eventsList(element) {
@@ -927,7 +928,7 @@ function getFileButtonHtml(fn){
 	var cap = fn.split("/")[fn.split("/").length-1];
 	var iconFile = getIconFile(fn.toLowerCase());
 	return "<a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
-		"<table><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
+		"<table style='display:inline'><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
 		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></a>";
 	
 }
@@ -1215,6 +1216,52 @@ function fillCard(arr, oid, cont){
 	}
 	$(cont).append("<tr><td>"+txt.join("")+"</td></tr>");
 	$(cont).append("<tr height='10'><td colspan='2'></td></tr>");
+}	
+
+function fillCard2(arr, oid, cont){
+	if (!cont || !arr || !arr.length) {
+		$(cont).append("<h3 style='color:#999'>Нет данных</h3>");
+		return;
+	}
+	var cn_ = arr[0];
+	$(cont).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
+	var arrC = arr;
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").join(",")," and `id "+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id ", "`").join(",")]);
+	var tb = cont.appendChild(cDom("TABLE"));
+	var filesInd = arrC.indexOf("Файлы");
+
+	for (var i=1; i < arrC.length-1; i++){
+		var isFiles = filesInd && filesInd == i;
+
+		var tr = tb.appendChild(cDom("TR"));
+		var td = tr.appendChild(cDom("TD"));
+		td.style = "border-bottom:1px solid #333; color:#999";
+		td.style.borderBottom = "1px solid #333";
+		td.style.color = "#999";
+		var divVal = td.appendChild(cDom("DIV"));
+		
+		if (isFiles) {
+			td.setAttribute("colspan", 2);
+		} else {
+			td.innerHTML = arrC[i];
+			td.setAttribute("valign", "top");
+			td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #333";
+		}
+		
+		var val = "";
+		for (var j=0; j < rows.length; j++){
+			if (val != rows[j][i]){
+				if (isFiles) {
+					$(divVal).append(getFileButtonHtml(rows[j][i]));
+				} else {
+					var divVal = td.appendChild(cDom("DIV"));
+					divVal.innerHTML = rows[j][i];
+				}
+			}
+			val = rows[j][i];
+		}
+	}
 }	
 
 

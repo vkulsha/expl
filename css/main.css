@@ -92,18 +92,18 @@ html, body, table {
 }
 
 .alpha {
-	background-color: rgba(0,0,0,0.3)
+	background-color: rgba(0,0,0,0.2)
 }
 
 .alpha:hover{
-	background-color: rgba(0,255,0,0.3)
+	background-color: rgba(0,255,0,0.2)
 	
 }
 
 .div-table{
   display:table;         
   width:auto;         
-  background-color:#eee;         
+  /*background-color:#eee;*/
   border:1px solid  #666666;         
   border-spacing:5px;
 }
@@ -115,8 +115,8 @@ html, body, table {
 .div-table-col{
   float:left;
   display:table-column;         
-  width:100%;         
-  background-color:#ccc;  
+  width:100%;
+  /*background-color:#ccc;*/
 }
 
 button {
