@@ -79,13 +79,14 @@ function mapPaint(coords, funcL, paramsL, map){
 	funcL = funcL || L.polygon;
 	var polyId = coords[0][1];
 	for (var i=0; i < coords.length; i++){
+		var oid;
 		if (polyId != coords[i][1] && poly.length) {
 			var p = funcL(poly, paramsL).addTo(map);
 			p.oid = oid;
 			ret.push(p);
 			poly = [];
 		}
-		var oid = coords[i][2];
+		oid = coords[i][2];
 		var coord = coords[i][0].split(" ");
 		poly.push(coord);
 		polyId = coords[i][1];

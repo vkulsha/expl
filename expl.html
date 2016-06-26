@@ -130,10 +130,13 @@
 			hashchange(mapObjects, arrComm, arrLines);
 		}
 
-		if (location.hash == "#oid=115") {
-			hashchange(mapObjects, arrComm, arrLines);
-		}
-		location.href = mainHtmlPage+"#oid=115";
+		var oid = $_GET("oid", "#", location.hash);
+		if (oid) hashchange(mapObjects, arrComm, arrLines);
+		
+		//if (location.hash == "#oid=115") {
+		//	hashchange(mapObjects, arrComm, arrLines);
+		//}
+		//location.href = mainHtmlPage+"#oid=115";
 
 		function setCommVisible(commNum, visible){
 			if (commNum == undefined || commNum > arrComm.length-1) return;
@@ -149,7 +152,6 @@
 				setCommVisible(i, visible);
 			}
 		}
-		var oid;
 		
 		function hashchange(mapObjects, arrComm, arrLines){
 			var hideDopPanel = oid != $_GET("oid", "#", location.hash);
@@ -516,7 +518,7 @@
 		</div>
 		
 		<div id='pSearch' style='position:absolute; left:10px; top:100px; width:350px; background-color:rgba(0,0,0,0.5); z-index:100000' class='div-table'>
-			<input type="text" id="addressSearch" autofocus placeholder="Поиск" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
+			<input type="text" id="addressSearch" autofocus placeholder="Поиск объектов или адреса" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
 		</div>
 		<div id='pMain' style='position:absolute; height:600px; width:350px; left:10px; top:140px; background-color:rgba(0,0,0,0.5); z-index:100000; overflow-y:auto; overflow-x:hidden'>
 			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>

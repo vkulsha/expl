@@ -21,6 +21,7 @@
 		<script src="js/JsObjTable.js"></script>
 
 		<script>
+			location.href = "expl.html";
 			var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
 			var classes = hash4arr(classes_);
 
