@@ -1,0 +1,119 @@
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		
+		<script src="js/jquery-2.2.0.min.js"></script>
+		<script src="js/uService.js"></script>
+		<script src="js/Main.js"></script>
+		<script src="js/objectlink.js"></script>
+		
+	</head>
+	<body>
+		<table id='mainContainer'></table>
+	</body>
+</html>
+
+<script>
+	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	var classes = hash4arr(classes_);
+	var cid = $_GET("cid", "#", location.hash);
+	var mainContainer = gDom("mainContainer");
+	
+	if (cid) {
+		var parent = objectlink.gOrm("gAnd", [[cid],null,null,null,true,true]);
+		var child = objectlink.gOrm("gAnd", [[cid],null,null,null,false,true]);
+		
+		var columns = ["expand","classname","objectvalueslist"];
+		var cont = document.body;
+		
+		var fill = function(contTr, j, id, val){
+			var td = contTr.appendChild(cDom("TD"))
+			switch (j){
+				case 0:
+					var dom = td.appendChild(cDom("BUTTON"));
+					dom.innerHTML = "+"
+					dom.id = "expand"+id;
+				break;
+				case 1:
+					var dom = td.appendChild(cDom("LABEL"));
+					dom.innerHTML = val
+					dom.id = "class"+id;
+				break;
+				case 2:
+					var dom = td.appendChild(cDom("SELECT"));
+					dom.style.width = "500px";
+					var values = objectlink.gOrm("gT2",[[val]]);
+					dom.appendChild(cDom("OPTION"));
+					for (var i=0; i < values.length; i++){
+						var opt = cDom("OPTION");
+						opt.innerHTML = values[i][1];
+						opt.value = values[i][0];
+						opt.oid = values[i][0];
+						opt.id = "opt"+values[i][0];
+						dom.appendChild(opt);
+					}
+					dom.id = "cb"+id;
+					dom.onchange = function(){
+						//console.log(this.value);
+					}
+				break;
+			}
+		}
+		
+		for (var i=0; i < parent.length; i++){
+			if (parent[i][0] == 1) continue;
+			var tr = mainContainer.appendChild(cDom("TR"));
+			for (var j=0; j < columns.length; j++){
+				fill(tr, j, parent[i][0], parent[i][1]);
+			}
+		}
+
+		var tr = mainContainer.appendChild(cDom("TR"));
+		var cn = objectlink.gOrm("gN", [cid]);
+		var td = tr.appendChild(cDom("TD"))
+		td.setAttribute("colspan", 2);
+		td.innerHTML = "<b>"+cn+"</b>";
+		var td = tr.appendChild(cDom("TD"))
+		var eValue = td.appendChild(cDom("INPUT"));
+		eValue.setAttribute("type", "edit");
+		eValue.value = cn+"1";
+
+		for (var i=0; i < child.length; i++){
+			var tr = mainContainer.appendChild(cDom("TR"));
+			for (var j=0; j < columns.length; j++){
+				fill(tr, j, child[i][0], child[i][1]);
+			}
+		}
+		
+		var tr = mainContainer.appendChild(cDom("TR"));
+		var td = tr.appendChild(cDom("TD"));
+		td.setAttribute("colspan", 4);
+		var bSave = td.appendChild(cDom("BUTTON"));
+		bSave.innerHTML = "Save";
+		
+		bSave.onclick = function(){
+			var oid = objectlink.gOrm("cO",[eValue.value, cid]);
+			if (oid && oid.length) {
+				for (var i=0; i < parent.length; i++){
+					if (parent[i][0] == 1) continue;
+					var cb = gDom("cb"+parent[i][0]);
+					if (cb.value) objectlink.gOrm("cL",[oid, cb.value]);
+					
+				}
+
+				for (var i=0; i < child.length; i++){
+					var cb = gDom("cb"+child[i][0]);
+					if (cb.value) objectlink.gOrm("cL",[cb.value, oid]);
+				}
+			}
+			console.log(oid);
+			
+		}
+	
+	}
+	
+	
+	
+	
+</script>
+		

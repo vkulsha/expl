@@ -17,34 +17,42 @@
 	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
 	var classes = hash4arr(classes_);
 	var oids = [];
-/*
-	var key = $_GET("key");
-	var userKey = key || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+	
+	var key = $_GET("key", "#", location.hash);
+	var userKey = parseInt(key) || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
 	var userId = objectlink.gAND([userKey, classes["Пользователи"]]);
 	if (userId.length){
 		userId = userId[0];
 		var mainInterface = getMainInterfaceKey(userId);
-		var curInterface = $_GET(interfaceUrlKey);
 		
-		if (curInterface && key){
-		} else {
-			curInterface = mainInterface;
-		}
-		if (curInterface) {
+		if (mainInterface) {
 			$(document).ready(function() {
-				var policy = showInterfaceElements(userId, curInterface);
-				var mainContainer = gDom("mainContainer");
-				if (!mainContainer.hidden) {
-					//getHttp(curInterface+".htm", function(data){ $(mainContainer).append(data); }, true);
+				var pLogin = gDom("pLogin");
+				pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
+				pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
+				var policy = showInterfaceElements(userId, mainInterface);
+
+				var bLogin = gDom("bLogin");
+				bLogin.onclick = function(){
+					var eUser = $("#eUser").val();
+					var password = document.fLogin.ePassword.value;
+				
+					var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
+					var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
+					if (u && p && u.length && p.length){
+						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
+						if (key && key.length){
+							//location.href = mainHtmlPage+"#key="+key;
+							gDom("mainContainer").hidden = true;
+						}
+					}
 				}
 			});
 		}
 	}
-*/			
 			
 ////////////documentReady
 	$(document).ready(function(){
-		//var objectId = $_GET(objectIdUrlKey);
 		var pSearch = gDom("pSearch");
 
 		var pMain = gDom("pMain");
@@ -101,7 +109,7 @@
 			gDom("modalBody").innerHTML = "";
 			gDom("modalFooter").innerHTML = "";
 			
-			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
+			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid+"&key="+key;
 			modal.style.display = "block";
 			getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
 			//loadXML(uri, true, true, false, function(data){
@@ -127,11 +135,11 @@
 		var arrLines = [];
 
 		window.onhashchange = function(){
-			hashchange(mapObjects, arrComm, arrLines);
+			hashchange(mapObjects, arrComm, arrLines, key);
 		}
 
 		var oid = $_GET("oid", "#", location.hash);
-		if (oid) hashchange(mapObjects, arrComm, arrLines);
+		if (oid) hashchange(mapObjects, arrComm, arrLines, key);
 		
 		//if (location.hash == "#oid=115") {
 		//	hashchange(mapObjects, arrComm, arrLines);
@@ -153,17 +161,17 @@
 			}
 		}
 		
-		function hashchange(mapObjects, arrComm, arrLines){
+		function hashchange(mapObjects, arrComm, arrLines, key){
 			var hideDopPanel = oid != $_GET("oid", "#", location.hash);
-			oid = $_GET("oid", "#", location.hash) || "115";
+			oid = $_GET("oid", "#", location.hash);// || "115";
 			var ind = mapObjects.objects.oid.indexOf(oid);
 			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], 18);
 			
 			pObjects.innerHTML = "";
 			pDop.hidden = hideDopPanel;
 ////////////about object			
-			var zd = objectlink.gOrm("gT",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]],[3,5],[],false,null, "and `id Объект` = "+oid+" order by `id Здания и сооружения`"]);
-			var zu = objectlink.gOrm("gT",[["Объект","Земельные участки"],[],[],[],false,null, "and `id Объект` = "+oid+" order by `id Земельные участки`"]);
+			var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,null, "and `id Объект` = "+oid+" order by `id Здания и сооружения`"]);
+			var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[]/*,[]*/,[],false,null, "and `id Объект` = "+oid+" order by `id Земельные участки`"]);
 			$(pObjects).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
 			$(pObjects).append("Адрес: <label style='color:#00ff00'>"+zd[0][5]+"</label><br>");
 			$(pObjects).append("Территориальное управление: <label style='color:#00ff00'>"+zd[0][11]+"</label><br>");
@@ -172,7 +180,7 @@
 			var getCommVisible;
 			
 			var comms = ["Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана"];
-			var getCommOnObject = objectlink.gOrm("gT",[["Объект"].concat(comms),[],[],[],false,decorateArr(comms, "`id ", "`").join(",")," and `id Объект`="+oid+" limit 1"]);
+			var getCommOnObject = objectlink.gOrm("gT2",[["Объект"].concat(comms),[]/*,[]*/,[],false,decorateArr(comms, "`id ", "`")/*.join(",")*/," and `id Объект`="+oid+" limit 1"]);
 			var electroId = getCommOnObject[0][0];
 			var teploId = getCommOnObject[0][1];
 			var waterId = getCommOnObject[0][2];
@@ -246,7 +254,7 @@
 			var fclick = function(){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
-				var photo = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+this.oid+" order by `id Фото`"]);
+				var photo = objectlink.gOrm("gT2",[["Здания и сооружения", "Фото"],[]/*,[]*/,[],false, ["`Фото`"], "and `id Здания и сооружения` = "+this.oid+" order by `id Фото`"]);
 				if (photo && photo.length) {
 					$(pDopData).append("<button id='bImg'><img src="+photo[0][0]+" width='64'/></button>")
 					var bImg = gDom("bImg");
@@ -277,10 +285,10 @@
 ////////////////polygons communications
 				if (oid==115) {
 				
-				var el = objectlink.gOrm("gT",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Электроснабжение`", "and `id Электроснабжение` = "+electroId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var te = objectlink.gOrm("gT",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Отопление`", "and `id Отопление` = "+teploId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var wa = objectlink.gOrm("gT",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id ХВС`", "and `id ХВС` = "+waterId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var ka = objectlink.gOrm("gT",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Канализация`", "and `id Канализация` = "+kanalId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Электроснабжение`"], "and `id Электроснабжение` = "+electroId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Отопление`"], "and `id Отопление` = "+teploId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id ХВС`"], "and `id ХВС` = "+waterId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Канализация`"], "and `id Канализация` = "+kanalId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 ////////////////markers electro		
 				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
 				if (elLines && elLines.length){
@@ -328,8 +336,8 @@
 ////////////////polygons objects				
 				var polylines = [];
 				if (oid==115) {
-					var zu = objectlink.gOrm("gT",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Земельные участки`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-					var zd = objectlink.gOrm("gT",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],[],false, "`Координаты на карте`, `id Полигоны на карте`, `id Здания и сооружения`", "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+					var zu = objectlink.gOrm("gT2",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Земельные участки`"], "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
+					var zd = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Здания и сооружения`"], "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 					paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:3}, map);
 					paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:2}, map);
 					polylines = paintZu ? polylines.concat(paintZu) : polylines;
@@ -366,7 +374,7 @@
 						var center = getCenterFromPoints(points);
 						
 						var _oid = polylines[i].oid;
-						var foto = objectlink.gOrm("gT",[["Здания и сооружения", "Фото"],[],[],[],false, "`Фото`", "and `id Здания и сооружения` = "+_oid]);
+						var foto = objectlink.gOrm("gT2",[["`Здания и сооружения`", "`Фото`"],[]/*,[]*/,[],false, ["Фото"], "and `id Здания и сооружения` = "+_oid]);
 
 						var ObjectIcon = L.Icon.extend({
 							options: {
@@ -463,13 +471,13 @@
 		var eSearch = document.getElementById('addressSearch');
 		eSearch.onkeydown = function(e){
 			if (e.which == 13) {
-				var objects = objectlink.gOrm("gT",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]],[3,5],[],false,"distinct `id Объект`,`Объект`,`Широта`,`Долгота`",
+				var objects = objectlink.gOrm("gT2",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,["distinct `id Объект`", "`Объект`", "`Широта`", "`Долгота`"],
 				"and (`Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
 				if (objects.length) {
 					pObjects.innerHTML = "";
 
 					fclick = function(){
-						location.href = mainHtmlPage+"#oid="+this.oid;
+						location.href = mainHtmlPage+"#oid="+this.oid+"&key="+key;
 						//hashchange(mapObjects);
 
 						
@@ -507,10 +515,11 @@
 		
 		<table id="mainTable">
 		<tr>
-			<td align="center" valign="middle" id="mainContainer">
+			<td align="center" valign="middle">
 				<div id="map" width="100%" height="100%"></div>
 			</td>
 		</tr>
+		</table>
 		
 		<div id='logo' style='position:absolute; left:1000px; top:10px; width:100px; z-index:100000; background-color:rgba(0,0,0,0.5); text-align:center; border-radius:5px'>
 			<img src='images/logo.png' width='64'/><br>
@@ -524,7 +533,7 @@
 			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
 			</div>
 		</div>
-		<div id='pDop' hidden style='position:absolute; height:250px; width:400px; left:1030px; top:540px; background-color:rgba(0,0,0,0.8); z-index:100000; overflow-y:auto; overflow-x:hidden'>
+		<div id='pDop' hidden style='position:absolute; height:300px; width:500px; left:1030px; top:540px; background-color:rgba(0,0,0,0.8); z-index:100000; overflow-y:auto; overflow-x:hidden'>
 			<div id='pDopData' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
 			</div>
 		</div>
@@ -535,5 +544,17 @@
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
 			</table>
 		</div>
+		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.5)' hidden id='mainContainer'>
+			<div id='pLogin' style='position:fixed; left:500px; top:400px; background-color:rgba(0,0,0,0.5)'>
+				<form name="fLogin" onsubmit='return false;' id='fLogin'>
+				<table cellpadding="5" cellspacing="5">
+					<tr><td>Логин:</td><td> <input type='text' id='eUser' autofocus></td></tr>
+					<tr><td>Пароль:</td><td> <input type='password' id='ePassword' name='ePassword'></td></tr>
+					<tr><td colspan=2 align='center'><button id='bLogin'>Войти</button></td></tr>
+				</table>
+				</form>
+			</div>
+		</div>
+		
 	</body>
 </html>

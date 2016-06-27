@@ -286,6 +286,123 @@ class ObjectLink {
 		}
 	}	
 
+	public function getTableQuery2($params){//[{id:1331, n:"ик", parentCol:0, inClass:false}]
+		try {
+			$paramsArr = $params[0];
+			$groupbyind = isset($params[1]) ? $params[1] : "0";
+			
+			$result = [];
+			$head = [];
+			$body = [];
+			$foot = [];
+			$i = -1;
+			foreach ($paramsArr as $cc){
+				$i++;
+				if (isset($cc["n"])) {
+					$id = isset($cc["id"]) ? $cc["id"] : null;
+					$col = isset($cc["n"]) ? $cc["n"] : "o".$id;
+					$pcol = isset($cc["parentCol"]) ? $cc["parentCol"] : null;
+					$inClass = isset($cc["inClass"]) ? $cc["inClass"] : null;
+					if ($i==0){
+						$h = "select o".$i.".id `id ".$col."`, o".$i.".n `".$col."` \n";
+						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
+						$b = 
+							"from (\n".
+							"	select id, n from object where id in ( \n".
+							"		select o1 from link where o2 = ".$l." \n".
+							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
+							"	) \n".
+							"	group by id \n".
+							")o".$i." \n";
+						$head[] = $h;
+						$body[] = $b;
+					} else {
+						$h = "";
+						if ($groupbyind !== false) {
+							$h = ",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id ".$col."` ".
+								",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
+								",count(distinct o".$i.".id) `кол-во ".$col."` \n";
+						} else {
+							$h = ",o".$i.".id `id ".$col."` ".
+								",o".$i.".n `".$col."` ";
+						}
+						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
+						$parentCol = $pcol ? $pcol : 0;
+						$b = 
+							"left join ( \n".
+							"	select o1, o2 from link where o1 in ( \n".
+							"		select o1 from link where o2 = ".$l." \n".
+							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
+							"	) \n".
+							" union all \n".
+							"	select o2, o1 from link where o2 in ( \n".
+							"		select o1 from link where o2 = ".$l." \n".
+							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
+							"	) \n".
+							"	group by o1, o2 \n".
+							")l".$i." on l".$i.".o2 = o".$parentCol.".id left join object o".$i." on o".$i.".id = l".$i.".o1 \n";
+						
+						$head[] = $h;
+						$body[] = $b;
+					}
+				}
+			}
+			
+			if ($groupbyind !== false) {
+				$foot[] = "group by o".$groupbyind.".id having 1=1 \n\n";
+			}
+			$result = join("",$head).join("",$body).join("foot",$foot);
+			return $result;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+
+	public function gTq2($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1], false
+		try {
+			$nArr = isset($params[0]) ? $params[0] : [];
+			$parentColArr = isset($params[1]) ? $params[1] : [];
+			//$linkParentArr = isset($params[2]) ? $params[2] : [];
+			$inClassArr = isset($params[2]) ? $params[2] : [];
+			$groupByInd = isset($params[3]) ? $params[3] : false;
+
+			$opts = [];
+			for ($i=0; $i < count($nArr); $i++){
+				$opts[] = array("n"=>$nArr[$i], "parentCol"=>0, "linkParent"=>false);
+			}
+			for ($i=0; $i < count($parentColArr); $i++){
+				$opts[$parentColArr[$i][0]]["parentCol"] = $parentColArr[$i][1];
+			}
+			//for ($i=0; $i < count($linkParentArr); $i++){
+			//	$opts[$linkParentArr[$i]]["linkParent"] = true;
+			//}
+			for ($i=0; $i < count($inClassArr); $i++){
+				$opts[$inClassArr[$i]]["inClass"] = true;
+			}
+			return $this->getTableQuery2([$opts, $groupByInd]);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}	
+	
+	public function gT2($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1], false, "*", "and a = 115"
+		try {
+			$fields = isset($params[4]) ? join(",", $params[4]) : "*";
+			$cond = isset($params[5]) ? $params[5] : "";
+			
+			$sel = $this->gTq2($params);
+			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}	
+	
 	public function gAnd($params){
 		try {
 			$objects = join(",",$params[0]);
@@ -295,15 +412,18 @@ class ObjectLink {
 			$notIsClass1 = $notIsClass ? "and o1 $notIsClass" : "";
 			$notIsClass2 = $notIsClass ? "and o2 $notIsClass" : "";
 			$cond = isset($params[3]) ? $params[3] : "";
-			$parent = isset($params[4]) ? "and not parent" : "";
+			$parent = isset($params[4]) && $params[4] ? "and parent" : (isset($params[4]) ? "and not parent" : "");
+			$isClass = isset($params[5]) && $params[5] ? "in (select o1 from link where o2 = 1)" : "";
+			$isClass1 = $isClass ? "and o1 $isClass" : "";
+			$isClass2 = $isClass ? "and o2 $isClass" : "";
 			
 			$sel = "and id in ( ".
 					"select o1 from ( ".
-					"select o1, o2, false parent from link where o2 in ($objects) $notIsClass1 ".
+					"select o1, o2, false parent from link where o2 in ($objects) $notIsClass1 $isClass1 ".
 					"union all ".
-					"select o2, o1, true  parent from link where o1 in ($objects) $notIsClass2 ".
+					"select o2, o1, true  parent from link where o1 in ($objects) $notIsClass2 $isClass2 ".
 					")x where 1=1 ".
-					"$parent".
+					"$parent ".
 					"group by o1 ".
 					"having count(o1) = $count ".
 				") $cond";
@@ -356,6 +476,13 @@ class ObjectLink {
 			return null;
 		}
 	}
+	
+
+
+
+
+
+	
 	
 }
 

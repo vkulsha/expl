@@ -4,22 +4,11 @@
 	<meta name="viewport" content="width=device-width">
 	<title>III</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link rel="stylesheet" type="text/css" href="css/jsTable.css">
 	<link rel="stylesheet" type="text/css" href="css/expl.css">
 	
 	<script src="js/jquery-2.2.0.min.js"></script>
-	<script src="js/domtree.js"></script>
-	<script src="js/d3.min.js"></script>
-	<script src="js/leaflet.js"></script>		
-	<script src="js/jstree/jstree.min.js"></script>
-
-	<script src="js/Column.js"></script>
 	<script src="js/uService.js"></script>
-	<script src="js/GetSet.js"></script>
-	<script src="js/Filter.js"></script>
-	<script src="js/JsTable.js"></script></head>
 	<script src="js/objectlink.js"></script></head>
-	<script src="js/JsObjTable.js"></script></head>
 <body>
 <div id='terminalRow' style='position:absolute; top:100; left:300' hidden><textarea id='terminal' cols=100 rows=40></textarea></div>
 
@@ -70,7 +59,7 @@
 	var n1 = "";
 	var n2 = "";
 	var oid = "1.class";
-	var arrQuery = [];
+	var arrQuery = [[],[],[],false,[]];
 	var stat = document.getElementById("stat");
 	var txt = document.getElementById("txt");
 	var bSave = document.getElementById("bSave");
@@ -229,9 +218,12 @@
 		
 		if (chAdd2query.checked){
 			var parentCol = $( "input[type=radio]:checked" ).val();
-			var id = arrQuery.length;
-			arrQuery.push({"n":n, "parentCol":parentCol, "linkParent":chQueryLinkParent.checked});
-
+			var id = arrQuery[0].length;
+			//arrQuery.push({"n":n, "parentCol":parentCol, "linkParent":chQueryLinkParent.checked});
+			arrQuery[0].push(n);
+			if (parentCol)	arrQuery[1].push([id, parentCol]);
+			arrQuery[4].push("`"+n+"`");
+			
 			var tr = lQuery.appendChild(document.createElement("TR"));
 			var td = tr.appendChild(document.createElement("TD"));
 			var radio = td.appendChild(document.createElement("INPUT"));
@@ -254,8 +246,9 @@
 	bTable.onclick = function(){
 		tQuery.hidden = !tQuery.hidden;
 		if (!tQuery.hidden) {
-			var query = objectlink.getTableQuery(arrQuery);
-			var domtable = orm(query, "all2domtable");
+			//var query = objectlink.getTableQuery(arrQuery);
+			//var domtable = orm(query, "all2domtable");
+			var domtable = getOrmObject({columns:arrQuery[0], data:objectlink.gOrm("gT2",arrQuery)}, "all2domtable");
 			domtable.setAttribute("border",1);
 			tQuery.innerHTML = "";
 			tQuery.appendChild(domtable);

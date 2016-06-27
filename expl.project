@@ -9,12 +9,8 @@
             <File name="js\uService.js" />
         </Folder>
         <File name="expl.html" />
-        <File name="iCard1424.htm" />
-        <File name="iCard1425.htm" />
+        <File name="add.html" />
         <File name="cardPhoto.htm" />
-        <File name="auth.htm" />
-        <File name="addObjectToClassCard.htm" />
-        <File name="index.php" />
         <File name="orm.php" />
         <File name="conn.php" />
         <File name="DB.php" />
