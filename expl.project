@@ -9,8 +9,9 @@
             <File name="js\uService.js" />
         </Folder>
         <File name="expl.html" />
-        <File name="add.html" />
         <File name="cardPhoto.htm" />
+        <File name="add.html" />
+        <File name="iii.html" />
         <File name="orm.php" />
         <File name="conn.php" />
         <File name="DB.php" />
@@ -22,6 +23,5 @@
         <File name="upload2.php" />
         <File name="delete.php" />
         <File name="test.php" />
-        <File name="iii.php" />
     </Project>
 </NotepadPlus>

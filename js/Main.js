@@ -39,8 +39,7 @@ function mapLoad(arrLatLon, opts, click){
 		arrOid.push(oid);
 		arrLat.push(lat);
 		arrLon.push(lon);
-			
-//		marker.
+
 	});
 	
 	return {
