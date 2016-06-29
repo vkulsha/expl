@@ -294,6 +294,7 @@
 			}
 			if (oid==115) loadPanel(zd, pObjects, 2, 3, fclick);
 
+			var polylines = [];
 			if (oids.indexOf(oid) == -1) {
 				oids.push(oid);
 				
@@ -355,7 +356,6 @@
 					setCommVisible(getCommVisible, map.getZoom() >= 17)
 				})
 ////////////////polygons objects				
-				var polylines = [];
 				if (oid==115) {
 					var zu = objectlink.gOrm("gT2",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Земельные участки`"], "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 					var zd = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Здания и сооружения`"], "and `id Объект` = "+oid+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
