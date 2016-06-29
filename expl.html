@@ -139,6 +139,7 @@
 		var arrComm = [];
 		var arrLines = [];
 		var arendatorMarker = L.marker([0, 0]);
+		var polylines = [];
 
 		window.onhashchange = function(){
 			hashchange(mapObjects, arrComm, arrLines);
@@ -294,10 +295,9 @@
 			}
 			if (oid==115) loadPanel(zd, pObjects, 2, 3, fclick);
 
-			var polylines = [];
 			if (oids.indexOf(oid) == -1) {
+				polylines = [];				
 				oids.push(oid);
-				
 ////////////////polygons communications
 				if (oid==115) {
 				
