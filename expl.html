@@ -79,7 +79,7 @@
 		logo.onclick = function(){
 			eDopWidth.value=pDop.style.width;
 			eDopHeight.value=pDop.style.height;
-			showInf(setup);
+			showModalHtml(setup);
 		}
 		
 ////////////////modal
@@ -117,13 +117,19 @@
 		
 		}
 
-		function showInf(html){
+		function showModalHtml(html){
 			gDom("modalTitle").innerHTML = "";
 			gDom("modalBody").innerHTML = "";
 			gDom("modalFooter").innerHTML = "";
-			$("#modalBody").html(html);
+			$("#modalBody").append(html);
 			modal.style.display = "block";
 			
+		}
+
+		function showInf(container, html){
+			container.innerHTML = "";
+			$(container).append(html);
+			container.parentNode.hidden = false;				
 		}
 		
 ////////////////map init
@@ -132,6 +138,7 @@
 		
 		var arrComm = [];
 		var arrLines = [];
+		var arendatorMarker = L.marker([0, 0]);
 
 		window.onhashchange = function(){
 			hashchange(mapObjects, arrComm, arrLines);
@@ -158,6 +165,7 @@
 			for (var i=0; i < arrComm.length; i++) {
 				setCommVisible(i, visible);
 			}
+			arendatorMarker.setOpacity(visible ? 1 : 0);
 		}
 		
 		function hashchange(mapObjects, arrComm, arrLines){
@@ -197,6 +205,7 @@
 				["Вывоз КГМ и ТБО", "Файлы", "Объект"],
 				["Охрана", "Вид охраны", "Количество постов", "Количество человек", "ФИО", "Файлы", "Объект"],
 				["Работники", "Инф о работнике", "Файлы", "Объект"],
+				[],
 			]
 			$(pObjects).append("<br>Коммуникации на объекте:<br>");
 			var el = [
@@ -224,17 +233,23 @@
 				[1,"Вывоз КГМ и ТБО","images/tbo.png", [arrParamsComm[5]]],
 				[2,"Охрана","images/security2.png", [arrParamsComm[6]]],
 				[3,"Работники","images/personal.png", [arrParamsComm[7]]],
+				[4,"Арендаторы","images/money.png", getArendatorInf],
 			];
 			var fclick = function(){
 				pDopData.innerHTML = "";
-				for (var i=0; i < this.params.length; i++){
-					fillCard2(this.params[i], oid, pDopData);
+				if (typeof(this.params) == "object") {
+					for (var i=0; i < this.params.length; i++){
+						fillCard2(this.params[i], oid, pDopData);
+					}
+				} else {
+					this.params(polylines);
 				}
 				pDop.hidden = false;				
 				setCommsVisible(false);
 				getCommVisible = undefined;
 			}
 			if (oid==115) loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			
 ////////////include territorias
 			$(pObjects).append("<br>Земельный участок:<br>");
 			var fclick = function(){
@@ -285,11 +300,8 @@
 ////////////////polygons communications
 				if (oid==115) {
 				
+////////////////markers electro
 				var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Электроснабжение`"], "and `id Электроснабжение` = "+electroId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Отопление`"], "and `id Отопление` = "+teploId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id ХВС`"], "and `id ХВС` = "+waterId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Канализация`"], "and `id Канализация` = "+kanalId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
-////////////////markers electro		
 				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
 				if (elLines && elLines.length){
 					var elCoord = elLines[0].getLatLngs()[0];
@@ -302,6 +314,9 @@
 					arrLines.push(elLines);
 					setCommVisible(0, false);
 				}
+				
+////////////////markers teplo
+				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Отопление`"], "and `id Отопление` = "+teploId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 				var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:2}, map);
 				if (teLines && teLines.length){
 					var teCoord = teLines[0].getLatLngs()[0];
@@ -311,6 +326,9 @@
 					arrLines.push(teLines);
 					setCommVisible(1, false);
 				}
+
+////////////////markers water
+				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id ХВС`"], "and `id ХВС` = "+waterId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 				var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:2}, map);
 				if (waLines && waLines.length){
 					var waCoord = waLines[0].getLatLngs()[0];
@@ -319,6 +337,9 @@
 					arrLines.push(waLines);
 					setCommVisible(2, false);
 				}
+
+////////////////markers kanalization
+				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id Полигоны на карте`", "`id Канализация`"], "and `id Канализация` = "+kanalId+" and `id Координаты на карте` is not null order by `id Полигоны на карте`,`id Координаты на карте`"]);
 				var kaLines = mapPaint(ka, L.polyline, {color:"#552200", weight:2}, map);
 				if (kaLines && kaLines.length){
 					var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
@@ -327,7 +348,7 @@
 					arrLines.push(kaLines);
 					setCommVisible(3, false);
 				}
-
+				
 				}
 				
 				map.on("zoomend", function(){
@@ -360,7 +381,12 @@
 					polylines[i].on('click', function(e) {
 						var dom = gDom("but"+this.oid);
 						if (dom) dom.onclick();
-					});	
+					});
+
+					var dompol = gDom("but"+polylines[i].oid);
+					if (dompol) {
+						dompol.polylines = polylines[i];
+					}
 						
 ////////////////////paint photos
 					if (false) {
@@ -424,7 +450,7 @@
 						var files = JSON.parse(imagesJSON);
 						var allFiles = splitObjectArray(files, {"images" : ["jpg", "png", "gif", "tif", "bmp"], "other" : []} );
 						imageFiles = allFiles.images.sort();
-						otherFiles = allFiles.other;
+						otherFiles = allFiles.other.sort();
 					}, false);
 
 					if (imageFiles && imageFiles.length) {
@@ -452,6 +478,89 @@
 				pDopData.innerHTML = "";
 
 			}
+			
+/////////////arendator
+			arendatorMarker = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
+			
+			function getArendatorInf(polylines){
+				var tb = cDom("TABLE");
+				tb.style.width = "100%";
+				var tr = tb.appendChild(cDom("TR"));
+				var td = tr.appendChild(cDom("TD"));
+				td.innerHTML = "Арендаторы";
+				var td = tr.appendChild(cDom("TD"));
+				td.innerHTML = "Договор";
+				var td = tr.appendChild(cDom("TD"));
+				td.innerHTML = "Площадь";
+
+				var arendators = objectlink.gOrm("gT2", [["Арендаторы", "Договоры", "Занимаемая площадь", "Объект", "Здания и сооружения", "Земельные участки"],[],[],0]);
+				for (var i=0; i < arendators.length; i++){
+					var id = arendators[i][0];
+					var arendator = arendators[i][1];
+					var dog = arendators[i][3].split(",").join("<br>");
+					var square = arendators[i][6].split(",").join("<br>");
+					var arendator = arendators[i][1];
+					var zd = arendators[i][11];
+					var zu = arendators[i][14];
+					
+					var tr = tb.appendChild(cDom("TR"));
+					var td = tr.appendChild(cDom("TD"));
+					var but = td.appendChild(cDom("BUTTON"));
+					but.innerHTML = arendator;
+					but.id = "but"+id;
+					but.oid = id;
+					but.style.width = "100%";
+					but.zd = zd;
+					but.zu = zu;
+					but.polylines = polylines;
+					
+					var td = tr.appendChild(cDom("TD"));
+					td.innerHTML = dog;
+					var td = tr.appendChild(cDom("TD"));
+					td.innerHTML = square;
+					
+					but.onclick = funcclick;
+				}
+				
+				function funcclick(){
+					var polylines = this.polylines;
+					arendatorMarker.setOpacity(0);
+					for (var i=0; i < polylines.length; i++){
+						var points = [];
+						if (polylines[i].oid == this.zd || polylines[i].oid == this.zu) {
+							for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+								var lat = polylines[i].getLatLngs()[0][j].lat - (polylines[i].oid == this.zu ? 0.00033 : 0);
+								var lng = polylines[i].getLatLngs()[0][j].lng;
+								points.push([lat, lng]);
+							
+							}
+							var center = getCenterFromPoints(points);
+							arendatorMarker.setLatLng(center);
+							arendatorMarker.setOpacity(1);
+						}
+					}
+					pDopData.innerHTML = "";
+					fillCardEasy([
+					"Арендаторы", 
+					"Здания и сооружения", 
+					"Земельные участки", 
+					"Занимаемая площадь", 
+					"Договоры", 
+					"Дата подписания договора", 
+					"Дата начала аренда",
+					"Дата окончания аренды",
+					"Дата прекращения аренды",
+					"Реквизиты арендатора",
+					"Сумма платежа по договору",
+					"Количество рабоников",
+					"Деятельность",
+					"Файлы"], this.oid, pDopData);
+					
+				}
+				
+				showInf(pDopData, tb);
+			}
+			
 		}
 										
 ////////////////marker add to map
@@ -511,6 +620,7 @@
 
 ////////////////search objects or addres
 		var addressMarker = L.marker([0, 0]);
+		addressMarker = markerAddToMap(map, [0, 0], "images/marker21.png", 32);
 		var eSearch = document.getElementById('addressSearch');
 		eSearch.onkeydown = function(e){
 			if (e.which == 13) {
@@ -530,13 +640,15 @@
 					var coord = searchAddress(this.value);
 					addressMarker.setOpacity(0);
 					if (coord) {
-						addressMarker = markerAddToMap(map, [coord[1], coord[0]], "images/marker21.png", 32);
+						addressMarker.setLatLng([coord[1], coord[0]]);
+						addressMarker.setOpacity(1);
 						map.setView([coord[1], coord[0]],18);
 					}
 				
 				}
 			}
 		}
+		
 
 	})
 </script>

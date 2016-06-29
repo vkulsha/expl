@@ -319,8 +319,8 @@ class ObjectLink {
 					} else {
 						$h = "";
 						if ($groupbyind !== false) {
-							$h = ",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id ".$col."` ".
-								",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
+							$h = ",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id ".$col."` ".
+								",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
 								",count(distinct o".$i.".id) `кол-во ".$col."` \n";
 						} else {
 							$h = ",o".$i.".id `id ".$col."` ".

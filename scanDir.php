@@ -11,7 +11,8 @@ function myscandir($dir, $exp)
 		$fname = htmlentities($fname, ENT_QUOTES);
 		if (preg_match($exp, $fname)) { 
 			if ($fname != "." && $fname != "..") {
-				$ext = explode(".", $fname)[1];
+				$ext = explode(".", $fname);
+				$ext = end($ext);
 				if ($ext) {
 					if (!array_key_exists($ext,$r)) {
 						$r[$ext] = [];

@@ -65,7 +65,7 @@
 				case 2:
 					var dom = td.appendChild(cDom("SELECT"));
 					dom.style.width = "500px";
-					var values = objectlink.gOrm("gT2",[[val]]);
+					var values = objectlink.gOrm("gT2",[[val],[],[],null,null," order by `"+val+"`"]);
 					fillSelectDom(dom, values);
 					dom.id = "cb"+id;
 					dom.oid = id;
