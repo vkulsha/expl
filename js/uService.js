@@ -927,9 +927,9 @@ function getIconFile(filename){
 function getFileButtonHtml(fn){
 	var cap = fn.split("/")[fn.split("/").length-1];
 	var iconFile = getIconFile(fn.toLowerCase());
-	return "<a href='#' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
+	return "<button style='border: 0px; cursor:pointer' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
 		"<table style='display:inline'><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
-		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></a>";
+		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></button>";
 	
 }
 

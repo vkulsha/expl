@@ -42,7 +42,6 @@
 					if (u && p && u.length && p.length){
 						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
 						if (key && key.length){
-							//location.href = mainHtmlPage+"#key="+key;
 							gDom("mainContainer").hidden = true;
 						}
 					}
@@ -109,7 +108,7 @@
 			gDom("modalBody").innerHTML = "";
 			gDom("modalFooter").innerHTML = "";
 			
-			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid+"&key="+key;
+			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
 			modal.style.display = "block";
 			getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
 			//loadXML(uri, true, true, false, function(data){
@@ -135,11 +134,11 @@
 		var arrLines = [];
 
 		window.onhashchange = function(){
-			hashchange(mapObjects, arrComm, arrLines, key);
+			hashchange(mapObjects, arrComm, arrLines);
 		}
 
 		var oid = $_GET("oid", "#", location.hash);
-		if (oid) hashchange(mapObjects, arrComm, arrLines, key);
+		if (oid) hashchange(mapObjects, arrComm, arrLines);
 		
 		//if (location.hash == "#oid=115") {
 		//	hashchange(mapObjects, arrComm, arrLines);
@@ -161,14 +160,15 @@
 			}
 		}
 		
-		function hashchange(mapObjects, arrComm, arrLines, key){
-			var hideDopPanel = oid != $_GET("oid", "#", location.hash);
+		function hashchange(mapObjects, arrComm, arrLines){
+			//var hideDopPanel = oid != $_GET("oid", "#", location.hash);
 			oid = $_GET("oid", "#", location.hash);// || "115";
+			if (!oid) return;
 			var ind = mapObjects.objects.oid.indexOf(oid);
 			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], 18);
 			
 			pObjects.innerHTML = "";
-			pDop.hidden = hideDopPanel;
+			pDop.hidden = false;
 ////////////about object			
 			var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,null, "and `id Объект` = "+oid+" order by `id Здания и сооружения`"]);
 			var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[]/*,[]*/,[],false,null, "and `id Объект` = "+oid+" order by `id Земельные участки`"]);
@@ -409,6 +409,49 @@
 				}
 /////////////////////////////					
 			}
+			
+			if (oid && zd.length <= 1){
+				pDopData.innerHTML = "";
+				$(pDopData).append("<h3>Общая информация</h3>");
+
+				var objectId = objectlink.gOrm("gT2",[["Номер","Объект"],[],[],false,null,"and `id Объект` ="+oid+" limit 1"]);
+				if (objectId && objectId.length) {
+					objectId = objectId[0][1];
+					var objectPath = getObjectsDir()+"/"+objectId+"/";
+					var imageFiles = [];
+					var otherFiles = [];
+					getHttp("scanDir.php?path="+objectPath, function(imagesJSON) {
+						var files = JSON.parse(imagesJSON);
+						var allFiles = splitObjectArray(files, {"images" : ["jpg", "png", "gif", "tif", "bmp"], "other" : []} );
+						imageFiles = allFiles.images.sort();
+						otherFiles = allFiles.other;
+					}, false);
+
+					if (imageFiles && imageFiles.length) {
+						$(pDopData).append("<button style='border: 0px; cursor:pointer' id='bImg'><img src='"+domain+objectPath+url2cp1251(imageFiles[0])+"' width='64'/></button>")
+					}
+					
+					if (otherFiles.length) {
+						$(pDopData).append("<p>Файлы:</p>");
+						var divVal = pDopData.appendChild(cDom("DIV"));
+						for (var i=0; i < otherFiles.length; i++) {
+							var fileButton = getFileButtonHtml(objectPath+url2cp1251(otherFiles[i]));
+							$(divVal).append(fileButton);
+						}
+					}
+				}
+				
+				bImg.onclick = function(){
+					showModal("cardPhotoObject.htm", oid, oid);
+				}
+
+				pDop.hidden = false;
+				setCommsVisible(false);
+				getCommVisible = undefined;
+			} else {
+				pDopData.innerHTML = "";
+
+			}
 		}
 										
 ////////////////marker add to map
@@ -472,12 +515,12 @@
 		eSearch.onkeydown = function(e){
 			if (e.which == 13) {
 				var objects = objectlink.gOrm("gT2",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,["distinct `id Объект`", "`Объект`", "`Широта`", "`Долгота`"],
-				"and (`Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
+				"and (`Объект` like '%"+this.value+"%' or `Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
 				if (objects.length) {
 					pObjects.innerHTML = "";
 
 					fclick = function(){
-						location.href = mainHtmlPage+"#oid="+this.oid+"&key="+key;
+						location.href = mainHtmlPage+"#oid="+this.oid;
 						//hashchange(mapObjects);
 
 						
