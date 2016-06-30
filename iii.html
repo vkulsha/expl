@@ -25,6 +25,7 @@
 					<input type='checkbox' id='chAdd2query'/>
 					<!--<input type='checkbox' id='chQueryLinkParent'/>-->
 					<button id='bTable'>t</button>
+					<button id='bTable2'>T</button>
 					<!--<button id='bFontSizePlus'>+</button>-->
 					<button id='bOrderBy'>n</button>
 					<button id='bEdit'>[..]</button>
@@ -71,6 +72,7 @@
 	var bEdit = document.getElementById("bEdit");
 	var edit =  document.getElementById("edit");
 	var bTable = document.getElementById("bTable");
+	var bTable2 = document.getElementById("bTable2");
 	var tQuery = document.getElementById("tQuery");
 	var lQuery = document.getElementById("lQuery");
 	var chAdd2query = document.getElementById("chAdd2query");
@@ -221,7 +223,6 @@
 		if (chAdd2query.checked){
 			var parentCol = $( "input[type=radio]:checked" ).val();
 			var id = arrQuery[0].length;
-			//arrQuery.push({"n":n, "parentCol":parentCol, "linkParent":chQueryLinkParent.checked});
 			arrQuery[0].push(n);
 			if (parentCol)	arrQuery[1].push([id, parentCol]);
 			arrQuery[4].push("`"+n+"`");
@@ -248,9 +249,21 @@
 	bTable.onclick = function(){
 		tQuery.hidden = !tQuery.hidden;
 		if (!tQuery.hidden) {
-			//var query = objectlink.getTableQuery(arrQuery);
-			//var domtable = orm(query, "all2domtable");
 			var domtable = getOrmObject({columns:arrQuery[0], data:objectlink.gOrm("gT2",arrQuery)}, "all2domtable");
+			domtable.setAttribute("border",1);
+			tQuery.innerHTML = "";
+			var div = tQuery.appendChild(document.createElement("DIV"));
+			div.style.height = windowHeight() - 150 + "px";
+			div.style.width = "100%";
+			div.style.overflow = "auto";
+			div.appendChild(domtable);
+		}
+	}
+	
+	bTable2.onclick = function(){
+		tQuery.hidden = !tQuery.hidden;
+		if (!tQuery.hidden) {
+			var domtable = getOrmObject({columns:arrQuery[0], data:objectlink.gOrm("gT3",[arrQuery[0]])}, "all2domtable");
 			domtable.setAttribute("border",1);
 			tQuery.innerHTML = "";
 			var div = tQuery.appendChild(document.createElement("DIV"));

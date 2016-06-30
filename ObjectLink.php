@@ -364,7 +364,6 @@ class ObjectLink {
 		try {
 			$nArr = isset($params[0]) ? $params[0] : [];
 			$parentColArr = isset($params[1]) ? $params[1] : [];
-			//$linkParentArr = isset($params[2]) ? $params[2] : [];
 			$inClassArr = isset($params[2]) ? $params[2] : [];
 			$groupByInd = isset($params[3]) ? $params[3] : false;
 
@@ -375,9 +374,6 @@ class ObjectLink {
 			for ($i=0; $i < count($parentColArr); $i++){
 				$opts[$parentColArr[$i][0]]["parentCol"] = $parentColArr[$i][1];
 			}
-			//for ($i=0; $i < count($linkParentArr); $i++){
-			//	$opts[$linkParentArr[$i]]["linkParent"] = true;
-			//}
 			for ($i=0; $i < count($inClassArr); $i++){
 				$opts[$inClassArr[$i]]["inClass"] = true;
 			}
@@ -395,6 +391,76 @@ class ObjectLink {
 			$cond = isset($params[5]) ? $params[5] : "";
 			
 			$sel = $this->gTq2($params);
+			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}	
+
+	public function gTq3($params){//["a","b","c"], [1], false
+		try {
+			$nArr = isset($params[0]) ? $params[0] : [];
+			$level = isset($params[1]) ? $params[1] : 3;
+			$inClassArr = isset($params[2]) ? $params[2] : [];
+			$groupByInd = isset($params[3]) ? $params[3] : false;
+			$excludeClasses = isset($params[4]) ? $params[4] : null;
+			$opts = [];
+			$arr = [$nArr[0]];
+			$opts[] = array("n"=>$arr[0], "parentCol"=>0, "linkParent"=>false);
+			for ($i=1; $i < count($nArr); $i++){
+				$n = $nArr[$i];
+				$cid1 = $this->gO([$n, true]);
+				$minLevel = 100;
+				$minChain = [];
+				$minInd = -1;
+				
+				for ($j=0; $j < count($arr); $j++){
+					$cid2 = $this->gO([$arr[$j], true]);
+					$chain = $this->getLinkedObjectsLevel([$cid1, $cid2, $level, true, $excludeClasses]);
+					$chain = $chain && count($chain) ? $chain[0] : [];
+					$levelCount = $chain && count($chain) ? $chain[0] : 100;
+					if ($levelCount < $minLevel){
+						$minLevel = $levelCount;
+						$minChain = $chain;
+						$minInd = $j;
+					};
+				}
+
+				$ind = -1;
+				for ($k=2; $k < $minLevel+1; $k++){
+					$cn = $this->gN([$minChain[$k]]);
+					$arr[] = $cn;
+					$ind = ($k==2 ? $minInd : count($arr)-2);
+					$opts[] = array("n"=>$cn, "parentCol"=>$ind, "linkParent"=>false);
+				}
+				
+				$c = $minChain && count($minChain)? $minChain[1] : null;
+				$cn = $this->gN([$c]);
+				array_push($arr, $cn);
+				$opts[] = array("n"=>$arr[count($arr)-1], "parentCol"=>($ind == -1 ? $minInd : count($arr)-2), "linkParent"=>false);
+				
+			}
+			
+			for ($i=0; $i < count($inClassArr); $i++){
+				$opts[$inClassArr[$i]]["inClass"] = true;
+			}
+			return $this->getTableQuery2([$opts, $groupByInd]);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}	
+	
+	public function gT3($params){//["a","b","c"], [1], false, "*", "and a = 115"
+		try {
+			$nArr = isset($params[0]) ? $params[0] : [];
+			$fields = isset($params[5]) ? join(",", $params[5]) : "`".join("`,`", $nArr)."`";
+			$cond = isset($params[6]) ? $params[6] : "";
+			
+			$sel = $this->gTq3($params);
 			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
 			
 		} catch (Exception $e){
@@ -477,7 +543,63 @@ class ObjectLink {
 		}
 	}
 	
-
+	private function getLevelSql($ind, $isClass1, $isClass2){
+		$prev = $ind - 1;
+		return "".
+			"left join ".
+			"( ".
+			" select o1, o2 from link where 1=1 $isClass1 ".
+			" union all ".
+			" select o2, o1 from link where 1=1 $isClass2 ".
+			")l$ind on l$prev.o2 = l$ind.o1 ".
+			"";
+	}
+	
+	public function getLinkedObjectsLevel($params){
+		try {
+			$cid1 = $params[0];
+			$cid2 = $params[1];
+			$level = $params[2];
+			$isClass = isset($params[3]) && $params[3] ? true : false;
+			$excludeClasses = isset($params[4]) ? "1,".join(",",$params[4]) : "1,1410";
+			
+			$isClass12 = $isClass ? " in (select o1 from link where o2 = 1 and o1 not in ($excludeClasses)) " : "";
+			$isClass1 = $isClass ? " and o1 $isClass12 " : " and o1 not in ($excludeClasses) ";
+			$isClass2 = $isClass ? " and o2 $isClass12 " : " and o2 not in ($excludeClasses) ";
+			
+			$header = "select l1.o1 oid, l1.o2 l1 ";
+			$case = ",case when l1.o2 = $cid2 then 1 ";
+			
+			$body = "".
+				"from ( ".
+				" select o1, o2 from link where 1=1 $isClass1 ".
+				" union all ".
+				" select o2, o1 from link where 1=1 $isClass2 ".
+				")l1 ";
+			$cond = " where l1.o1 = $cid1 and (l1.o2 = $cid2 ";
+			$fields = "fondLevel, oid, l1";
+			
+			for ($i=2; $i <= $level; $i++){
+				$header = $header.", l".$i.".o2 l$i ";
+				$case = $case."when l$i.o2 = $cid2 then $i ";
+				$bodyLevel = $this->getLevelSql($i, $isClass1, $isClass2);
+				$body = $body.$bodyLevel;
+				$cond = $cond." or l$i.o2 = $cid2";
+				$fields = $fields.", l$i";
+				
+			}
+			$cond = $cond.") order by fondLevel ";
+			$case = $case." else 1000 end fondLevel ";
+			
+			$sel = $header.$case.$body.$cond;
+			return $this->sql->sT(["(".$sel.")x", $fields, " limit 1 "]);
+			//return $sel;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 
 
 
