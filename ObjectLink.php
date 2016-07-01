@@ -385,7 +385,7 @@ class ObjectLink {
 		}
 	}	
 	
-	public function gT2($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1], false, "*", "and a = 115"
+	public function gT2($params){//["a","b","c"], [[1,0],[2,0],[3,1]], [1], false, ["f1","f2"], "and a = 115"
 		try {
 			$fields = isset($params[4]) ? join(",", $params[4]) : "*";
 			$cond = isset($params[5]) ? $params[5] : "";

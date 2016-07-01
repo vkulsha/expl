@@ -124,7 +124,7 @@
 			for (var i=0; i < child.length; i++){
 				cols.push(child[i][1]);
 			}
-			var obj = objectlink.gOrm("gT2",[cols,[],[],false,null,"and `id "+cn+"`="+oid+" limit 1"]);
+			var obj = objectlink.gOrm("gT2",[cols,[],[],false,null,"and `id "+cn+"`="+oid+" order by `"+cn+"` limit 1"]);
 				
 			if (obj && obj.length) {
 				eValue.value = obj[0][1];

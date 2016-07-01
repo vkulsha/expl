@@ -138,7 +138,9 @@
 		
 		var arrComm = [];
 		var arrLines = [];
-		var arendatorMarker = L.marker([0, 0]);
+		var arendatorMarker;
+		var arendatorMarker2;
+		var arendatorMarkers = [];
 		var polylines = [];
 
 		window.onhashchange = function(){
@@ -166,7 +168,12 @@
 			for (var i=0; i < arrComm.length; i++) {
 				setCommVisible(i, visible);
 			}
-			arendatorMarker.setOpacity(visible ? 1 : 0);
+			for (var i=0; i < arendatorMarkers.length; i++){
+				arendatorMarkers[i].setOpacity(visible ? 1 : 0);
+				//arendatorMarker.setOpacity(visible ? 1 : 0);
+				//arendatorMarker2.setOpacity(visible ? 1 : 0);
+			}
+			
 		}
 		
 		function hashchange(mapObjects, arrComm, arrLines){
@@ -235,6 +242,7 @@
 				[2,"Охрана","images/security2.png", [arrParamsComm[6]]],
 				[3,"Работники","images/personal.png", [arrParamsComm[7]]],
 				[4,"Арендаторы","images/money.png", getArendatorInf],
+				[4,"Отчеты","images/report.png", getReportsInf],
 			];
 			var fclick = function(){
 				pDopData.innerHTML = "";
@@ -481,6 +489,8 @@
 			
 /////////////arendator
 			arendatorMarker = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
+			arendatorMarker2 = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
+			arendatorMarkers = [arendatorMarker, arendatorMarker2];
 			
 			function getArendatorInf(polylines){
 				var tb = cDom("TABLE");
@@ -493,22 +503,25 @@
 				var td = tr.appendChild(cDom("TD"));
 				td.innerHTML = "Площадь";
 
-				var arendators = objectlink.gOrm("gT2", [["Арендаторы", "Договоры", "Занимаемая площадь", "Объект", "Здания и сооружения", "Земельные участки"],[],[],0]);
+				var arendators = objectlink.gOrm("gT2", [
+					["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки"],
+					[[2,1],[3,2],[4,3],[5,3],[6,3]],[],1,
+					["`id Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id Здания и сооружения`", "`id Земельные участки`"]]);
+					
 				for (var i=0; i < arendators.length; i++){
 					var id = arendators[i][0];
 					var arendator = arendators[i][1];
-					var dog = arendators[i][3].split(",").join("<br>");
-					var square = arendators[i][6].split(",").join("<br>");
-					var arendator = arendators[i][1];
-					var zd = arendators[i][11];
-					var zu = arendators[i][14];
+					var dog = arendators[i][2] ? arendators[i][2].split(",").join("<br>") : "";
+					var square = arendators[i][3] ? arendators[i][3].split(",").join("<br>") : "";
+					var zd = arendators[i][4] ? arendators[i][4].split(",") : null;
+					var zu = arendators[i][5];
 					
 					var tr = tb.appendChild(cDom("TR"));
 					var td = tr.appendChild(cDom("TD"));
 					var but = td.appendChild(cDom("BUTTON"));
 					but.innerHTML = arendator;
 					but.id = "but"+id;
-					but.oid = id;
+					but.oid = id;	
 					but.style.width = "100%";
 					but.zd = zd;
 					but.zu = zu;
@@ -524,44 +537,184 @@
 				
 				function funcclick(){
 					var polylines = this.polylines;
-					arendatorMarker.setOpacity(0);
-					for (var i=0; i < polylines.length; i++){
-						var points = [];
-						if (polylines[i].oid == this.zd || polylines[i].oid == this.zu) {
-							for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-								var lat = polylines[i].getLatLngs()[0][j].lat - (polylines[i].oid == this.zu ? 0.00033 : 0);
-								var lng = polylines[i].getLatLngs()[0][j].lng;
-								points.push([lat, lng]);
-							
+					for (var i=0; i < arendatorMarkers.length; i++){
+						arendatorMarkers[i].setOpacity(0);
+					}
+					var arr = this.zd || [];
+					arr.push(this.zu);
+					var zuNum = this.zu ? arr.length-1 : -1;
+					for (var m=0; m < arr.length; m++){
+						for (var i=0; i < polylines.length; i++){
+							var points = [];
+							if (polylines[i].oid == arr[m]){
+								for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+									var lat = polylines[i].getLatLngs()[0][j].lat - (m == zuNum ? 0.00033 : 0);
+									var lng = polylines[i].getLatLngs()[0][j].lng;
+									points.push([lat, lng]);
+								
+								}
+								var center = getCenterFromPoints(points);
+								arendatorMarkers[m].setLatLng(center);
+								arendatorMarkers[m].setOpacity(1);
 							}
-							var center = getCenterFromPoints(points);
-							arendatorMarker.setLatLng(center);
-							arendatorMarker.setOpacity(1);
 						}
 					}
 					pDopData.innerHTML = "";
-					fillCardEasy([
-					"Арендаторы", 
-					"Здания и сооружения", 
-					"Земельные участки", 
-					"Занимаемая площадь", 
-					"Договоры", 
-					"Дата подписания договора", 
-					"Дата начала аренда",
-					"Дата окончания аренды",
-					"Дата прекращения аренды",
-					"Реквизиты арендатора",
-					"Сумма платежа по договору",
-					"Количество рабоников",
-					"Деятельность",
-					"Файлы"], this.oid, pDopData);
+
+					var fields = ["Арендаторы", "Договоры аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"]; 
+					var ar = objectlink.gOrm("gT2", [
+						["Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"],
+						[[2,1],[3,2],[4,2],[5,2],[6,1]],[],false,
+						decorateArr(fields, "`"),
+						" and `id Арендаторы` = "+this.oid+" order by "+decorateArr(fields, "`id ", "`").join(",")
+						]);
+					var tb = pDopData.appendChild(cDom("TABLE"));
+					var div = cDom("DIV");
+					
+					var fill = function(cont, caption, value){
+						if (value) {
+							var tr = cont.appendChild(cDom("TR"));
+							var td = tr.appendChild(cDom("TD"));
+							td.innerHTML = caption;
+							td.style.borderBottom = "1px solid #333";
+							td.style.color = "#999";
+							var td = tr.appendChild(cDom("TD"));
+							td.innerHTML = value;
+							td.style.borderBottom = "1px solid #333";
+						}
+					}
+					
+					fill(tb, "Арендатор", ar[0][0]);
+					var dog_ = null;
+					var square_ = null;
+					var files = [];
+					var ind = 0;
+					for (var i=0; i < ar.length; i++){
+						var dog = ar[i][1];
+						if (dog_ != dog) {
+							$(tb).append("<tr style='height:10px'><td colspan=2></td></tr>");
+							fill(tb, "Договор", dog);
+							
+						}
+						dog_ = dog;
+						
+						var square = ar[i][2];
+						if (square_ != square){
+							$(tb).append("<tr><td colspan=2 style='border-bottom:1px solid #999'></td></tr>");
+							var zd = ar[i][3];
+							var zu = ar[i][4];
+							var sale = ar[i][5];
+							var doing = ar[i][7];
+							var workers = ar[i][8];
+							fill(tb, "Занимаемая площадь", square+" м2");
+							fill(tb, "Место аренды", zd || zu);
+							fill(tb, "Стоимость аренды", sale+" руб/мес");
+							fill(tb, "Деятельность", doing);
+							fill(tb, "Количество рабоников", workers);
+						}
+						square_ = square;
+						
+						var file = ar[i][6];
+						if (!~files.indexOf(file)){
+							$(div).append(getFileButtonHtml(file));
+							files.push(file);
+						}
+					}
+
+					var tr = tb.appendChild(cDom("TR"));
+					var td = tr.appendChild(cDom("TD"));
+					td.setAttribute("colspan", 2);
+					td.appendChild(div);
 					
 				}
 				
 				showInf(pDopData, tb);
 			}
 			
+			
+			function getReportsInf(){
+				var arr = ["Пустующий фонд по объекту", "Затраты на комуналку и перевыставление"];
+				pDopData.innerHTML = "";
+				var tb = pDopData.appendChild(cDom("TABLE"));
+				tb.style.width = "100%";
+				$(tb).append("<tr><td><h3>Отчеты</h3></td></tr>");
+				for (var i=0; i < arr.length; i++){
+					var tr = tb.appendChild(cDom("TR"));
+					var td = tr.appendChild(cDom("TD"));
+					var but = td.appendChild(cDom("BUTTON"));
+					but.innerHTML = arr[i];
+					but.id = "butReport"+i;
+					but.reportId = i;
+					but.onclick = funcclick;
+				}
+				
+				function funcclick(){
+					switch (this.reportId) {
+						case 0:
+							reportEmptyFond();
+						break
+						case 1:
+							reportCommunicationOrders();
+						break
+					
+					}
+				}
+			}
+			
+			function reportEmptyFond(){
+				var fields = ["Здания и сооружения", "Полезная площадь", "Занимаемая площадь"]; 
+				var arr = objectlink.gOrm("gT2", [
+					["Объект", "Фонд Аренды", "Здания и сооружения", "Технические данные", "Полезная площадь", "Участок аренды", "Занимаемая площадь"],
+					[[2,1],[3,2],[4,3],[5,2],[6,5]],[],false,
+					decorateArr(fields, "`"),
+					" and `id Объект` = "+oid+" order by `id Здания и сооружения`"
+					]);
+				//pDopData.innerHTML = "";
+				//$(pDopData).append();
+				showModalHtml(getOrmObject({columns:fields, data:arr}, "all2domtable"));
+				
+				var zd_ = arr[0][0];
+				var empt = [];
+				var sum = 0;
+				var sumAll = 0;
+				
+				var sqAll = 0;
+				var sq_ = null;
+				var sq = 0;
+				var zd;
+				
+				for (var i=0; i < arr.length; i++){
+					zd = arr[i][0];
+					if (zd_ != zd) {
+						empt.push(sq - sum);
+						sumAll = sumAll + sum;
+						sum = 0;
+						zd_ = zd;
+					}
+					sum = sum + parseFloat(arr[i][2] || 0);
+					sq = parseFloat(arr[i][1]);
+					
+					if (sq_ != sq) {
+						sqAll = sqAll + sq;
+					}
+					sq_ = sq;
+				}
+				
+				console.log(empt);
+				console.log(sqAll);
+				console.log(sumAll);
+				console.log(sqAll - sumAll);
+				
+			}
+			
+			function reportCommunicationOrders(){
+			
+			}
+			
+			
 		}
+		
+
 										
 ////////////////marker add to map
 		function markerAddToMap(map, latlng, iconUrl, iconSize){
