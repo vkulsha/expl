@@ -667,7 +667,7 @@
 			
 			
 			function getReportsInf(){
-				var arr = ["Пустующий фонд по объекту", "Затраты на комуналку и перевыставление"];
+				var arr = ["Пустующий фонд по объекту", "Затраты и перевыставление"];
 				pDopData.innerHTML = "";
 				var tb = pDopData.appendChild(cDom("TABLE"));
 				tb.style.width = "100%";
@@ -934,7 +934,11 @@
 					td.style.color = "#ff0000";
 					td.innerHTML = sum;
 					
-					$(div2).append("<table width='100%'><tr><td align='left'><label>Итоги за год<label><div id='graph'>Loading graph...</div></td></tr></table>");
+					$(div2).append("<table border=1><tr><td style='color:#fff'>Счета ГУОВ</td></tr><tr><td style='color:#9999ff'>Перевыставление</td></tr><tr><td style='color:#ff0000'>Убыток</td></tr></table>");
+					div2.setAttribute("align", "center");
+					div2.setAttribute("valign", "top");
+
+					$(div2).append("<table width='100%'><tr><td align='center'><label>Итоги за год<label><div id='graph'>Loading graph...</div></td></tr></table>");
 					var myData = new Array([Math.round(parseFloat(arend)/parseFloat(guov)*100)+"%", parseFloat(arend)], 
 					[100-Math.round(parseFloat(sum)/parseFloat(guov)*100)+"%", parseFloat(sum)]);
 					var colors = ['#9999ff', '#ff0000'];
