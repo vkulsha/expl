@@ -746,7 +746,178 @@
 			}
 			
 			function reportCommunicationOrders(){
-			
+				/*
+				var fields = ["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год","Арендаторы","Объект"];
+				var fieldsv = ["Арендаторы", "Счет стоимость"];
+				var arr = objectlink.gOrm("gT2", [
+					fields,
+					[],[],false,decorateArr(fieldsv, "`"),
+					" and `id Объект`="+oid+" and `Счет год`=2016 and `Счет месяц`=4 and `Счет продукт`='электроэнергия' and `id Арендаторы` is not null"
+				]);
+				var tb = getOrmObject({columns:fieldsv, data:arr}, "all2domtable");
+				
+				showModalHtml("<div>Счета арендаторам за электроэнергию - апрель 2016</div>", true);
+				showModalHtml(tb);
+				*/
+				
+				var fieldsv = ["f1", "f2"];
+				
+				var getSum = function(obj, month, year, product, isArendator){
+					var ret = objectlink.gOrm("gT2", [
+						["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год","Арендаторы","Объект"],
+						[],[],false,
+						["sum(`Счет стоимость`)"],
+						" and `id Объект`="+obj+" and `Счет год`="+year+" and `Счет месяц`="+month+" and `Счет продукт`='"+product+"' and `id Арендаторы` is "+(isArendator ? "not" : "")+" null group by `id Объект` "
+					]);
+					return ret && ret.length ? ret[0][0] : 0;
+				}
+
+				var vals = [];
+
+				var reducesum = function(s, cur){return (parseFloat(s) + parseFloat(cur)).toFixed(2)};
+				function starting(month, product, products){
+					if (month == 6) {
+						month = 1;
+						product = product + 1;
+						
+						var td = trh.appendChild(cDom("TH"));
+						td.style.width = "100px";
+						td.innerHTML = "Итого за год";
+						var guov = vals[product-1][0].reduce(reducesum, 0);
+						var td = tr1.appendChild(cDom("TD"));
+						td.innerHTML = guov;
+						var arend = vals[product-1][1].reduce(reducesum, 0);
+						var td = tr2.appendChild(cDom("TD"));
+						td.style.color = "#9999ff";
+						td.innerHTML = arend;
+						var sum = vals[product-1][2].reduce(reducesum, 0);
+						var td = tr3.appendChild(cDom("TD"));
+						td.style.color = "#ff0000";
+						td.innerHTML = sum;
+						if (product == products.length) {
+							last();
+							return;
+						}
+
+						vals.push([[],[],[]]);
+						
+						$(div).append("<br><label>"+products[product]+"<label>");
+						tb = div.appendChild(cDom("TABLE"));
+						tb.border = 1;
+						trh = tb.appendChild(cDom("TR"));
+						tr1 = tb.appendChild(cDom("TR"));
+						tr2 = tb.appendChild(cDom("TR"));
+						tr3 = tb.appendChild(cDom("TR"));
+					}
+					var td = trh.appendChild(cDom("TH"));
+					td.innerHTML = months[month-1];
+					td.style.width = "100px";
+					var guov = parseFloat(getSum(oid, month, 2016, products[product], false)).toFixed(2);
+					var td = tr1.appendChild(cDom("TD"));
+					td.innerHTML = guov;
+					var arend = parseFloat(getSum(oid, month, 2016, products[product], true)).toFixed(2);
+					var td = tr2.appendChild(cDom("TD"));
+					td.style.color = "#9999ff";
+					td.innerHTML = arend;
+					var sum = (parseFloat(guov) - parseFloat(arend)).toFixed(2);
+					var td = tr3.appendChild(cDom("TD"));
+					td.style.color = "#ff0000";
+					td.innerHTML = sum;
+					vals[product][0].push(guov);
+					vals[product][1].push(arend);
+					vals[product][2].push(sum);
+					setTimeout(starting, 0, month+1, product, products);
+				}
+				
+				var divAll = cDom("DIV");
+				var tb = divAll.appendChild(cDom("TABLE"));
+				var tr = tb.appendChild(cDom("TR"));
+				var td = tr.appendChild(cDom("TD"));
+				var div = td.appendChild(cDom("DIV"));
+				var td = tr.appendChild(cDom("TD"));
+				var div2 = td.appendChild(cDom("DIV"));
+				
+				showModalHtml(divAll, true);
+				var arr = ["электроэнергия", "мусор", "тепло", "интернет", "услуга техобслуживание оборудования КИПа"]
+				$(div).append("<label>"+arr[0]+"<label>");
+				var tb = div.appendChild(cDom("TABLE"));
+				tb.border = 1;
+				var trh = tb.appendChild(cDom("TR"));
+				var tr1 = tb.appendChild(cDom("TR"));
+				var tr2 = tb.appendChild(cDom("TR"));
+				var tr3 = tb.appendChild(cDom("TR"));
+
+				vals.push([[],[],[]]);
+				starting(1, 0, arr);
+
+				function last(){
+					$(div).append("<br><label>Итого за все услуги:<label>");
+					var tb = div.appendChild(cDom("TABLE"));
+					tb.border = 1;
+					var trh = tb.appendChild(cDom("TR"));
+					var tr1 = tb.appendChild(cDom("TR"));
+					var tr2 = tb.appendChild(cDom("TR"));
+					var tr3 = tb.appendChild(cDom("TR"));
+					
+					var valss = [[],[],[]];
+					for (var k=1; k <= 5; k++){
+						var mon = [];
+						for (var j=0; j < 3; j++){
+							var sum_ = 0;
+							var cell = [];
+							for (var i=0; i < arr.length; i++){
+								sum_ = sum_ + parseFloat(vals[i][j][k-1]);
+								cell.push(parseFloat(vals[i][j][k-1]));
+							}
+							var m = cell.reduce(reducesum);
+							mon.push(m);
+						}
+						var td = trh.appendChild(cDom("TH"));
+						td.innerHTML = months[k-1];
+						td.style.width = "100px";
+						var td = tr1.appendChild(cDom("TD"));
+						td.innerHTML = mon[0];
+						var td = tr2.appendChild(cDom("TD"));
+						td.style.color = "#9999ff";
+						td.innerHTML = mon[1];
+						var td = tr3.appendChild(cDom("TD"));
+						td.style.color = "#ff0000";
+						td.innerHTML = mon[2];
+						valss[0].push(mon[0]);
+						valss[1].push(mon[1]);
+						valss[2].push(mon[2]);
+					}
+					
+					var td = trh.appendChild(cDom("TH"));
+					td.style.width = "100px";
+					td.innerHTML = "Итого за год";
+					var guov = valss[0].reduce(reducesum, 0);
+					var td = tr1.appendChild(cDom("TD"));
+					td.innerHTML = guov;
+					var arend = valss[1].reduce(reducesum, 0);
+					var td = tr2.appendChild(cDom("TD"));
+					td.style.color = "#9999ff";
+					td.innerHTML = arend;
+					var sum = valss[2].reduce(reducesum, 0);
+					var td = tr3.appendChild(cDom("TD"));
+					td.style.color = "#ff0000";
+					td.innerHTML = sum;
+					
+					$(div2).append("<table width='100%'><tr><td align='left'><label>Итоги за год<label><div id='graph'>Loading graph...</div></td></tr></table>");
+					var myData = new Array([Math.round(parseFloat(arend)/parseFloat(guov)*100)+"%", parseFloat(arend)], 
+					[100-Math.round(parseFloat(sum)/parseFloat(guov)*100)+"%", parseFloat(sum)]);
+					var colors = ['#9999ff', '#ff0000'];
+					var myChart = new JSChart('graph', 'pie');
+					myChart.setDataArray(myData);
+					myChart.colorizePie(colors);
+					myChart.setTitleColor('#857D7D');
+					myChart.setPieUnitsColor('#9B9B9B');
+					myChart.setPieValuesColor('#6A0000');
+					myChart.draw();
+
+					
+				}
+				
 			}
 			
 			

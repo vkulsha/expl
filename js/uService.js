@@ -5,6 +5,7 @@ var interfaceUrlKey = "interface";
 var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
 var currentUser = {};
+var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
 var isMobile = {
     Android: function() {
