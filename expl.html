@@ -628,6 +628,37 @@
 					var td = tr.appendChild(cDom("TD"));
 					td.setAttribute("colspan", 2);
 					td.appendChild(div);
+
+					var tr = tb.appendChild(cDom("TR"));
+					var td = tr.appendChild(cDom("TD"));
+					td.setAttribute("colspan", 2);
+					td.innerHTML = "Счета:";
+
+					var fields = ["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год","Арендаторы","Объект"];
+					var orders = objectlink.gOrm("gT2", [fields,[],[],false,["`id Счет`","`Счет продукт`","`Счет месяц`","Арендаторы"],
+						" and `id Объект`="+oid+" and `id Арендаторы` = "+this.oid+" order by `id Счет месяц` desc, `id Счет продукт`"
+					]);
+					var tr = tb.appendChild(cDom("TR"));
+					var td1 = tr.appendChild(cDom("TD"));
+					td1.style.width = "50%";
+					var td2 = tr.appendChild(cDom("TD"));
+					td2.valign = "top";
+					var orderclick = function(){
+						var fields = ["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год"];
+						td2.innerHTML = "";
+						fillCardEasy(fields, this.oid, td2);
+					}
+					
+					for (var i=0; i < orders.length; i++){
+						var but = td1.appendChild(cDom("BUTTON"));
+						td1.appendChild(cDom("BR"));
+						but.innerHTML = "счет "+orders[i][1]+" "+months[orders[i][2]-1];
+						but.style.width = "100%";
+						but.id = "but"+orders[i][0];
+						but.oid = orders[i][0];	
+						but.onclick = orderclick;
+
+					}
 					
 				}
 				
