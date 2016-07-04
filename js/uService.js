@@ -215,6 +215,13 @@ function sqlOrm(params, funcError, funcFinnaly){
 	postOrm(params, false, function(data){ result = data; }, function(e){console.log(e);}, funcFinnaly)
 	return result;
 };
+
+function sqlOrmA(params, func, funcError, funcFinnaly){
+	var result;
+	postOrm(params, true, func, function(e){console.log(e);}, funcFinnaly)
+	return result;
+};
+
 //sqlOrm({f:"gT",p:[["Объект", "Земельные участки"],[],[],[],"*"," and `id Объект`=115"]})	
 
 function orm(query, type) {
@@ -931,8 +938,9 @@ function getIconFile(filename){
 function getFileButtonHtml(fn){
 	var cap = fn.split("/")[fn.split("/").length-1];
 	var iconFile = getIconFile(fn.toLowerCase());
+	var isImage = iconFile == "images/jpg.png";
 	return "<button style='border: 0px; cursor:pointer' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
-		"<table style='display:inline'><tr align='middle'><td><img src='"+iconFile+"' width='32'/></td></tr>"+
+		"<table style='display:inline'><tr align='middle'><td><img src='"+(!isImage ? iconFile : domain+url2cp1251(fn))+"' width='"+(!isImage ? 32 : 64)+"'/></td></tr>"+
 		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></button>";
 	
 }

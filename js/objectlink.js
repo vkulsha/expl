@@ -467,6 +467,10 @@ var objectlink = {
 		return sqlOrm({f:funcName, p:params})	
 		
 	},
+	gOrmA : function(funcName, params, func){
+		sqlOrmA({f:funcName, p:params}, func)	
+		
+	},
 }
 
 
