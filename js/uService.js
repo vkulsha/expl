@@ -236,6 +236,7 @@ function orm(query, type) {
 function getOrmObject(data, type) {
 	if (type === undefined) type = null;
 	var result = null;
+	if (!data) return;
 	var columns = data.columns;
 
 	function rows2object() {
