@@ -5,6 +5,15 @@ html, body, #mainTable {
 	margin: 0px;
 	color: #eee;
 	background-color: #000;
+
+	scrollbar-base-color: rgba(50,50,50,0.3);
+	scrollbar-face-color: rgba(0,0,0,0.3);
+	scrollbar-3dlight-color: rgba(50,50,50,0.3);
+	scrollbar-highlight-color: rgba(50,50,50,0.3);
+	scrollbar-track-color: rgba(0,0,0,0.3);
+	scrollbar-arrow-color: rgba(50,50,50,0.3);
+	scrollbar-dark-shadow-color: rgba(50,50,50,0.3);
+	scrollbar-shadow-color: rgba(50,50,50,0.3);
 	
 }
 

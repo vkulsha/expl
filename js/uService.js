@@ -1283,7 +1283,6 @@ function fillCard2(arr, oid, cont){
 		var tr = tb.appendChild(cDom("TR"));
 		var td1 = tr.appendChild(cDom("TD"));
 		var td2;
-		td1.style = "border-bottom:1px solid #333; color:#999";
 		td1.style.borderBottom = "1px solid #333";
 		td1.style.color = "#999";
 		var divVal = td1.appendChild(cDom("DIV"));
@@ -1340,7 +1339,6 @@ function fillCardEasy(arr, id, cont){
 		var tr = tb.appendChild(cDom("TR"));
 		var td1 = tr.appendChild(cDom("TD"));
 		var td2;
-		td1.style = "border-bottom:1px solid #333; color:#999";
 		td1.style.borderBottom = "1px solid #333";
 		td1.style.color = "#999";
 		var divVal = td1.appendChild(cDom("DIV"));
