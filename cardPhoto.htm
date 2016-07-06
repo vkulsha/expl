@@ -32,7 +32,7 @@
 		.css("height", windowHeight() - 150 + "px")
 		//.css("width", dataContainer.getBoundingClientRect().right - dataContainer.getBoundingClientRect().left);
 
-	var images = objectlink.gOrm("gT",[["Здания и сооружения","Фото"],[],[],[],false,"*","and `id Здания и сооружения` ="+objectId+" order by `id Фото`"]);
+	var images = objectlink.gOrm("gT2",[["Здания и сооружения","Фото"],[],[],false,null,"and `id_Здания и сооружения` ="+objectId+" order by `id_Фото`"]);
 	if (images && images.length) {
 		var imgInd = 0;
 		

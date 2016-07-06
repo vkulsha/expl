@@ -201,7 +201,7 @@ function sqlAsync(query, async, func, funcError, funcFinnaly) {
 };
 
 function postOrm(params, async, func, funcError, funcFinnaly) {
-	postJSON(domain+"orm.php", {f : params.f, p : JSON.stringify(params.p)}, async, func, funcError, funcFinnaly)
+	postJSON("orm.php", {f : params.f, p : JSON.stringify(params.p)}, async, func, funcError, funcFinnaly)
 };
 	
 function sql(query, funcError, funcFinnaly){
@@ -1094,7 +1094,7 @@ function gDom(id){
 }
 
 function getMainInterfaceKey(userId){
-	var num = objectlink.gOrm("gT",[["Пользователи","Интерфейсы","Ключи интерфейсов"],[[2,1]],[],[],0,"`Ключи интерфейсов`","and `id Пользователи` = "+userId]);
+	var num = objectlink.gOrm("gT2",[["Пользователи","Интерфейсы","Ключи интерфейсов"],[[2,1]],[],0,["`Ключи интерфейсов`"],"and `id_Пользователи` = "+userId]);
 	num = getOrmObject({columns:["Ключи интерфейсов"],data:num},"col2array");
 
 	if (num.length) {
@@ -1106,7 +1106,7 @@ function getMainInterfaceKey(userId){
 };
 
 function getInterfaceElements(userId, interfaceKey){
-	var num = objectlink.gOrm("gT",[["Пользователи","Группы прав пользователей","Элементы интерфейсов","Интерфейсы","Ключи интерфейсов"],[[2,1],[3,2],[4,3]],[1,3],[],false,"`Элементы интерфейсов`","and `id Пользователи` = "+userId+" and `Ключи интерфейсов` = '"+interfaceKey+"'"]);
+	var num = objectlink.gOrm("gT",[["Пользователи","Группы прав пользователей","Элементы интерфейсов","Интерфейсы","Ключи интерфейсов"],[[2,1],[3,2],[4,3]],[1,3],[],false,"`Элементы интерфейсов`","and `id_Пользователи` = "+userId+" and `Ключи интерфейсов` = '"+interfaceKey+"'"]);
 	num = getOrmObject({columns:["Элементы интерфейсов"],data:num},"col2array");
 	return num;
 };
@@ -1232,7 +1232,7 @@ function fillCard(arr, oid, cont){
 	var cn_ = arr[0];
 	$(cont).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 	var arrC = arr;
-	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id "+arr[arr.length-1]+"` = "+oid]);
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id_"+arr[arr.length-1]+"` = "+oid]);
 	var row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
 	var txt = [];
 	var start = 1;
@@ -1272,7 +1272,7 @@ function fillCard2(arr, oid, cont){
 	var cn_ = arr[0];
 	$(cont).append("<tr class='h3caption'><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 	var arrC = arr;
-	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").join(",")," and `id "+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id ", "`").join(",")]);
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").join(",")," and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
 	var tb = cont.appendChild(cDom("TABLE"));
 	var filesInd = arrC.indexOf("Файлы");
 
@@ -1329,7 +1329,7 @@ function fillCardEasy(arr, id, cont){
 
 	var arrC = arr;
 	var filesInd = arrC.indexOf("Файлы");
-	var rows = objectlink.gOrm("gT2",[arrC,[],[],false,decorateArr(arrC, "`")," and `id "+arrC[0]+"`="+id+" order by "+decorateArr(arrC, "`id ", "`").join(",")]);
+	var rows = objectlink.gOrm("gT2",[arrC,[],[],false,decorateArr(arrC, "`")," and `id_"+arrC[0]+"`="+id+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
 	var tb = cont.appendChild(cDom("TABLE"));
 
 	var vals = [];

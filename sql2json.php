@@ -1,6 +1,8 @@
 <?php
 require('conn.php');
 header('Content-Type: text/html; charset=utf-8');
+header('Access-Control-Allow-Origin: *');
+
 set_error_handler("warning_handler", E_WARNING);
 
 function warning_handler($errno, $errstr) {

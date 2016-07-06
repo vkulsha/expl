@@ -191,7 +191,7 @@ class ObjectLink {
 					$pcol = isset($cc["parentCol"]) ? $cc["parentCol"] : null;
 					$inClass = isset($cc["inClass"]) ? $cc["inClass"] : null;
 					if ($i==0){
-						$h = "select o".$i.".id `id ".$col."`, o".$i.".n `".$col."` \n";
+						$h = "select o".$i.".id `id_".$col."`, o".$i.".n `".$col."` \n";
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$b = 
 							"from (\n".
@@ -206,11 +206,11 @@ class ObjectLink {
 					} else {
 						$h = "";
 						if ($groupbyind !== false) {
-							$h = ",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id ".$col."` ".
+							$h = ",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id_".$col."` ".
 								",case when count(distinct o".$i.".id) <= 1 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
 								",count(distinct o".$i.".id) `кол-во ".$col."` \n";
 						} else {
-							$h = ",o".$i.".id `id ".$col."` ".
+							$h = ",o".$i.".id `id_".$col."` ".
 								",o".$i.".n `".$col."` ";
 						}
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
@@ -304,7 +304,7 @@ class ObjectLink {
 					$pcol = isset($cc["parentCol"]) ? $cc["parentCol"] : null;
 					$inClass = isset($cc["inClass"]) ? $cc["inClass"] : null;
 					if ($i==0){
-						$h = "select o".$i.".id `id ".$col."`, o".$i.".n `".$col."` \n";
+						$h = "select o".$i.".id `id_".$col."`, o".$i.".n `".$col."` \n";
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$b = 
 							"from (\n".
@@ -319,11 +319,11 @@ class ObjectLink {
 					} else {
 						$h = "";
 						if ($groupbyind !== false) {
-							$h = ",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id ".$col."` ".
+							$h = ",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id_".$col."` ".
 								",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
 								",count(distinct o".$i.".id) `кол-во ".$col."` \n";
 						} else {
-							$h = ",o".$i.".id `id ".$col."` ".
+							$h = ",o".$i.".id `id_".$col."` ".
 								",o".$i.".n `".$col."` ";
 						}
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";

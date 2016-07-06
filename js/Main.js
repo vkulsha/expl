@@ -1,4 +1,4 @@
-var mainHtmlPage = "expl.html";
+var mainHtmlPage = "index.html";
 
 function mapLoad(arrLatLon, opts, click){
 	var ObjectIcon = L.Icon.extend({
@@ -140,7 +140,7 @@ function initMap(map){
 		location.href = mainHtmlPage+"#oid="+val.oid;
 	}
 	
-	var arrObjects = objectlink.gOrm("gT",[["Объект","Широта","Долгота"],[],[],[],false,"`Широта`, `Долгота`, `id Объект`"]);
+	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`"]]);
 	var mapObjects = mapLoad(arrObjects, {}, markerClick);
 
 
