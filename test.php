@@ -1,5 +1,5 @@
 <?php
-	print(json_encode(array(1,2,3), JSON_UNESCAPED_UNICODE));
+	print(json_encode($_SERVER['SERVER_NAME'], JSON_UNESCAPED_UNICODE));
 
 ?>
 

@@ -1,4 +1,4 @@
-var mainHtmlPage = "index.html";
+var mainHtmlPage = "";//"index.html";
 
 function mapLoad(arrLatLon, opts, click){
 	var ObjectIcon = L.Icon.extend({

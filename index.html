@@ -23,7 +23,6 @@
 	var key = $_GET("key", "#", location.hash);
 	var userKey = parseInt(key) || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
 	var userId = objectlink.gOrm("gAnd",[[userKey, classes["Пользователи"]]]);
-
 	if (userId && userId.length){
 		userId = userId[0][0];
 		var mainInterface = getMainInterfaceKey(userId);
