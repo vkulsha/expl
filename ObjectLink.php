@@ -1,6 +1,6 @@
 <?php
 class ObjectLink {
-	private $sql;
+	public $sql;
 	
     public function __construct(SQL &$sql){
 		$this->sql = $sql;
@@ -23,12 +23,13 @@ class ObjectLink {
 		try {
 			$n = $params[0];
 			$pid = isset($params[1]) ? $params[1] : 1;
+			$u = isset($params[2]) ? $params[2] : 1;
 			
 			$id = $this->sql->iT(["object", "n", "'$n'"]);  
 
 			$pid = isset($pid) ? $pid : 1;
 			if ($pid) {
-				$this->cL([$id, $pid]);
+				$this->cL([$id, $pid, $u]);
 			}
 			$ret = $id;
 			
@@ -40,11 +41,20 @@ class ObjectLink {
 	}
 
 	public function cL($params){//link objects
+		$ret = 0;
 		try {
 			$o1 = $params[0];
 			$o2 = $params[1];
+			$u = isset($params[2]) ? $params[2] : 1;
 			
-			$ret = $this->sql->iT(["link", "o1, o2", "$o1,$o2"]);  
+			$lid = $this->sql->sT(["link", "id", "and ( (o1 = $o1 and o2 = $o2) or (o1 = $o2 and o2 = $o1) )"]);  
+			$lid = $lid ? $lid[0][0] : null;
+			
+			if (!$lid) {
+				$ret = $this->sql->iT(["link", "o1, o2, u", "$o1,$o2,$u"]);  
+			} else {
+				$ret = $this->sql->uT(["link", "d = CURRENT_TIMESTAMP, u = $u", "and id = $lid"]);  
+			}
 			
 		} catch (Exception $e) {
 			print($e);
@@ -290,6 +300,7 @@ class ObjectLink {
 		try {
 			$paramsArr = $params[0];
 			$groupbyind = isset($params[1]) ? $params[1] : "0";
+			$includeLinkDate = isset($params[2]) && $params[2] ? true : false;
 			
 			$result = [];
 			$head = [];
@@ -305,6 +316,9 @@ class ObjectLink {
 					$inClass = isset($cc["inClass"]) ? $cc["inClass"] : null;
 					if ($i==0){
 						$h = "select o".$i.".id `id_".$col."`, o".$i.".n `".$col."` \n";
+						if ($includeLinkDate) {
+							$h = $h.", o".$i.".id `d_".$col."` \n";
+						}
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$b = 
 							"from (\n".
@@ -325,17 +339,21 @@ class ObjectLink {
 						} else {
 							$h = ",o".$i.".id `id_".$col."` ".
 								",o".$i.".n `".$col."` ";
+							if ($includeLinkDate) {
+								$h = $h.",l".$i.".d `d_".$col."` ".
+										",l".$i.".c `c_".$col."` ";
+							}
 						}
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$parentCol = $pcol ? $pcol : 0;
 						$b = 
 							"left join ( \n".
-							"	select o1, o2 from link where o1 in ( \n".
+							"	select o1, o2, d, c from link where o1 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							" union all \n".
-							"	select o2, o1 from link where o2 in ( \n".
+							"	select o2, o1, d, c from link where o2 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
@@ -367,6 +385,10 @@ class ObjectLink {
 			$inClassArr = isset($params[2]) ? $params[2] : [];
 			$groupByInd = isset($params[3]) ? $params[3] : false;
 
+			//$fields = isset($params[4]) ? join(",", $params[4]) : "*";
+			//$cond = isset($params[5]) ? $params[5] : "";
+			$includeLinkDate = isset($params[6]) && $params[6] ? true : false;
+			
 			$opts = [];
 			for ($i=0; $i < count($nArr); $i++){
 				$opts[] = array("n"=>$nArr[$i], "parentCol"=>0, "linkParent"=>false);
@@ -377,7 +399,7 @@ class ObjectLink {
 			for ($i=0; $i < count($inClassArr); $i++){
 				$opts[$inClassArr[$i]]["inClass"] = true;
 			}
-			return $this->getTableQuery2([$opts, $groupByInd]);
+			return $this->getTableQuery2([$opts, $groupByInd, $includeLinkDate]);
 			
 		} catch (Exception $e){
 			print($e);
@@ -389,6 +411,7 @@ class ObjectLink {
 		try {
 			$fields = isset($params[4]) ? join(",", $params[4]) : "*";
 			$cond = isset($params[5]) ? $params[5] : "";
+			$includeLinkDate = isset($params[6]) && $params[6] ? true : false;
 			
 			$sel = $this->gTq2($params);
 			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
@@ -601,6 +624,90 @@ class ObjectLink {
 		}
 	}
 
+	public function iii($params){
+		try {
+			$where = isset($params[0]) ? $params[0] : "";
+			$order = isset($params[1]) ? $params[1] : "";
+			
+			$query = "select * from ( ".
+			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c, link.t from ( ".
+			"		select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link ".
+			"	)link ".
+			"	join object on object.id = link.o1 ".
+			"	left join link class on class.o1 = link.o1 and class.o2 = 1 ".
+			")x where 1=1 and (o1 <> o2 or (o1 = o2 and t='parent')) ";
+			
+			return $this->sql->sT(["(".$query.")x", "*", $where, $order, ""]);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+
+	public function sql($params){
+		try {
+			$table = $params[0];
+			$fields = isset($params[1]) ? $params[1] : "*";
+			$cond = isset($params[2]) ? $params[2] : "";
+			$order = isset($params[3]) ? $params[3] : "";
+			$limit = isset($params[4]) ? $params[4] : "";
+			
+			//$result = $this->sql->sql(["select $fields from $table where 1=1 $cond $order $limit"]);
+			$result = $this->sql->sql(["select * from $table"]);
+			
+			$columns = array();
+			$colsCount = $result->columnCount();
+			
+			$colNum = 0;
+			while ($colsCount > $colNum) 
+			{
+				$fieldName = $result->getColumnMeta($colNum)['name'];
+				$columns[] = $fieldName;
+				$colNum++;
+			}
+
+			$data = $result->fetchAll(PDO::FETCH_NUM);
+			
+			$jsonResult = array(
+				"columns" => $columns,
+				"data" => $data
+			);
+			
+			return $jsonResult;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+
+	public function gOCQ($params){
+		try {
+			$cid = $params[0];
+			return "select * from object where id in ( select o1 from link where o2 = $cid and o1 not in (select o1 from link where o2 = 1) ) ";
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
+	public function getObjectFromClass($params){
+		try {
+			$cid = $params[0];
+			$n = $params[1];
+			
+			$q = $this->gOCQ([$cid]);
+			$ret = $this->sql->sT(["(select id from ($q)x where 1=1 and n='$n')x","*"]);
+			
+			return $ret;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 
 
 
