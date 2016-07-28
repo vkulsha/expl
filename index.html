@@ -16,12 +16,14 @@
 
 <script>
 ////////////policy
-	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	//var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 	var classes = hash4arr(classes_);
 	var oids = [];
 	
 	var key = $_GET("key", "#", location.hash);
-	var userKey = parseInt(key) || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
+	var userKey = parseInt(key) || objectlink.gOrm("getObjectFromClass", [classes["Ключи доступа пользователей"] || 0, "undefined"])[0][0] || 0;
+//	var userKey = parseInt(key) || objectlink.getObjectFromClass("Ключи доступа пользователей", "undefined") || 0;
 	var userId = objectlink.gOrm("gAnd",[[userKey, classes["Пользователи"]]]);
 	if (userId && userId.length){
 		userId = userId[0][0];
