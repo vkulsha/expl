@@ -4,7 +4,6 @@
 	<meta name="viewport" content="width=device-width">
 	<title>III</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<link rel="stylesheet" type="text/css" href="css/expl.css">
 	
 	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/uService.js"></script>
@@ -107,7 +106,8 @@
 	}
 	
 	function load(where_, order_){
-		var result = orm(query+where_+" "+order_, "all2array");
+		//var result = orm(query+where_+" "+order_, "all2array");
+		var result = getOrmObject({columns:["1","2","3","4","5"],data:objectlink.gOrm("iii", [where_, order_])}, "all2array");
 		var data = result;
 		if (!data.length) return false;
 		
@@ -136,7 +136,7 @@
 			bSave.onclick = function(){
 				var oid = this.oid;
 				var val = txt.value;
-				objectlink.uO(oid, val);
+				objectlink.gOrm("uO",[oid, val]);
 				hashchange();
 
 			}
@@ -206,7 +206,7 @@
 		oid = hash[1];
 		isClass = hash[2];
 
-		var n = objectlink.gN(oid);
+		var n = objectlink.gOrm("gN",[oid]);
 		txt.value = n;
 
 		if (link.checked){
@@ -318,8 +318,8 @@
 	bCO.onclick = function(){
 		result = prompt("cO(n); cL(o1,"+oid+")", txt.value+" "+(countObjects+1));
 		if (result) {
-			var o1 = objectlink.cO(result);
-			if (oid) objectlink.cL(o1, oid);
+			var o1 = objectlink.gOrm("cO",[result, oid]);
+			//if (oid) objectlink.gOrm("cL",[o1, oid]);
 			reload();
 		} else {
 			alert("Недопустимое значение объекта!");
@@ -332,7 +332,7 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				objectlink.cL(arr[0],arr[1]);
+				objectlink.gOrm("cL",[arr[0],arr[1]]);
 				reload();
 			} else {
 				alert("Недопустимое значение oid1 или oid2!");
@@ -373,7 +373,7 @@
 	bEO.onclick = function(){
 		result = prompt("eO (id)", oid);
 		if (result) {
-			objectlink.eO(result);
+			objectlink.gOrm("eO",[result]);
 			history.back();
 			//hashchange();
 			//goHome();
@@ -388,7 +388,7 @@
 		if (result) {
 			var arr = result.split(",");
 			if (arr && arr.length && arr[0] && arr[1] && arr[0] != arr[1]) {
-				objectlink.eL(arr[0],arr[1]);
+				objectlink.gOrm("eL",[arr[0],arr[1]]);
 				hashchange();
 				//goHome();
 			} else {
@@ -403,9 +403,9 @@
 	function createClass(){
 		result = prompt("cC(n)", txt.value+" "+(countObjects+1));
 		if (result) {
-			var o1 = objectlink.cO(result);
-			if (oid) objectlink.cL(o1, oid);
-			if (oid) objectlink.cL(o1, 1);
+			var o1 = objectlink.gOrm("cO",[result, oid]);
+			//if (oid) objectlink.gOrm("cL",[o1, oid]);
+			if (oid) objectlink.gOrm("cL",[o1, 1]);
 			reload();
 		} else {
 			alert("Недопустимое значение объекта!");
@@ -484,8 +484,8 @@
 			case "co":
 			case "создать":
 				if (objects[0]) {
-					var o1 = objectlink.cO(objects[0]);
-					if (oid) objectlink.cL(o1, oid);
+					var o1 = objectlink.gOrm("cO",[objects[0], oid]);
+					//if (oid) objectlink.gOrm("cL",[o1, oid]);
 					reload();
 				}
 			break;
@@ -498,7 +498,7 @@
 					
 					for (var i=0; i < o1.length; i++){
 						for (var j=0; j < o2.length; j++){
-							objectlink.cL(objectlink.gO(o1[i]), objectlink.gO(o2[j]))
+							objectlink.gOrm("cL",[objectlink.gOrm("gO",[o1[i]]), objectlink.gOrm("gO",[o2[j]])])
 							//console.log("link "+objectlink.gO(o1[i])+" "+objectlink.gO(o2[j])+"\n");
 						}
 					}
@@ -512,7 +512,7 @@
 				if (objects[0] && !objects[1]) {
 					var o1 = objects[0].split(",");
 					for (var i=0; i < o1.length; i++){
-						objectlink.eO(objectlink.gO(o1[i]))
+						objectlink.gOrm("eO",[objectlink.gOrm("gO",[o1[i]])])
 						//console.log("eO "+objectlink.gO(o1[i]));
 					}
 					goHome();
@@ -522,7 +522,7 @@
 					
 					for (var i=0; i < o1.length; i++){
 						for (var j=0; j < o2.length; j++){
-							objectlink.eL(objectlink.gO(o1[i]), objectlink.gO(o2[j]))
+							objectlink.gOrm("eL",[objectlink.gOrm("gO",[o1[i]]), objectlink.gOrm("gO",[o2[j]])])
 							//console.log("eL "+objectlink.gO(o1[i])+" "+objectlink.gO(o2[j])+"\n");
 						}
 					}

@@ -428,6 +428,14 @@ function decorateArr(arr, decorator1, decorator2){//return the object with field
 	return (decorator1+arr.join(decorator2+"|"+decorator1)+decorator2).split("|");
 }
 
+function arroundArr(arr, pattern) {
+	var ret = [];
+	for (var i = 0; i < arr.length; i++) {
+		ret.push(pattern.split("$").join(arr[i]));
+	}
+	return ret;
+}
+
 function eventsList(element) {
 	var events = element.data('events');
 	if (events !== undefined) return events;
@@ -906,7 +914,7 @@ function export2Excel(domTable){
 	$(dom).find("TEXTAREA").each(function(){
 		this.parentNode.innerHTML = this.innerHTML;
 	})
-	window.open('data:application/vnd.ms-excel,' + encodeURIComponent(dom.outerHTML));
+	window.open('data:application/vnd.ms-excel,' + '\uFEFF' + encodeURIComponent(dom.outerHTML));
 }
 
 function rgb(r,g,b)
@@ -1083,14 +1091,22 @@ $(document).ready(function() {
 */
 
 
-function cDom(type, innerHTML){
+function cDom(type, innerHTML, parentDom){
 	var ret = document.createElement(type);
-	ret.appendChild(typeof(innerHTML)=="object" ? innerHTML : document.createTextNode(innerHTML || ""));
+	if (innerHTML)
+		ret.appendChild(typeof(innerHTML)=="object" ? innerHTML : document.createTextNode(innerHTML || ""));
+	if (parentDom && ret) parentDom.appendChild(ret);
 	return ret;
 }
 
 function gDom(id){
 	return document.getElementById(id);
+}
+
+function cInp(type, innerHTML, parentDom) {
+	var el = cDom("INPUT", innerHTML, parentDom);
+	el.setAttribute("type", type);
+	return el;
 }
 
 function getMainInterfaceKey(userId){
@@ -1374,15 +1390,750 @@ function fillCardEasy(arr, id, cont){
 	}
 }	
 
+function fillSelectDom(dom, values) {
+	dom.appendChild(cDom("OPTION"));
+	for (var i=0; i < values.length; i++){
+		var opt = cDom("OPTION");
+		opt.innerHTML = values[i][1];
+		opt.value = values[i][0];
+		opt.oid = values[i][0];
+		opt.id = "opt"+values[i][0];
+		dom.appendChild(opt);
+	}
+}
+
+function fillSelectDom2(dom, values) {
+	dom.innerHTML = "";
+	dom.appendChild(cDom("OPTION"));
+	for (var i=0; i < values.length; i++){
+		var opt = cDom("OPTION");
+		opt.innerHTML = values[i];
+		opt.value = values[i];
+		dom.appendChild(opt);
+	}
+}
 
 
+function d2str(d) {
+	var dt = d.getFullYear() + ("0"+(d.getMonth()+1)).slice(-2) + ("0" + d.getDate()).slice(-2) + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2) + ("0" + d.getSeconds()).slice(-2);
+	return dt
+}
 
+function getFieldVal(f) {
+	var vals = [];
+	switch (f.ft) {
+		case "hidden":
+			var val = f.linked0 ? f.fn + " " + d2str(new Date()) + " " : "";
+			for (var i=0; i < f.linked.length; i++) {
+				val = val + getFieldVal(f.linked[i]).join("");
+			}
+			if (!f.elem[0].value) {
+				vals.push(val);
+			} else {
+				vals.push(f.elem[0].value);
+			}
+		break;
+		case "edit": 
+		case "date": 
+		case "combobox": 
+			vals.push(f.elem[0].value);
+		break;
+		case "checkbox": 
+			for (var i=0; i < f.elem.length; i++) {
+				if (f.elem[i].checked) {
+					vals.push(f.elem[i].val);
+				}
+			}
+		break;
+		case "memo": 
+			vals.push(f.elem[0].value);
+		break;
+	}
+	return vals;
+}
 
+function saveField(f) {
+	var ret;
+	var cid = classes[f.fn];
+	var pid = f.pid;
 
+	var oid;
+	var vals = getFieldVal(f);
+	
+	switch (f.ft) {
+		case "combobox": 
+			oid = vals[0];
+		break;
+	}
+	
+	for (var i=0; i < vals.length; i++) {
+		if (!oid && vals[i]) {
+			oid = oid || objectlink.gOrm("getObjectFromClass", [cid, vals[i]]);
+			oid = oid && oid.length ? oid[0][0] : undefined;
+			oid = oid || objectlink.gOrm("cO", [vals[i], cid, userId]);
+		}
+		
+		ret = oid;
+		
+		if (pid && oid && vals[i] != f.def) {
+			objectlink.gOrm("cL", [oid, pid, userId]);
+		}
+		
+		//console.log(pid);
+		oid = undefined;
+	
+	}
+	
+	return ret;
+	
+}
 
+function getFieldHtml(fn, ft, def) {
+	def = def || "";
+	var tr = cDom("TR");
+	tr.elem = [];
+	tr.fn = fn;
+	tr.ft = ft;
 
+	var td = tr.appendChild(cDom("TD"));
+	td.style.borderBottom = "1px solid #c4baa5";
+	td.innerHTML = fn;
+	
+	switch (ft) {
+		case "hidden":
+			td.style.fontWeight = "bold";
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var inp = td.appendChild(cDom("INPUT"));
+			inp.setAttribute("type", "text");
+			inp.value = def;
+			tr.elem.push(inp);
+			td.setAttribute("hidden", true);
+			tr.def = def;
+			
+		break;
+		case "edit":
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var inp = td.appendChild(cDom("INPUT"));
+			inp.setAttribute("type", "edit");
+			inp.value = def;
+			inp.style.width = "100%";
+			
+			tr.elem.push(inp);
+			tr.def = def;
+			
+		break;
+		case "date":
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var inp = td.appendChild(cDom("INPUT"));
+			inp.setAttribute("type", "date");
+			inp.value = def;
+			//var d = def ? new Date(def) : undefined;
+			//if (d && d.setDate(d.getDate() + 14) < new Date()) inp.style.backgroundColor = "#ffdddd";
+			inp.style.width = "100%";
+			
+			tr.elem.push(inp);
+			tr.def = def;
+			
+		break;
+		case "checkbox":
+			var vals = objectlink.gOrm("gT2",[[fn]]);
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var tb_ = td.appendChild(cDom("TABLE"));
+			var trH = tb_.appendChild(cDom("TR"));
+			var trD = tb_.appendChild(cDom("TR"));
+			for (var i=0; i < vals.length; i++) {
+				var td = trH.appendChild(cDom("TD"));
+				td.align = "center";
+				td.innerHTML = vals[i][1];
+				var td = trD.appendChild(cDom("TD"));
+				td.align = "center";
+				var ch = td.appendChild(cDom("INPUT"));
+				ch.setAttribute("type", "checkbox");
+				ch.val = vals[i][1];
+				tr.elem.push(ch);
+				ch.checked = (vals[i][1] == def);
+				
+			}
+			tr.def = def;
+		
+		break;
+		case "combobox":
+			var vals = objectlink.gOrm("gT2",[[fn]]);
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var cb = td.appendChild(cDom("SELECT"));
+			tr.elem.push(cb);
+			fillSelectDom(cb, vals);
+			
+			var opts = cb.getElementsByTagName("OPTION");
+			for (var i=0; i < opts.length; i++)
+				if (opts[i].innerHTML == def) cb.value = opts[i].value;
+			cb.style.width = "100%";
+			tr.def = def;
+		break;
+		case "memo":
+			var td = tr.appendChild(cDom("TD"));
+			td.style.borderBottom = "1px solid #c4baa5";
+			var inp = td.appendChild(cDom("TEXTAREA"));
+			inp.innerHTML = def;
+			inp.style.width = "500px";
+			inp.style.height = "50px";
+			tr.elem.push(inp);
+			tr.def = def;
+			
+		break;
+	}
+	return tr;
+}
 
+///////////////
 
+class TDomValue {
+	constructor(dom, def, getValFunc){ 
+		if (def == undefined)  def = "";
+		this._getValFunc = getValFunc;
+		this._dom = dom;
+		this.value = def; 
 
+		var that = this;
+		this._dom.onchange = function() {
+			that.value = this.value;
+		}
 
+	}
+	get value() { 
+		return this._getValFunc && typeof this._getValFunc == "function" ? this._getValFunc(this) : 
+			this._getValFunc ? this._getValFunc : 
+			this._dom.value;
+		
+	}
+	set value(val) { this._dom.value = val; }
+	get dom() { return this._dom; }
+	set dom(dom) { this._dom = dom; }
+	get valFunc() { return this._getValFunc; };
+	set valFunc(val) { this._getValFunc = val; };
+}
+
+class TLabel extends TDomValue {
+	constructor(def, getValFunc, parentDom) { 
+		super(cDom("edit", null, parentDom), def, getValFunc); 
+		this.dom.setAttribute("readOnly", "true");
+		this.dom.style.backgroundColor = "transparent";
+		this.dom.style.border = "0px";
+	}
+}
+
+class THidden extends TLabel {
+	constructor(def, getValFunc, parentDom) { 
+		super(def, getValFunc, parentDom);
+		this.dom.hidden = true;
+	}
+}
+
+class TEdit extends TDomValue {
+	constructor(def, getValFunc, parentDom) { super(cInp("edit", null, parentDom), def, getValFunc); }
+}
+
+class TDate extends TDomValue {
+	constructor(def, getValFunc, parentDom) { super(cInp("date", null, parentDom), def, getValFunc); }
+}
+
+class TMemo extends TDomValue {
+	constructor(def, getValFunc, parentDom) { super(cDom("textarea", null, parentDom), def, getValFunc); }
+}
+
+class TCombo extends TDomValue {
+	constructor(def, values, getValFunc, parentDom) {
+		super(cDom("select", null, parentDom), undefined, getValFunc, null, parentDom);
+		this.fillSelectDom(this.dom, values || []);
+		this.value = def;
+	}
+
+	fillSelectDom(dom, values) {
+		dom.innerHTML = "";
+		dom.appendChild(cDom("OPTION"));
+		for (var i=0; i < values.length; i++){
+			var opt = cDom("OPTION");
+			opt.innerHTML = values[i];
+			opt.value = values[i];
+			dom.appendChild(opt);
+		}
+	}
+	
+}
+
+class TCheckbox extends TDomValue {
+	constructor(def, checked, getValFunc, parentDom) { 
+		if (!getValFunc) getValFunc = function(that){ return that.dom.checked ? that.dom.value : ""};
+		//var l = cDom("LABEL", null, parentDom);
+		super(cInp("checkbox", null, parentDom), def, getValFunc);
+		this.dom.checked = checked || false;
+		//var id = d2str(new Date())+def;
+		//this.dom.id = "ch"+id;
+		//l.setAttribute("for", "ch"+id);
+		//l.innerHTML = def || "";
+		
+	}
+	
+	set checked(checked) {
+		this.dom.checked = checked;
+	}
+	
+	get checked() {
+		return this.dom.checked;
+	}
+}
+
+class TCheckboxes {
+	constructor(chValues, values, getValFunc, parentDoms) {
+		this.chbxs = [];
+		this.vals = values;
+		var parentDom = parentDoms && parentDoms.length ? parentDoms[0] : parentDoms ? parentDoms : undefined;
+		for (var i=0; i < values.length; i++) {
+			this.chbxs.push(new TCheckbox(values[i], false, null, parentDoms[i] || parentDom));
+		}
+		this.checked = chValues;
+	}
+	
+	get checked() {
+		var ret = [];
+		for (var i=0; i < this.vals.length; i++) {
+			if (this.chbxs[i].checked)
+				ret.push(this.vals[i]);
+		}
+		return ret;
+	}
+	
+	set checked(values) {
+		for (var i=0; i < this.vals.length; i++) {
+			var ind = values.indexOf(this.vals[i]);
+			this.chbxs[i].checked = ind >=0;
+		}
+	}
+	
+	get values() {
+		return this.vals;
+	}
+	
+	set values(values) {
+		this.vals = values;
+	}
+	
+	get value() { 
+		return this.getValFunc && typeof this.getValFunc == "function" ? this.getValFunc(this) : 
+			this.getValFunc ? this.getValFunc : 
+			this.values;
+		
+	}
+	
+	set value(values) {
+		this.values = values;
+	}
+	
+	get doms() { return this.chbxs; }
+	
+	set doms(doms) {
+		for (var i=0; i < chbxs.length; i++) {
+			this.chbxs[i].dom = doms[i];
+		}
+	}
+
+	get dom() { return this.doms; }
+	
+	set dom(doms) {
+		this.doms = doms;
+	}
+	
+}
+
+class TContainer {
+	constructor(type, parentDom, value, values, getValFunc) {
+		//if (value == undefined)  value = "";
+		switch (type) {
+			case "edit":
+				this.cnt = new TEdit(value, getValFunc, parentDom);
+			break;
+			case "date":
+				this.cnt = new TDate(value, getValFunc, parentDom);
+			break;
+			case "memo":
+				this.cnt = new TMemo(value, getValFunc, parentDom);
+				this.cnt.dom.style.width = "500px";
+				this.cnt.dom.style.height = "50px";
+			break;
+			case "combo":
+				this.cnt = new TCombo(value, values, getValFunc, parentDom);
+			break;
+			case "label":
+				this.cnt = new TLabel(value, getValFunc, parentDom);
+			break;
+			case "checkbox":
+				this.cnt = new TCheckbox(value, false, getValFunc, parentDom);
+			break;
+			case "checkboxes":
+				this.cnt = new TCheckboxs(value, values, getValFunc, parentDom);
+			break;
+			case "hidden":
+				this.cnt = new THidden(value, getValFunc, parentDom);
+			break;
+			default:
+				this.cnt = new THidden(value, getValFunc, parentDom);
+			break;
+			
+		}
+		this.cnt.dom.style.width = !this.cnt.dom.style.width ? "100%" : this.cnt.dom.style.width;
+
+	}
+	
+	get value() {
+		return this.cnt.value;
+	}
+	
+	set value(val) {
+		return this.cnt.value = val;
+	}
+	
+}
+
+class TContainerFactory {
+	constructor() {}
+	
+	create(type, parentDom, value, values, getValFunc) {
+		return new TContainer(type, parentDom, value, values, getValFunc);
+	}
+	
+}
+
+class TField {
+	constructor(cid, oid, container, parentField, def) {
+		if (def == undefined)  def = "";
+		var cf = new TContainerFactory();
+		this.oid = oid;
+		this.cid = cid;
+		this.parentField = parentField;
+		this.cnt = container && (container instanceof TContainer) ? container : cf.create("hidden", def);
+		this.value = def;
+		this.oldValue = def;
+	}
+	
+	get value() {
+		var val;
+		if (this.oid) val = objectlink.gOrm("gN", [this.oid]);
+		if (val) this.value = val || "";
+		return this.cnt.value;
+	}
+	
+	set value(val) {
+		this.cnt.value = val;
+	}
+	
+	get cnt() {
+		return this.cnt_;
+	}
+	
+	set cnt(val) {
+		this.cnt_ = val;
+	}
+	
+	get pid() {
+		if ( this.parentField && this.parentField instanceof TField ) return this.parentField.oid;
+	}
+	
+	get parentField() {
+		return this._parentField;
+	}
+	
+	set parentField(parentField) {
+		this._parentField = parentField;
+	}
+	
+	save() {
+		var obj;
+		var oldObj;
+		var val = this.value;
+		var oldVal = this.oldValue;
+		if (this.cid) {
+			obj = objectlink.gOrm("gO", [val, null, null, this.cid]);
+			oldObj = objectlink.gOrm("gO", [oldVal, null, null, this.cid]);
+		}
+		
+		if (obj) this.oid = obj
+		else if (val != "" && val != undefined) {
+			if (this.cid) this.oid = objectlink.gOrm("cO", [val, this.cid]);
+		} else this.oid = undefined;
+		
+		if (this.oid && this.pid) {
+			objectlink.gOrm("cL", [this.oid, this.pid]);
+			
+			if (this.oid != oldObj && this.oid && oldObj) {
+				objectlink.gOrm("nL", [oldObj, this.pid]);
+				//objectlink.gOrm("eL", [oldObj, this.pid]);
+				
+			}
+		};
+	}
+	
+	
+	
+}
+
+////["Заказы ПИР", "Заказы дата подписания", "Заказы дата закрытия"]
+function createFieldsCard(fields, fieldsT, mainFieldValLinkedFieldNums, mainObjId, parentField, bSaveFunc, frm, jsTable, refreshCombo) {
+			var tb = cDom("TABLE");
+			var fields_ = [];
+			var cntf = new TContainerFactory();
+			parentField = parentField instanceof TField ? parentField : new TField(null, parentField);
+			var mainCnt;
+			var cnts = [];
+
+			var values = mainObjId ? objectlink.gOrm("gT2",[fields, [],[],false,decorateArr(fields,"`"),"and `id_"+fields[0]+"`="+mainObjId+
+			" order by "+decorateArr(fields, "`d_", "` desc").join(",")+
+			" limit 1", true]) : [];
+
+			for (var i=0; i < fields.length; i++) {
+				var tr = tb.appendChild(cDom("TR"));
+				tb.appendChild(tr);
+				var td = tr.appendChild(cDom("TD"));
+				td.style.borderBottom = "1px solid #c4baa5";
+				td.innerHTML = fields[i];
+				
+				if (fieldsT[i] == "combo") {
+					$(td).append("&nbsp;&nbsp;");
+					var but = td.appendChild(cDom("BUTTON"));
+					but.innerHTML = "+";
+					var child = objectlink.gOrm("gAnd", [[classes[fields[i]]],null,null,null,false,true]);
+					var arr = [fields[i]];
+					var arrT = ["hidden"];
+					for (var j=0; j < child.length; j++) {
+						var cn = child[j][1];
+						arr.push(cn);
+						var _child = objectlink.gOrm("gAnd", [[classes[cn]],null,null,null,false,true]);
+						if (!_child || !_child.length) {
+							arrT.push("edit");
+						} else {
+							arrT.push("combo");
+						} 
+					}
+					but.linkedFields = arr;
+					but.linkedFieldsT = arrT;
+					but.fieldIndex = i;
+					but.tbFields = tb;
+					but.onclick = function(){
+						var frm = new TForm();
+						var fields = this.linkedFields;
+						var fieldsT = this.linkedFieldsT;
+						if (fields) {
+							if (fields.length == 1) {
+								fields.push(fields[0]);
+								fieldsT.push("edit");
+								fields[0] = "Добавить новое значение";
+								fieldsT[0] = "hidden";
+							}
+							var refreshCombo = this.tbFields.fields[this.fieldIndex].cnt.cnt.dom;
+							refreshCombo.refreshField = fields[1];
+							var res = createFieldsCard(fields,fieldsT,[1],null,null, true, frm, null, refreshCombo);
+							frm.body = res;
+							frm.top = "100px";
+							frm.visible = true;
+						}
+					}
+				}
+
+				var td = tr.appendChild(cDom("TD"));
+				td.style.borderBottom = "1px solid #c4baa5";
+				
+				var val = values && values.length ? values[0][i] : undefined;
+				var cnt;
+
+				if (i == 0 && !val) {
+					var valFunc = function(that){
+						var ret = "";
+						var lnk = that.linked;
+
+						if (lnk && lnk.length) {
+							for (var j=0; j < lnk.length; j++) {
+								var field = that.fields[lnk[j]];
+								var val = field ? field.value : lnk[j];
+								ret = ret + val;
+							}
+						} else if (lnk) {
+							ret = lnk + d2str(new Date());
+						} else {
+							ret = d2str(new Date());
+						}
+						return ret;
+					}
+					
+					mainCnt = cntf.create(fieldsT[i], td, null, null, valFunc);
+					cnt = mainCnt;
+					
+				} else {
+					var vals;
+					if (fieldsT[i] == "combo") {
+						vals = objectlink.gOrm("gT2",[[fields[i]]]);
+						var arr = [];
+						for (var j=0; j < vals.length; j++) {
+							arr.push(vals[j][1]);
+						}
+						vals = arr;
+					}
+					cnt = cntf.create(fieldsT[i], td, val, vals);
+					if (i == 0) mainCnt = cnt;
+
+				}
+				var field = new TField(classes[fields[i]], null, cnt, i == 0 ? parentField : fields_[0], val);
+				fields_.push(field);
+				cnts.push(cnt);
+			}
+			mainCnt.cnt.fields = cnts;
+			mainCnt.cnt.linked = mainFieldValLinkedFieldNums;
+			
+			var tr = tb.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var td = tr.appendChild(cDom("TD"));
+
+			tb.fields = fields_;
+			tb.mainField = fields_[0];
+			tb.funcSave = function(){
+				for (var i=0; i < fields.length; i++) {
+					this.fields[i].save();
+				}
+				if (refreshCombo && refreshCombo.refreshField) {
+					vals = objectlink.gOrm("gT2",[[refreshCombo.refreshField]]);
+					var arr = [];
+					for (var i=0; i < vals.length; i++) {
+						arr.push(vals[i][1]);
+					}
+					var val = refreshCombo.value;
+					fillSelectDom2(refreshCombo, arr);
+					refreshCombo.value = val;
+				}
+			};
+			
+			if (bSaveFunc) {
+				var but = td.appendChild(cDom("BUTTON"));
+				but.innerHTML = "Сохранить";
+				but.onclick = function(){
+					tb.funcSave();
+					if (typeof bSaveFunc == "function") bSaveFunc();
+					if (frm && frm instanceof TForm) frm.visible = false;
+					if (jsTable && jsTable instanceof JsTable) jsTable.refreshTable.get();
+				};
+			}
+			
+			return tb;
+	
+}
+
+class TForm {
+	constructor(parentDom, width, height, left, top, zIndex, visible) {
+		this.dom_ = cDom("DIV");
+		parentDom = parentDom || document.body;
+		if (parentDom) parentDom.appendChild(this.dom_);
+		this.dom_.style.display = visible ? "block" : "none";
+		this.dom_.style.position = "fixed";
+		this.dom_.style.zIndex = zIndex || 100;
+		this.dom_.style.left = 0;
+		this.dom_.style.top = 0;
+		this.dom_.style.width = "100%";
+		this.dom_.style.height = "100%";
+		this.dom_.style.overflow = "hidden";
+		this.dom_.style.backgroundColor = "rgba(255,255,255,0.8)";
+		
+		this.body_ = this.dom_.appendChild(cDom("DIV"));
+		this.body_.style.position = "relative";
+		this.body_.style.backgroundColor = "#fff";
+		this.body_.style.margin = "auto";
+		//this.body_.style.padding = 0;
+		this.body_.style.padding = "5px 5px 5px 5px";
+		this.body_.style.left = left || 0;
+		this.body_.style.top = top || 0;
+		this.body_.style.width = width || "90%";
+		this.body_.style.height = height || this.body_.style.height;
+		this.body_.style.boxShadow = "0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)";
+		//this.body_.style.animationName = "animatetop"; ///animate off
+		//this.body_.style.animationDuration = "0.8s"; 	 ///animate off
+		
+		this.head = cDom("DIV");
+		this.head.style.color = "#000";
+		this.head.style.float = "right";
+		this.head.style.fontSize = "28px";
+		this.head.style.fontWeight = "bold";
+		this.head.style.cursor = "pointer";
+		this.head.style.padding = "0px 5px";
+		
+		this.span = this.head.appendChild(cDom("SPAN"));
+		this.span.innerHTML = "&times";
+
+		this.span.frm = this;
+		this.span.onclick = function() {
+			this.frm.visible = false;
+		}
+		this.body = "<br><br>";
+	}
+	
+	set visible(val) {
+		this.dom.style.display = val ? "block" : "none";
+	}
+	
+	get dom() {
+		return this.dom_;
+	}
+	
+	get body() {
+		return this.body_;
+	}
+	
+	set body(val) {
+		$(this.body_).html("");
+		$(this.body_).append(this.head);
+		$(this.body_).append("<BR><BR>");
+		$(this.body_).append(val);
+	}
+	
+	set width(val) {
+		this.body.style.width = val;
+	}
+	
+	set height(val) {
+		this.body.style.height = val;
+	}
+	
+	set top(val) {
+		this.body.style.top = val;
+	}
+	
+	set left(val) {
+		this.body.style.left = val;
+	}
+	
+	set zIndex(val) {
+		this.dom.style.zIndex = val;
+	}
+	
+}
+
+function innerTrim(str) {//10K=16ms !!!without defects full clean with first and last spaces
+	var s = "";
+	var c = "";
+
+	for (var i=0; i < str.length; i++) {
+		var isSpace = (str[i] == String.fromCharCode(32) || str[i] == String.fromCharCode(9));
+		
+		if (isSpace) {
+			c = " ";
+			if (!s) c = "";
+		} else {
+			c += str[i];
+			s += c;
+			c = "";
+		}
+	}
+	
+	return s;
+}
 

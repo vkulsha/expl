@@ -1,11 +1,10 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-		<link rel="stylesheet" type="text/css" href="css/expl.css">
+		<link rel="stylesheet" type="text/css" href="css/main.css">
 		
 		<script src="js/jquery-2.2.0.min.js"></script>
 		<script src="js/uService.js"></script>
-		<script src="js/Main.js"></script>
 		<script src="js/objectlink.js"></script>
 		
 	</head>
@@ -124,8 +123,8 @@
 			for (var i=0; i < child.length; i++){
 				cols.push(child[i][1]);
 			}
-			var obj = objectlink.gOrm("gT2",[cols,[],[],false,null,"and `id "+cn+"`="+oid+" order by `"+cn+"` limit 1"]);
-				
+			var obj = objectlink.gOrm("gT2",[cols,[],[],false,null,"and `id_"+cn+"`="+oid+" order by `"+cn+"` limit 1"]);
+			
 			if (obj && obj.length) {
 				eValue.value = obj[0][1];
 				var ind = 1;
@@ -191,7 +190,7 @@
 			if (!cb) return;
 			cb.innerHTML = "";
 
-			var values = objectlink.gOrm("gT2",[[cn4f, fcn],[],[],false,null," and `id "+fcn+"`="+fo]);
+			var values = objectlink.gOrm("gT2",[[cn4f, fcn],[],[],false,null," and `id_"+fcn+"`="+fo]);
 			if (!values || !values.length) return;
 			fillSelectDom(cb, values);
 			

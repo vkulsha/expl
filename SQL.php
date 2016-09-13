@@ -17,7 +17,7 @@ class SQL {
 			return $sth;
 			
 		} catch (Exception $e) {
-			print($e);
+			print($q.$e);
 			return null;
 		}
 	}

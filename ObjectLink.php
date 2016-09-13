@@ -24,13 +24,20 @@ class ObjectLink {
 			$n = $params[0];
 			$pid = isset($params[1]) ? $params[1] : 1;
 			$u = isset($params[2]) ? $params[2] : 1;
-			
-			$id = $this->sql->iT(["object", "n", "'$n'"]);  
 
-			$pid = isset($pid) ? $pid : 1;
 			if ($pid) {
-				$this->cL([$id, $pid, $u]);
+				$id = $this->gO([$n, null, null, $pid]);
 			}
+			
+			if (!$id) {
+				$id = $this->sql->iT(["object", "n", "'$n'"]);  
+				
+				if ($pid) {
+					$this->cL([$id, $pid, $u]);
+				}
+
+			}
+
 			$ret = $id;
 			
 		} catch (Exception $e) {
@@ -53,7 +60,7 @@ class ObjectLink {
 			if (!$lid) {
 				$ret = $this->sql->iT(["link", "o1, o2, u", "$o1,$o2,$u"]);  
 			} else {
-				$ret = $this->sql->uT(["link", "d = CURRENT_TIMESTAMP, u = $u", "and id = $lid"]);  
+				$ret = $this->sql->uT(["link", "d = CURRENT_TIMESTAMP, u = $u, c = 1", "and id = $lid"]);  
 			}
 			
 		} catch (Exception $e) {
@@ -68,8 +75,9 @@ class ObjectLink {
 			$n = $params[0];
 			$isClass = isset($params[1]) && $params[1] ? "and id in (select o1 from link where o2 = 1) " : "";
 			$isLike = isset($params[2]) && $params[2] ? " and n like '%$n%' " : " and n = '$n' ";
-			
-			$ret = $this->sql->sT(["object", "id", "$isLike $isClass", "order by id", "limit 1"]);
+			//$inClass  = isset($params[3]) && $params[3] ? " and id in ( select o1 from link where o2 = ".$params[3]." and o1 not in (select o1 from link where o2 = 1) ) " : "";
+			$inClass  = isset($params[3]) && $params[3] ? " and id in ( select o1 from link where o2 = ".$params[3]." and o2 in (select o1 from link where o2 = 1) ) " : "";
+			$ret = $this->sql->sT(["object", "id", "$isLike $isClass $inClass", "order by id", "limit 1"]);
 			return $ret ? $ret[0][0] : null;
 			
 		} catch (Exception $e) {
@@ -93,6 +101,21 @@ class ObjectLink {
 		return $ret;
 	}
 
+	public function gL($params){//get link objects
+		try {
+			$o1 = $params[0];
+			$o2 = $params[1];
+			
+			$ret = $this->sql->sT(["link", "id", "and ((o1 = '$o1' and o2 = '$o2') or (o1 = '$o2' and o2 = '$o1')) ", "", ""]);
+			return $ret ? $ret[0][0] : null;
+			
+		} catch (Exception $e) {
+			print($e);
+			$ret = null;
+		}
+		return $ret;
+	}
+	
 	public function uO($params){//update object name by id
 		try {
 			$id = $params[0];
@@ -123,6 +146,21 @@ class ObjectLink {
 		return $ret;
 	}
 	
+	public function nL($params){//update link status
+		try {
+			$o1 = $params[0];
+			$o2 = $params[1];
+			
+			$ret = $this->sql->uT(["link", "c=0", "and ((o1=$o1 and o2=$o2) or (o2=$o1 and o1=$o2))"]);  
+			return $ret;
+			
+		} catch (Exception $e) {
+			print($e);
+			$ret = null;
+		}
+		return $ret;
+	}
+		
 	public function eL($params){//erase link from database
 		try {
 			$o1 = $params[0];
@@ -206,7 +244,7 @@ class ObjectLink {
 						$b = 
 							"from (\n".
 							"	select id, n from object where id in ( \n".
-							"		select o1 from link where o2 = ".$l." \n".
+							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by id \n".
@@ -224,12 +262,12 @@ class ObjectLink {
 								",o".$i.".n `".$col."` ";
 						}
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
-						$selecto1o2 = $plink ? "select o1 o2, o2 o1 from link where o2 in (" : "select o1, o2 from link where o1 in (";
+						$selecto1o2 = $plink ? "select o1 o2, o2 o1 from link where c>0 and o2 in (" : "select o1, o2 from link where c>0 and o1 in (";
 						$parentCol = $pcol ? $pcol : 0;
 						$b = 
 							"left join ( \n".
 							"	".$selecto1o2." \n".
-							"		select o1 from link where o2 = ".$l." \n".
+							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by o1, o2 \n".
@@ -323,7 +361,7 @@ class ObjectLink {
 						$b = 
 							"from (\n".
 							"	select id, n from object where id in ( \n".
-							"		select o1 from link where o2 = ".$l." \n".
+							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by id \n".
@@ -332,9 +370,9 @@ class ObjectLink {
 						$body[] = $b;
 					} else {
 						$h = "";
-						if ($groupbyind !== false) {
-							$h = ",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".id) else concat(o".$i.".id,'..') end `id_".$col."` ".
-								",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".n)  else concat(o".$i.".n,'..')  end `".$col."` ".
+						if ($groupbyind !== false) {///*order by o".$i.".id desc*/
+							$h = ",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".id SEPARATOR ';') else concat(o".$i.".id,';..') end `id_".$col."` ".
+								",case when count(distinct o".$i.".id) <= 2 then group_concat(distinct o".$i.".n SEPARATOR ';') else concat(o".$i.".n,';..') end `".$col."` ".
 								",count(distinct o".$i.".id) `кол-во ".$col."` \n";
 						} else {
 							$h = ",o".$i.".id `id_".$col."` ".
@@ -348,12 +386,12 @@ class ObjectLink {
 						$parentCol = $pcol ? $pcol : 0;
 						$b = 
 							"left join ( \n".
-							"	select o1, o2, d, c from link where o1 in ( \n".
+							"	select o1, o2, d, c from link where c>0 and o1 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							" union all \n".
-							"	select o2, o1, d, c from link where o2 in ( \n".
+							"	select o2, o1, d, c from link where c>0 and o2 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
@@ -709,8 +747,74 @@ class ObjectLink {
 		}
 	}
 
+	public function getObjectsAndLinks($params) {
+		try {
+			$arr = $params[0];//array of oid to need
+			$arr = join(",",$arr);
+			$obj = $this->sql->sT(["object", "id, n", "and id in ($arr)", " order by id"]);
+			$lnk = $this->sql->sT(["link", "o1, o2", "and o1 in ($arr) and o2 in ($arr) ", " order by id"]);
+			
+			return array($obj, $lnk);//array of [ [[oid, n]... ], [[o1, o2]... ] ]
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 
-
+	public function createObjectsAndLinks($params) {
+		try {
+			$n = $params[0];//temp object name
+			$arr = $params[1];//getObjectsAndLinks result
+			
+			$objArr = $arr[0];
+			$lnkArr = $arr[1];
+			
+			$cid = $this->cO([$n]);
+			
+			foreach ($objArr as &$obj) {
+				$id = &$obj[0];
+				$n = &$obj[1];
+				
+				$oid = $this->cO([$n, $id == 1 ? 1 : $cid]);
+				$obj[] = $oid;
+				$id = "old_$id";
+			}
+			
+			foreach ($lnkArr as &$lnk) {
+				$o1 = &$lnk[0];
+				$o2 = &$lnk[1];
+				$o1 = "old_$o1";
+				$o2 = "old_$o2";
+				
+				foreach ($objArr as &$obj) {
+					$idOld = $obj[0];
+					$idNew = $obj[2];
+					
+					if ($idOld == $o1) {
+						$o1 = $idNew;
+					}
+					
+					if ($idOld == $o2) {
+						$o2 = $idNew;
+					}
+				}
+			}
+			
+			foreach ($lnkArr as $lnk) {
+				$o1 = $lnk[0];
+				$o2 = $lnk[1];
+				if ($o1 == 1 && $o2 == 1) continue;
+				$this->cL([$o1, $o2]);
+			}
+			
+			return array($objArr, $lnkArr);
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 	
 	
 }
