@@ -669,11 +669,11 @@ class ObjectLink {
 			$order = isset($params[1]) ? $params[1] : "";
 			
 			$query = "select * from ( ".
-			"	select distinct link.o1, object.n, link.o2, case when class.o2 is not null then 'Класс' end c, link.t from ( ".
+			"	select distinct link.o1, object.n, link.o2, /*case when class.o2 is not null then 'Класс' end*/null c, link.t from ( ".
 			"		select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link ".
 			"	)link ".
 			"	join object on object.id = link.o1 ".
-			"	left join link class on class.o1 = link.o1 and class.o2 = 1 ".
+			"	/*left join link class on class.o1 = link.o1 and class.o2 = 1*/ ".
 			")x where 1=1 and (o1 <> o2 or (o1 = o2 and t='parent')) ";
 			
 			return $this->sql->sT(["(".$query.")x", "*", $where, $order, ""]);
