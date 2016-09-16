@@ -52,10 +52,12 @@
 </table>
 
 <script>
-	var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
-	var classes = hash4arr(classes_);
-	var classes2_ = objectlink.gOrm("gAnd",[[1],"id,n"]);
-	var classes2 = hash4arr(classes2_);
+	//var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+	//var classes = hash4arr(classes_);
+	var arr = objectlink.gOrm("gAnd",[[1],"id"]);
+	var classes2 = [];
+	for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
+
 	var fs = 12;
 	var oid1 = "";
 	var oid2 = "";
@@ -122,7 +124,7 @@
 			var cell = document.createElement("BUTTON");
 			cell.innerHTML = data[i][1];
 			cell.id = data[i][0];
-			data[i][3] = classes2[cell.id] || cell.id == 1;
+			data[i][3] = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
 			cell.isClass = data[i][3];
 			cell.style.fontSize = fs+"px";
 			cell.style.width = "100%";
