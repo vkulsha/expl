@@ -1207,16 +1207,110 @@ function createPolygonFromKml(uri, oid){
 }
 ////////////
 
-function createObjectsFromTable(fieldname, tablename, cid){
+function createObjectsFromTable(cid, pid, fieldname, tablename){
 	var ret = [];
-	var vals = orm("select f1 from ttt", "col2array");
+	fieldname = fieldname || "f1";
+	tablename = tablename || "ttt";
+	var vals = orm("select "+fieldname+" from "+tablename, "col2array");
+	var c1 = orm("select distinct o1 from link where o2 = 1425", "col2array");
 	for (var i=0; i < vals.length; i++){
-		var val = vals[i];
-		objectlink.gOrm("cO", [val, cid]);
+		var val = innerTrim(vals[i]).trim();
+		var oid = objectlink.gOrm("cO", [val, cid]);
+		if (pid && oid) objectlink.gOrm("cL", [oid, pid]);
 	}
-	return vals.length;
+	var c2 = orm("select distinct o1 from link where o2 = 1425", "col2array");
+	return vals.length + " (" + (c2.length-c1.length) + ")";
 
 };
+
+function createObjectsFromTable1(){
+	var zd1 = orm("select f1,f2,f3,f4,f5,f6,f7,f8,f9,f10 from ttt", "all2array");
+	var objectid = zd1[0][9];
+	
+	var zd2 = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес"],[],[],false,null,"and `id_Объект`="+objectid]);
+	var addrId = zd2[0][4];
+	var	subjPravoId = objectlink.gOrm("gO", ["АО \"ГУОВ\"", null, null, classes["Субъект права"]]);
+	var	vidPravoId = objectlink.gOrm("gO", ["Собственность", null, null, classes["Вид права"]]);
+	
+	var count = 0;
+	for (var i=0; i < zd1.length; i++) {
+		var val1 = innerTrim(zd1[i][0]).trim();
+		var val2 = innerTrim(zd2[i][3]).trim();
+		if (val1 == val2) {
+			count++;
+			var zdid = zd2[i][2];
+
+			if (zdid) {
+				var egrpNum = zd1[i][8];
+				if (egrpNum) {
+					var svidId = objectlink.gOrm("cO", ["Правоустанавливающие документы "+zdid+"("+val1+")", classes["Правоустанавливающие документы"]]);
+					if (svidId) {
+						//objectlink.gOrm("cL", [zdid, classes["Объект права"]]);
+						objectlink.gOrm("cL", [svidId, zdid]);
+						//objectlink.gOrm("cL", [zdid, svidId]);
+						
+						if (addrId) objectlink.gOrm("cL", [addrId, svidId]);
+						objectlink.gOrm("cL", [subjPravoId, svidId]);
+						objectlink.gOrm("cL", [vidPravoId, svidId]);
+						var egrpNumId = objectlink.gOrm("cO", [egrpNum, classes["Номер записи регистрации в ЕГРП"]]);
+						if (egrpNumId) objectlink.gOrm("cL", [egrpNumId, svidId]);
+					}
+				}
+				
+				var square = zd1[i][1] || "";
+				if (square) square = square.replace(new RegExp(",",'g'),".");
+				var floorsCount = zd1[i][2];
+				var year = zd1[i][3];
+				
+				if (square || floorsCount || year) {
+					var techId = objectlink.gOrm("cO", ["Технические данные "+zdid+"("+val1+")", classes["Технические данные"]]);
+					if (techId) {
+						objectlink.gOrm("cL", [techId, zdid]);
+						if (square) {
+							var squareId = objectlink.gOrm("cO", [square, classes["Общая площадь"]]);
+							if (squareId) objectlink.gOrm("cL", [squareId, techId]);
+						}
+						if (floorsCount) {
+							var floorsCountId = objectlink.gOrm("cO", [floorsCount, classes["Число этажей"]]);
+							if (floorsCountId) objectlink.gOrm("cL", [floorsCountId, techId]);
+						}
+						if (year) {
+							var yearId = objectlink.gOrm("cO", [year, classes["Год постройки"]]);
+							if (yearId) objectlink.gOrm("cL", [yearId, techId]);
+						}
+						
+					}
+				}
+			}
+		}
+		console.log(val1);
+	}
+	return zd1.length + " " + zd2.length + " " + count;
+};
+
+function createObjectDocFile() {
+	var techFileTestId = 11349;
+	var svidFileTestId = 11350;
+
+	var tech = objectlink.gOrm("gT2",[["Технические данные","Файлы"],[],[],0,null,"and `id_Файлы` is null"]);
+	for (var i = 0; i < tech.length; i++) {
+		var techId = tech[i][0];
+		if (techId) {
+			objectlink.gOrm("cL", [techFileTestId, techId]);
+			console.log(i);
+		}
+	} 
+	
+	var svid = objectlink.gOrm("gT2",[["Правоустанавливающие документы","Файлы"],[],[],0,null,"and `id_Файлы` is null"]);
+	for (var i = 0; i < svid.length; i++) {
+		var svidId = svid[i][0];
+		if (svidId) {
+			objectlink.gOrm("cL", [svidFileTestId, svidId]);
+			console.log(i);
+		}
+	} 
+	
+}
 
 function createObjectsFromObjectDir(oid){
 	var objectPath = "data/"+oid+"/";

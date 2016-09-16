@@ -29,7 +29,7 @@
 	$(imgContainer)
 		.css("height", windowHeight() - 150 + "px")
 	
-	var objectId = objectlink.gOrm("gT2",[["Номер","Объект"],[],[],false,null,"and `id Объект` ="+oid+" limit 1"]);
+	var objectId = objectlink.gOrm("gT2",[["Номер","Объект"],[],[],false,null,"and `id_Объект` ="+oid+" limit 1"]);
 	if (objectId && objectId.length) {
 		objectId = objectId[0][1];
 		var objectPath = getObjectsDir()+"/"+objectId+"/";

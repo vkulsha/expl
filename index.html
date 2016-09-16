@@ -3,6 +3,7 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 		<meta http-equiv="Cache-Control" content="no-cache" />
 		
+		<link rel="shortcut icon" href="/images/logo.png" type="image/png">
 		<link rel="stylesheet" href="css/leaflet.css" />
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 
@@ -20,6 +21,7 @@
 	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 	var classes = hash4arr(classes_);
 	var oids = [];
+	console.log("classes count: "+classes_.length);
 	
 	var key = $_GET("key", "#", location.hash);
 	var userKey = parseInt(key) || objectlink.gOrm("getObjectFromClass", [classes["Ключи доступа пользователей"] || 0, "undefined"])[0][0] || 0;
@@ -47,12 +49,15 @@
 						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
 						if (key && key.length){
 							gDom("mainContainer").hidden = true;
+							gDom("addressSearch").focus();
 						}
 					}
 				}
+				gDom("mainContainer").hidden = true;/////удалить после работы
 			});
 		}
 	}
+
 			
 ////////////documentReady
 	$(document).ready(function(){
@@ -281,22 +286,24 @@
 				
 				//showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
 			}
-			if (oid==115) loadPanel(zu, pObjects, 2, 3, fclick);
+			/*if (oid==115)*/ loadPanel(zu, pObjects, 2, 3, fclick);
 ////////////include object properties
-			$(pObjects).append("<br>Состав имущества на объекте:<br>");
+			$(pObjects).append("<br>Состав имущества на объекте ("+zd.length+"):<br>");
 			var fclick = function(){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 				var photo = objectlink.gOrm("gT2",[["Здания и сооружения", "Фото"],[]/*,[]*/,[],false, ["`Фото`"], "and `id_Здания и сооружения` = "+this.oid+" order by `id_Фото`"]);
 				if (photo && photo.length) {
-					$(pDopData).append("<button id='bImg'><img src="+photo[0][0]+" width='64'/></button>")
-					var bImg = gDom("bImg");
-					bImg.oid = this.oid
-					bImg.style.backgroundColor = "rgba(0,0,0,0)";
-					bImg.style.border = "0px";
-					bImg.style.cursor = "pointer";
-					bImg.onclick = function(){
-						showModal("cardPhoto.htm", this.oid, oid);
+					if (photo[0][0]) {
+						$(pDopData).append("<button id='bImg'><img src="+photo[0][0]+" width='64'/></button>")
+						var bImg = gDom("bImg");
+						bImg.oid = this.oid
+						bImg.style.backgroundColor = "rgba(0,0,0,0)";
+						bImg.style.border = "0px";
+						bImg.style.cursor = "pointer";
+						bImg.onclick = function(){
+							showModal("cardPhoto.htm", this.oid, oid);
+						}
 					}
 				}
 
@@ -310,7 +317,7 @@
 
 //				showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
 			}
-			if (oid==115) loadPanel(zd, pObjects, 2, 3, fclick);
+			/*if (oid==115)*/ loadPanel(zd, pObjects, 2, 3, fclick);
 
 			if (oids.indexOf(oid) == -1) {
 				polylines = [];				
@@ -373,14 +380,14 @@
 					setCommVisible(getCommVisible, map.getZoom() >= 17)
 				})
 ////////////////polygons objects				
-				if (oid==115) {
+				//if (oid==115) {
 					var zu = objectlink.gOrm("gT2",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Земельные участки`"], "and `id_Объект` = "+oid+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 					var zd = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Здания и сооружения`"], "and `id_Объект` = "+oid+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 					paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:3}, map);
 					paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:2}, map);
 					polylines = paintZu ? polylines.concat(paintZu) : polylines;
 					polylines = paintZd ? polylines.concat(paintZd) : polylines;
-				}
+				//}
 ////////////////events and paint photos of polylines			
 				for (var i=0; i < polylines.length; i++){
 					polylines[i].on('mouseover', function(e) {
@@ -453,7 +460,7 @@
 /////////////////////////////					
 			}
 			
-			if (oid && zd.length <= 1){
+			if (oid && oid != 115){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>Общая информация</h3>");
 
@@ -472,6 +479,10 @@
 
 					if (imageFiles && imageFiles.length) {
 						$(pDopData).append("<button style='border: 0px; cursor:pointer' id='bImg'><img src='"+domain+objectPath+url2cp1251(imageFiles[0])+"' width='64'/></button>")
+						bImg = gDom("bImg");
+						bImg.onclick = function(){
+							showModal("cardPhotoObject.htm", oid, oid);
+						}
 					}
 					
 					if (otherFiles.length) {
@@ -484,10 +495,6 @@
 					}
 				}
 				
-				bImg.onclick = function(){
-					showModal("cardPhotoObject.htm", oid, oid);
-				}
-
 				pDop.hidden = false;
 				setCommsVisible(false);
 				getCommVisible = undefined;
@@ -1087,7 +1094,7 @@
 		</div>
 		
 		<div id='pSearch' style='position:absolute; left:10px; top:100px; width:350px; background-color:rgba(0,0,0,0.5); z-index:100000' class='div-table'>
-			<input type="text" id="addressSearch" autofocus placeholder="Поиск объектов или адреса" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
+			<input autofocus type="text" id="addressSearch" placeholder="Поиск объектов или адреса" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
 		</div>
 		<div id='pMain' style='position:absolute; height:600px; width:350px; left:10px; top:140px; background-color:rgba(0,0,0,0.5); z-index:100000; overflow-y:auto; overflow-x:hidden'>
 			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>

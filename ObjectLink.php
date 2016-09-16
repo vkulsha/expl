@@ -26,6 +26,7 @@ class ObjectLink {
 			$u = isset($params[2]) ? $params[2] : 1;
 
 			if ($pid) {
+				//$id = 0;
 				$id = $this->gO([$n, null, null, $pid]);
 			}
 			
