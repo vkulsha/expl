@@ -18,11 +18,14 @@ function mapLoad(arrLatLon, opts, click){
 	var arrLat = [];
 	var arrLon = [];
 	var arrOid = [];
+	var arrZoom = [];
 	
 	$.each(arrLatLon, function(ind, value){
 		var lat = value[0];
 		var lon = value[1];
 		var oid = value[2];
+		var zoom = value[3] || 18;
+
 		minLat = Math.min(lat, minLat);
 		minLon = Math.min(lon, minLon);
 		maxLat = Math.max(lat, maxLat);
@@ -39,12 +42,13 @@ function mapLoad(arrLatLon, opts, click){
 		arrOid.push(oid);
 		arrLat.push(lat);
 		arrLon.push(lon);
+		arrZoom.push(zoom);
 
 	});
 	
 	return {
 		"markers":markers, 
-		"objects":{"oid": arrOid, "lat" : arrLat, "lon" : arrLon},
+		"objects":{"oid": arrOid, "lat" : arrLat, "lon" : arrLon, "zoom" : arrZoom},
 		"bounds":{
 			"minLat":minLat, 
 			"minLon":minLon, 
@@ -140,7 +144,7 @@ function initMap(map){
 		location.href = mainHtmlPage+"#oid="+val.oid;
 	}
 	
-	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`"]]);
+	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота","Масштаб на карте"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`","`Масштаб на карте`"]]);
 	var mapObjects = mapLoad(arrObjects, {}, markerClick);
 
 

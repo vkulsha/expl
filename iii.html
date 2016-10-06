@@ -39,8 +39,20 @@
 					<td width='100%'><textarea id='txt' rows=2 style='width:100%'></textarea></td>
 					<td><button id='bSave'>ok</button></td>
 					<td><button id='bFile' onclick='document.getElementById("selectFile").hidden = !document.getElementById("selectFile").hidden'>></button></td>
-					<td id='selectFile' hidden><input id='files' name='files[]' type='file' multiple /></td>
-				</tr></table></td></tr>
+					<!--<td id='selectFile' hidden><input id='files' name='files[]' type='file' multiple /></td>-->
+					</tr></table>
+				</td></tr>
+				<tr><td>
+					<div id='selectFile' hidden>
+					<form enctype='multipart/form-data' action='upload2.php' method='POST'>
+					<input type='hidden' name='MAX_FILE_SIZE' value='0' />
+					<input type='hidden' name='uploadPath' value='' id='selectFileUploadPath'/>
+					<input type='hidden' name='uploadId' value='' id='selectFileUploadId'/>Загрузить фото: 
+					<input name='userfile[]' type='file' multiple /><br><br>
+					<input type='submit' value='Загрузить' />
+					</form>
+					</div>
+				</td></tr>
 			</table>
 		</td>
 	</tr>
@@ -80,7 +92,7 @@
 	var lQuery = document.getElementById("lQuery");
 	var chAdd2query = document.getElementById("chAdd2query");
 	var chQueryLinkParent = document.getElementById("chQueryLinkParent");
-	var files = document.getElementById("files");
+	//var files = document.getElementById("files");
 	var terminal = document.getElementById("terminal");
 	var terminalRow = document.getElementById("terminalRow");
 	var bAddCard = document.getElementById("bAddCard");
@@ -196,6 +208,8 @@
 		}
 		lCount.innerHTML = countAll+"("+countClass+"/"+countObjects+")";
 
+		gDom("selectFileUploadPath").setAttribute("value", "data/"+this.oid+"/");
+		gDom("selectFileUploadId").setAttribute("value", this.oid);
 		return true;
 		
 	};
@@ -456,13 +470,13 @@
 			})(f);
 			
 			reader.readAsDataURL(f);*/
-			txt.value = "data/objects/21/"+f.name;
+			//txt.value = "data/objects/21/"+f.name;
 		}
-		bSave.click();
+		//bSave.click();
 		//txt.value = output.join(';');
 	}
 
-	files.addEventListener('change', handleFileSelect, false);	
+//	files.addEventListener('change', handleFileSelect, false);	
 
 	terminal.onkeydown = function(event) {
 		if (event.keyCode == 13) {

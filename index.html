@@ -192,7 +192,7 @@
 			oid = $_GET("oid", "#", location.hash);// || "115";
 			if (!oid) return;
 			var ind = mapObjects.objects.oid.indexOf(oid);
-			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], 18);
+			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], mapObjects.objects.zoom[ind]);
 			
 			pObjects.innerHTML = "";
 			pDop.hidden = false;
@@ -244,7 +244,7 @@
 				setCommVisible(getCommVisible, true);
 				
 			}
-			if (oid==115) loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			if (oid==115 || oid==1223) loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
 			$(pObjects).append("Дополнительно:<br>");
 			var el = [
@@ -460,7 +460,7 @@
 /////////////////////////////					
 			}
 			
-			if (oid && oid != 115){
+			if (oid && oid != 115 /*&& oid != 1223*/){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>Общая информация</h3>");
 

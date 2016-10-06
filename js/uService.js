@@ -2231,3 +2231,38 @@ function innerTrim(str) {//10K=16ms !!!without defects full clean with first and
 	return s;
 }
 
+function test() {/*
+//	var arr = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Правоустанавливающие документы", "Файлы"],[[2,1],[3,2]],[],false, undefined, "and `id_Объект` = 1223"]);	
+	var arr = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Технические данные", "Файлы"],[[2,1],[3,2]],[],false, undefined, "and `id_Объект` = 1223"]);	
+
+//	var oo = 12480;
+	var oo = 11349;
+		
+	for (var i=0; i < arr.length; i++) {
+		var o1 = arr[i][4];
+		var o2 = arr[i][6];
+		
+		if (o1 && o2 && oo) {
+			objectlink.gOrm("eL", [oo, o1]);
+			//objectlink.gOrm("cL", [oo, o1]);
+			console.log(arr[i][3]);
+		}
+	}
+	*/
+	return true;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

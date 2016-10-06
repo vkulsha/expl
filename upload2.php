@@ -21,19 +21,20 @@ for($i=0; $i<count($_FILES['userfile']['name']); $i++){
 	
 }
 
-$cidFile = $objectlink->gO("Файлы");
-$cidPhoto = $objectlink->gO("Фото");
+$cidFile = $objectlink->gO(["Файлы"]);
+$cidPhoto = $objectlink->gO(["Фото"]);
 
 for($i=0; $i<count($files); $i++){
 	$filename = array_key_exists("photo", $files[$i]) ? $files[$i]["photo"] : $files[$i]["other"];
-	$oid = $objectlink->cO($filename, $uploadid);
+	$oid = $objectlink->cO([$filename, $uploadid]);
 	
 	if ($oid) {
-		if ($cidFile) {	$objectlink->cL($oid, $cidFile); }
-		if ($cidPhoto && array_key_exists("photo", $files[$i])) { $objectlink->cL($oid, $cidPhoto);	}
+		if ($cidFile) {	$objectlink->cL([$oid, $cidFile]); }
+		if ($cidPhoto && array_key_exists("photo", $files[$i])) { $objectlink->cL([$oid, $cidPhoto]);	}
 	}
 }
 
-header('Location: ' . $_SERVER['HTTP_REFERER']);
+//header('Location: ' . $_SERVER['HTTP_REFERER']);
+header("location:javascript://history.go(-1)");
 
 ?>
