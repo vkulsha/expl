@@ -192,7 +192,7 @@
 			oid = $_GET("oid", "#", location.hash);// || "115";
 			if (!oid) return;
 			var ind = mapObjects.objects.oid.indexOf(oid);
-			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], mapObjects.objects.zoom[ind]);
+			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], mapObjects.objects.zoom[ind] || 18);
 			
 			pObjects.innerHTML = "";
 			pDop.hidden = false;
