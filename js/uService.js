@@ -1156,7 +1156,7 @@ function $_GET(keyname, delimiter, uri){
 ///get coord from SAS format from SQL ttt and create Polygon object class
 function coordsFromSas(){
 	var ret = [];
-	var coords = orm("select f1 from ttt", "col2array");
+	var coords = orm("select f1 from ttt where f1 like 'Point%'", "col2array");
 	for (var i=0; i < coords.length; i=i+2){
 		var lon = coords[i].split("=")[1];
 		var lat = coords[i+1].split("=")[1];
