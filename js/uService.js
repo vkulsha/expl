@@ -1685,7 +1685,7 @@ function getFieldHtml(fn, ft, def) {
 }
 
 ///////////////
-
+/*
 class TDomValue {
 	constructor(dom, def, getValFunc){ 
 		if (def == undefined)  def = "";
@@ -2210,7 +2210,7 @@ class TForm {
 	}
 	
 }
-
+*/
 function innerTrim(str) {//10K=16ms !!!without defects full clean with first and last spaces
 	var s = "";
 	var c = "";
