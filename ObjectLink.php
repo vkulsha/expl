@@ -25,21 +25,25 @@ class ObjectLink {
 			$pid = isset($params[1]) ? $params[1] : 1;
 			$u = isset($params[2]) ? $params[2] : 1;
 
-			if ($pid) {
-				//$id = 0;
-				$id = $this->gO([$n, null, null, $pid]);
-			}
-			
-			if (!$id) {
-				$id = $this->sql->iT(["object", "n", "'$n'"]);  
-				
+			if ($n) {
 				if ($pid) {
-					$this->cL([$id, $pid, $u]);
+					//$id = 0;
+					$id = $this->gO([$n, null, null, $pid]);
+				}
+				
+				if (!$id) {
+					$id = $this->sql->iT(["object", "n", "'$n'"]);  
+					
+					if ($pid) {
+						$this->cL([$id, $pid, $u]);
+					}
+
 				}
 
+				$ret = $id;
+			} else {
+				$ret = 0;
 			}
-
-			$ret = $id;
 			
 		} catch (Exception $e) {
 			print($e);

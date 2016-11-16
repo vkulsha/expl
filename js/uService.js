@@ -2235,10 +2235,10 @@ function test() {/*
 //	var arr = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Правоустанавливающие документы", "Файлы"],[[2,1],[3,2]],[],false, undefined, "and `id_Объект` = 1223"]);	
 	var arr = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Технические данные", "Файлы"],[[2,1],[3,2]],[],false, undefined, "and `id_Объект` = 1223"]);	
 
-//	var oo = 12480;
+//	var oo = 1248i;
 	var oo = 11349;
 		
-	for (var i=0; i < arr.length; i++) {
+	for (var i=i; i < arr.length; i++) {
 		var o1 = arr[i][4];
 		var o2 = arr[i][6];
 		
@@ -2249,9 +2249,57 @@ function test() {/*
 		}
 	}
 	*/
+	var arr = getOrm("select * from ttt_arenda where f16 is not null and f12 is null limit 1", "rows2object");
+	
+	for (var i=0; i < arr.length; i++) {
+		var main = arr[i].f4;
+		var arend = arr[i].f5;
+		var dogovor = arr[i].f7;
+		var dateP = arr[i].f8;
+		var dateS = arr[i].f9;
+		var dateE = arr[i].f10;
+		var order = arr[i].f11;
+		var dateEE = arr[i].f12;
+		var manager = arr[i].f13;
+		//var context = arr[i].f15;
+		var oid = arr[i].f16; //cO
+		
+		if (oid) {
+			var oArend = objectlink.gOrm("cO", [arend, classes["Арендаторы"]]);
+			if (oArend) {
+				objectlink.gOrm("cL", [oArend, oid]);
+				var oDogovor = objectlink.gOrm("cO", [dogovor, classes["Договоры аренды"]]);
+
+				if (oDogovor) {
+					objectlink.gOrm("cL", [oDogovor, oArend]);
+
+					var oDateP = objectlink.gOrm("cO", [dateP, classes["Дата подписания договора"]]);
+					objectlink.gOrm("cL", [oDateP, oDogovor]);
+					var oDateS = objectlink.gOrm("cO", [dateS, classes["Дата начала аренды"]]);
+					objectlink.gOrm("cL", [oDateS, oDogovor]);
+					var oDateE = objectlink.gOrm("cO", [dateE, classes["Дата окончания аренды"]]);
+					objectlink.gOrm("cL", [oDateE, oDogovor]);
+					var oOrder = objectlink.gOrm("cO", [order, classes["Стоимость аренды"]]);
+					objectlink.gOrm("cL", [oOrder, oDogovor]);
+					var oDateEE = objectlink.gOrm("cO", [dateEE, classes["Дата прекращения аренды"]]);
+					objectlink.gOrm("cL", [oDateEE, oDogovor]);
+					var oMain = objectlink.gOrm("cO", [main, classes["Арендодатель"]]);
+					objectlink.gOrm("cL", [oMain, oDogovor]);
+				}
+				
+				var oManager = objectlink.gOrm("cO", [manager, classes["Реквизиты арендатора"]]);
+				objectlink.gOrm("cL", [oManager, oArend]);
+				
+				console.log(i + " " + arr[i].f3);
+			}
+		}
+		
+	}
+	
+
+
 	return true;
 }
-
 
 
 
