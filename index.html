@@ -108,11 +108,12 @@
 		window.onkeydown = function(event) {
 			if (event.keyCode == 27) {
 				modal.style.display = "none";
+				
 			}
 		};
 
 ////////////////showModal
-		function showModal(uri, _oid, mainoid){
+		function showModal(uri, _oid, mainoid) {
 			gDom("modalTitle").innerHTML = "";
 			gDom("modalBody").innerHTML = "";
 			gDom("modalFooter").innerHTML = "";
@@ -126,7 +127,7 @@
 		
 		}
 
-		function showModalHtml(html, clear){
+		function showModalHtml(html, clear) {
 			if (clear){
 				gDom("modalTitle").innerHTML = "";
 				gDom("modalBody").innerHTML = "";
@@ -137,7 +138,7 @@
 			
 		}
 
-		function showInf(container, html){
+		function showInf(container, html) {
 			container.innerHTML = "";
 			$(container).append(html);
 			container.parentNode.hidden = false;				
@@ -146,7 +147,45 @@
 ////////////////map init
 		var map = L.map('map');
 		var mapObjects = initMap(map);
+///paint editor
+		var paintArr = [];
+		var paintMarkers = L.layerGroup();
+		var isPaintMode = false;
+
+		gDom("chPaintMode").onclick = function() {
+			isPaintMode = this.checked;
+		}
+		map.on('click', function(e) {
+			if (isPaintMode) {
+				paintArr.push([e.latlng.lat, e.latlng.lng]);
+			}
+		});
+		map.on('mousemove', function(e) {
+			if (isPaintMode) {
+				var arr = paintArr.slice();
+				arr.push([e.latlng.lat, e.latlng.lng]);
+				paintMarkers.clearLayers();
+				L.polyline(arr, {color:"#ff0000", weight:1}).addTo(paintMarkers);
+				map.removeLayer(paintMarkers);
+				paintMarkers.addTo(map);
+			}
+		});
+		map.on('contextmenu', function(e) {
+			if (isPaintMode && paintArr.length) {
+				console.log(paintArr.length);
+				var oid = prompt("oid for link", 0);
+				if (oid) {
+					createPolylineFromArr(paintArr, oid);
+					map.removeLayer(paintMarkers);
+					paintArr = [];
+				}
+			}
+		});
 		
+		function createPolylineFromArr(arr, oid) {
+			createPolygonObject(arr, oid);
+		}
+///		
 		var arrComm = [];
 		var arrLines = [];
 		var arendatorMarker;
@@ -1056,12 +1095,10 @@
 						addressMarker.setOpacity(1);
 						map.setView([coord[1], coord[0]],18);
 					}
-				
 				}
 			}
 		}
 		
-
 	})
 </script>
 
@@ -1109,6 +1146,7 @@
 			<tr><td colspan=2><h3>Настройки</h3></td></tr>
 			<tr><td>Ширина информационного окна</td><td><input type='edit' id='eDopWidth' /></td></tr>
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
+			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode'/></td></tr>
 			</table>
 		</div>
 		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.7)' hidden id='mainContainer'>
