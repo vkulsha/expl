@@ -1062,9 +1062,19 @@
 				but.onclick = funcClick;
 				but.onmouseover = function(){
 					this.style.backgroundColor = "rgba(0,255,0,0.3)";
+					for (var i=0; i < polylines.length; i++){
+						if (this.oid == polylines[i].oid) {
+							polylines[i].setStyle({color : "#ff5555"});
+						}
+					}
 				}
 				but.onmouseout = function(){
 					this.style.backgroundColor = "rgba(0,0,0,0.3)";
+					for (var i=0; i < polylines.length; i++){
+						if (this.oid == polylines[i].oid) {
+							polylines[i].setStyle({color : "#00ff00"});
+						}
+					}
 				}
 			}
 		}
