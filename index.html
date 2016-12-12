@@ -268,9 +268,9 @@
 			$(pObjects).append("<br>Коммуникации на объекте:<br>");
 			var el = [
 				[0,"Электроснабжение","images/electro2.png", [arrParamsComm[0]]],
-				[1,"Отопление","images/batery2.png", [arrParamsComm[1]]],
+				[1,"Теплоснабжение","images/batery2.png", [arrParamsComm[1]]],
 				[2,"Водоснабжение","images/coldwater2.png", [arrParamsComm[2]]],
-				[3,"Канализация","images/unitaz2.png", [arrParamsComm[3]]],
+				[3,"Водоотведение","images/unitaz2.png", [arrParamsComm[3]]],
 			];
 			var fclick = function(){
 				pDopData.innerHTML = "";
@@ -283,16 +283,18 @@
 				setCommVisible(getCommVisible, true);
 				
 			}
-			if (oid==115 || oid==1223) loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
 			$(pObjects).append("Дополнительно:<br>");
 			var el = [
 				[0,"Интернет","images/vols2.png", [arrParamsComm[4]]],
 				[1,"Вывоз КГМ и ТБО","images/tbo.png", [arrParamsComm[5]]],
 				[2,"Охрана","images/security2.png", [arrParamsComm[6]]],
-				[3,"Работники","images/personal.png", [arrParamsComm[7]]],
-				[4,"Арендаторы","images/money.png", getArendatorInf],
-				[5,"Отчеты","images/report.png", getReportsInf],
+				//[3,"Работники","images/personal.png", [arrParamsComm[7]]],
+				//[4,"Арендаторы","images/money.png", getArendatorInf],
+				//[5,"Отчеты","images/report.png", getReportsInf],
+				[3,"Арендаторы","images/money.png", getArendatorInf],
+				[4,"Отчеты","images/report.png", getReportsInf],
 			];
 			var fclick = function(){
 				pDopData.innerHTML = "";
@@ -304,13 +306,13 @@
 						//}
 					}
 				} else {
-					this.params(polylines);
+					this.params(polylines, oid);
 				}
 				pDop.hidden = false;				
 				setCommsVisible(false);
 				getCommVisible = undefined;
 			}
-			if (oid==115) loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			/*if (oid==115)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 			
 ////////////include territorias
 			$(pObjects).append("<br>Земельный участок:<br>");
@@ -547,7 +549,7 @@
 			arendatorMarker2 = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
 			arendatorMarkers = [arendatorMarker, arendatorMarker2];
 			
-			function getArendatorInf(polylines){
+			function getArendatorInf(polylines, oid){
 				var tb = cDom("TABLE");
 				tb.style.width = "100%";
 				var tr = tb.appendChild(cDom("TR"));
@@ -559,10 +561,12 @@
 				td.innerHTML = "Площадь";
 
 				var arendators = objectlink.gOrm("gT2", [
-					["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки"],
-					[[2,1],[3,2],[4,3],[5,3],[6,3]],[],1,
-					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id_Здания и сооружения`", "`id_Земельные участки`"]]);
-					
+					["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Объект"],
+					[[2,1],[3,2],[4,3],[5,3],[6,3],[7,2]],[],1,
+					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id_Здания и сооружения`", "`id_Земельные участки`", "id_Объект"],
+					"and (`id_Объект` = "+oid+")"
+					]);
+
 				for (var i=0; i < arendators.length; i++){
 					var id = arendators[i][0];
 					var arendator = arendators[i][1];
