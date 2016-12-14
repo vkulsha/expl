@@ -560,38 +560,45 @@
 				var td = tr.appendChild(cDom("TD"));
 				td.innerHTML = "Площадь";
 
+				console.log("Ожидайте");
 				var arendators = objectlink.gOrm("gT2", [
-					["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Объект"],
-					[[2,1],[3,2],[4,3],[5,3],[6,3],[7,2]],[],1,
-					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id_Здания и сооружения`", "`id_Земельные участки`", "id_Объект"],
-					"and (`id_Объект` = "+oid+")"
+					//["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Объект"],
+					//[[2,1],[3,2],[4,3],[5,3],[6,3],[7,2]],[],1,
+					["Объект", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки"],
+					[[2,1],[3,2],[4,3],[5,3],[6,3]],[],false,
+					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id_Здания и сооружения`", "`id_Земельные участки`"],
+					"and `id_Объект` = "+oid+" order by `id_Арендаторы`"
 					]);
-
+				console.log("Завершено");
+				var idOld = 0;
 				for (var i=0; i < arendators.length; i++){
 					var id = arendators[i][0];
-					var arendator = arendators[i][1];
-					var dog = arendators[i][2] ? arendators[i][2].split(",").join("<br>") : "";
-					var square = arendators[i][3] ? arendators[i][3].split(",").join("<br>") : "";
-					var zd = arendators[i][4] ? arendators[i][4].split(",") : null;
-					var zu = arendators[i][5];
-					
-					var tr = tb.appendChild(cDom("TR"));
-					var td = tr.appendChild(cDom("TD"));
-					var but = td.appendChild(cDom("BUTTON"));
-					but.innerHTML = arendator;
-					but.id = "but"+id;
-					but.oid = id;	
-					but.style.width = "100%";
-					but.zd = zd;
-					but.zu = zu;
-					but.polylines = polylines;
-					
-					var td = tr.appendChild(cDom("TD"));
-					td.innerHTML = dog;
-					var td = tr.appendChild(cDom("TD"));
-					td.innerHTML = square;
-					
-					but.onclick = funcclick;
+					//if (id != idOld) {
+						var arendator = arendators[i][1];
+						var dog = arendators[i][2] ? arendators[i][2].split(",").join("<br>") : "";
+						var square = arendators[i][3] ? arendators[i][3].split(",").join("<br>") : "";
+						var zd = arendators[i][4] ? arendators[i][4].split(",") : null;
+						var zu = arendators[i][5];
+						
+						var tr = tb.appendChild(cDom("TR"));
+						var td = tr.appendChild(cDom("TD"));
+						var but = td.appendChild(cDom("BUTTON"));
+						but.innerHTML = arendator;
+						but.id = "but"+id;
+						but.oid = id;	
+						but.style.width = "100%";
+						but.zd = zd;
+						but.zu = zu;
+						but.polylines = polylines;
+						
+						var td = tr.appendChild(cDom("TD"));
+						td.innerHTML = dog;
+						var td = tr.appendChild(cDom("TD"));
+						td.innerHTML = square;
+						
+						but.onclick = funcclick;
+					//}
+					//idOld = id;
 				}
 				
 				function funcclick(){
@@ -674,7 +681,7 @@
 						square_ = square;
 						
 						var file = ar[i][6];
-						if (!~files.indexOf(file)){
+						if (files && !~files.indexOf(file)){
 							$(div).append(getFileButtonHtml(file));
 							files.push(file);
 						}

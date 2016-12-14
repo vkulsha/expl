@@ -2249,7 +2249,8 @@ function test() {/*
 		}
 	}
 	*/
-	var arr = getOrm("select * from ttt_arenda where f16 is not null and f12 is null limit 1", "rows2object");
+	/*
+	var arr = getOrm("select * from ttt_arenda where f16 is not null and f12 is null and f16 <> 115", "rows2object");
 	
 	for (var i=0; i < arr.length; i++) {
 		var main = arr[i].f4;
@@ -2290,14 +2291,12 @@ function test() {/*
 				var oManager = objectlink.gOrm("cO", [manager, classes["Реквизиты арендатора"]]);
 				objectlink.gOrm("cL", [oManager, oArend]);
 				
-				console.log(i + " " + arr[i].f3);
+				console.log(arr.length + "/" + i + " " + arr[i].f3);
 			}
 		}
 		
 	}
-	
-
-
+	*/
 	return true;
 }
 
