@@ -281,7 +281,7 @@
 				setCommsVisible(false);
 				getCommVisible = this.ind;
 				setCommVisible(getCommVisible, true);
-				
+				console.log("Электр: "+electroId + "\n Тепло" + teploId + "\n Вода " + waterId + "\n Канализ " + kanalId);
 			}
 			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
@@ -364,19 +364,18 @@
 				polylines = [];				
 				oids.push(oid);
 ////////////////polygons communications
-				if (oid==115) {
-				
+				if (/*oid*/115==115) {
 ////////////////markers electro
 				var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Электроснабжение` = "+electroId+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:1}, map);
 				if (elLines && elLines.length){
 					var elCoord = elLines[0].getLatLngs()[0];
 					var markerElectro = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
-					var elCoord = elLines[0].getLatLngs()[6];
-					var elCounter1 = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectroCounter.png")
-					var elCoord = elLines[10].getLatLngs()[0];
-					var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
-					arrComm.push([markerElectro, elCounter1, elCounter2]);
+					//var elCoord = elLines[0].getLatLngs()[6];
+					//var elCounter1 = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectroCounter.png")
+					//var elCoord = elLines[10].getLatLngs()[0];
+					//var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
+					arrComm.push([markerElectro/*, elCounter1, elCounter2*/]);
 					arrLines.push(elLines);
 					setCommVisible(0, false);
 				}
