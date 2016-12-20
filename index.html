@@ -186,8 +186,8 @@
 			createPolygonObject(arr, oid);
 		}
 ///		
-		var arrComm = [];
-		var arrLines = [];
+		var arrComm = [[], [], [], []];
+		var arrLines = [[], [], [], []];
 		var arendatorMarker;
 		var arendatorMarker2;
 		var arendatorMarkers = [];
@@ -226,12 +226,21 @@
 			
 		}
 		
-		function hashchange(mapObjects, arrComm, arrLines){
+		function hashchange(mapObjects_, arrComm_, arrLines_){
 			//var hideDopPanel = oid != $_GET("oid", "#", location.hash);
+			var oid_ = oid;
 			oid = $_GET("oid", "#", location.hash);// || "115";
+			if (oid_ != oid) {
+				//setCommsVisible(false);
+				//arrComm_ = undefined;
+				//arrComm_ = [[], [], [], []];
+				//arrLines_ = undefined;
+				//arrLines_ = [[], [], [], []];
+			}
+			
 			if (!oid) return;
-			var ind = mapObjects.objects.oid.indexOf(oid);
-			if (~ind) map.setView([mapObjects.objects.lat[ind], mapObjects.objects.lon[ind]], mapObjects.objects.zoom[ind] || 18);
+			var ind = mapObjects_.objects.oid.indexOf(oid);
+			if (~ind) map.setView([mapObjects_.objects.lat[ind], mapObjects_.objects.lon[ind]], mapObjects_.objects.zoom[ind] || 18);
 			
 			pObjects.innerHTML = "";
 			pDop.hidden = false;
@@ -375,8 +384,8 @@
 					//var elCounter1 = markerAddToMap(map, [elCoord.lat, elCoord.lng], "images/markerElectroCounter.png")
 					//var elCoord = elLines[10].getLatLngs()[0];
 					//var elCounter2 = markerAddToMap(map, [elCoord.lat+0.00015, elCoord.lng], "images/markerElectroCounter.png")
-					arrComm.push([markerElectro/*, elCounter1, elCounter2*/]);
-					arrLines.push(elLines);
+					arrComm_[0] = [markerElectro/*, elCounter1, elCounter2*/];
+					arrLines_[0] = elLines;
 					setCommVisible(0, false);
 				}
 				
@@ -387,8 +396,8 @@
 					var teCoord = teLines[0].getLatLngs()[0];
 					var markerTeplo = markerAddToMap(map, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
 					var teCounter1 = markerAddToMap(map, [teCoord.lat-0.0001, teCoord.lng], "images/markerTeploCounter.png")
-					arrComm.push([markerTeplo, teCounter1]);
-					arrLines.push(teLines);
+					arrComm_[1] = [markerTeplo, teCounter1];
+					arrLines_[1] = teLines;
 					setCommVisible(1, false);
 				}
 
@@ -398,8 +407,8 @@
 				if (waLines && waLines.length){
 					var waCoord = waLines[0].getLatLngs()[0];
 					var markerWater = markerAddToMap(map, [waCoord.lat, waCoord.lng], "images/markerWater.png")
-					arrComm.push([markerWater]);
-					arrLines.push(waLines);
+					arrComm_[2] = [markerWater];
+					arrLines_[2] = waLines;
 					setCommVisible(2, false);
 				}
 
@@ -409,8 +418,8 @@
 				if (kaLines && kaLines.length){
 					var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
 					var markerKanal = markerAddToMap(map, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
-					arrComm.push([markerKanal]);
-					arrLines.push(kaLines);
+					arrComm_[3] = [markerKanal];
+					arrLines_[3] = kaLines;
 					setCommVisible(3, false);
 				}
 				
