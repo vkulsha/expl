@@ -151,6 +151,7 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var isPaintMode = false;
+		var isEditMode = true;
 
 		gDom("chPaintMode").onclick = function() {
 			isPaintMode = this.checked;
@@ -290,7 +291,7 @@
 				setCommsVisible(false);
 				getCommVisible = this.ind;
 				setCommVisible(getCommVisible, true);
-				console.log("Электр: "+electroId + "\n Тепло" + teploId + "\n Вода " + waterId + "\n Канализ " + kanalId);
+				//console.log("Электр: "+electroId + "\n Тепло" + teploId + "\n Вода " + waterId + "\n Канализ " + kanalId);
 			}
 			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
@@ -356,7 +357,32 @@
 						}
 					}
 				}
-
+				
+				if (isEditMode) {
+					var arr = objectlink.gOrm("gT2",[["Объект", "Электроснабжение", "Отопление", "ХВС", "Канализация"],[],[],false,null,"and `id_Объект` = "+oid]);
+					for (var i=1; i<=4; i++) {
+						var br = cDom("BR", null, pDopData);
+						var ch = cInp("CHECKBOX", null, pDopData);
+						var la = cDom("LABEL", null, pDopData);
+						ch.setAttribute("id", "chEdit"+arr[0][i*2]);
+						la.setAttribute("for", "chEdit"+arr[0][i*2]);
+						la.innerHTML = arr[0][i*2+1];
+						ch.oid = arr[0][i*2];
+						ch.zd = this.oid;
+						ch.checked = objectlink.gOrm("gL", [ch.zd, ch.oid]);
+						ch.onclick = function(){
+							if (this.checked) {
+								objectlink.gOrm("cL", [this.zd, this.oid]);
+								//console.log("cL " + this.zd + "," + this.oid);
+							} else {
+								objectlink.gOrm("eL", [this.zd, this.oid]);
+								//console.log("eL " + this.zd + "," + this.oid);
+							}
+						}
+					}
+					//console.log(arr);
+				}
+				
 				//fillCard2(["Коммуникации на объекте", "Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана", "Здания и сооружения"], this.oid, pDopData)
 				fillCard2(["Правоустанавливающие документы", "Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа", "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				fillCard2(["Технические данные", "Общая площадь", "Полезная площадь", "Площадь застройки", "Число этажей", "Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент", "Год постройки", "Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа", "Файлы", "Здания и сооружения"], this.oid, pDopData);

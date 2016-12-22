@@ -2297,6 +2297,22 @@ function test() {/*
 		
 	}
 	*/
+	
+/*	var arr = objectlink.gOrm("gT2",[["Объект"]]);
+	for (var i=0; i < arr.length; i++) {
+		if (arr[i][0] != 115 && arr[i][0] != 19) {
+		var obj = objectlink.gOrm("cO", ["Электроснабжение "+" "+arr[i][1], classes["Электроснабжение"]]);
+		objectlink.gOrm("cL", [obj, arr[i][0]]);
+		var obj = objectlink.gOrm("cO", ["Теплоснабжение "+" "+arr[i][1], classes["Отопление"]]);
+		objectlink.gOrm("cL", [obj, arr[i][0]]);
+		var obj = objectlink.gOrm("cO", ["Водоснабжение "+" "+arr[i][1], classes["ХВС"]]);
+		objectlink.gOrm("cL", [obj, arr[i][0]]);
+		var obj = objectlink.gOrm("cO", ["Водоотведение "+" "+arr[i][1], classes["Канализация"]]);
+		objectlink.gOrm("cL", [obj, arr[i][0]]);
+		console.log(arr.length + " / " + i);
+		}
+	}
+*/	
 	return true;
 }
 
