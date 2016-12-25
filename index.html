@@ -151,7 +151,7 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var isPaintMode = false;
-		var isEditMode = true;
+		var isEditMode = false;
 
 		gDom("chPaintMode").onclick = function() {
 			isPaintMode = this.checked;
@@ -341,6 +341,7 @@
 ////////////include object properties
 			$(pObjects).append("<br>Состав имущества на объекте ("+zd.length+"):<br>");
 			var fclick = function(){
+				console.log("zd oid: "+this.oid);
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 				var photo = objectlink.gOrm("gT2",[["Здания и сооружения", "Фото"],[]/*,[]*/,[],false, ["`Фото`"], "and `id_Здания и сооружения` = "+this.oid+" order by `id_Фото`"]);
@@ -486,6 +487,33 @@
 					if (dompol) {
 						dompol.polylines = polylines[i];
 					}
+					
+////////////////////paint communications
+					if (true) {
+						var points = [];
+						for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
+							var lat = polylines[i].getLatLngs()[0][j].lat;
+							var lng = polylines[i].getLatLngs()[0][j].lng;
+							points.push([lat, lng]);
+						
+						}
+						var center = getCenterFromPoints(points);
+						var _oid = polylines[i].oid;
+						
+						var arrMar = ["Электроснабжение","Отопление","ХВС","Канализация"];
+						var arrMarIcons = ["images/markerElectro.png","images/moek.png","images/markerWater.png","images/markerKanal.png"];
+						for (var k=0; k<4; k++) {
+							var mar = objectlink.gOrm("gT2",[["Здания и сооружения", arrMar[k]],[],[],false, [arrMar[k]], 
+								"and `id_Здания и сооружения` = "+_oid+" and `"+arrMar[k]+"` is not null"]);
+							if (mar.length){
+								var markerMap = markerAddToMap(map, [center[0], center[1]], arrMarIcons[k])
+								arrComm_[k].push(markerMap);
+
+							}
+						}
+						setCommsVisible(false);
+					}
+/////////////////////////////					
 						
 ////////////////////paint photos
 					if (false) {
@@ -531,8 +559,8 @@
 						}
 						markers.addTo(map);
 					}
-				}
 /////////////////////////////					
+				}
 			}
 			
 			if (oid && oid != 115 /*&& oid != 1223*/){
