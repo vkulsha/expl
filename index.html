@@ -504,8 +504,8 @@
 						var arrMarIcons = ["images/markerElectro.png","images/moek.png","images/markerWater.png","images/markerKanal.png"];
 						for (var k=0; k<4; k++) {
 							var mar = objectlink.gOrm("gT2",[["Здания и сооружения", arrMar[k]],[],[],false, [arrMar[k]], 
-								"and `id_Здания и сооружения` = "+_oid+" and `"+arrMar[k]+"` is not null"]);
-							if (mar.length){
+								"and `id_Здания и сооружения` = "+_oid+" and `"+arrMar[k]+"` is not null and `id_"+arrMar[k]+"` <> "+oid]);
+							if (mar && mar.length){
 								var markerMap = markerAddToMap(map, [center[0], center[1]], arrMarIcons[k])
 								arrComm_[k].push(markerMap);
 
