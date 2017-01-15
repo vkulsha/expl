@@ -162,7 +162,7 @@
 			}
 		});
 		map.on('mousemove', function(e) {
-			if (isPaintMode) {
+			if (isPaintMode && paintArr && paintArr.length) {
 				var arr = paintArr.slice();
 				arr.push([e.latlng.lat, e.latlng.lng]);
 				paintMarkers.clearLayers();
@@ -173,13 +173,16 @@
 		});
 		map.on('contextmenu', function(e) {
 			if (isPaintMode && paintArr.length) {
-				console.log(paintArr.length);
-				var oid = prompt("oid for link", 0);
-				if (oid) {
+				var oid = prompt("oid for link", currentCommOid);
+				if (oid && oid != 0) {
 					createPolylineFromArr(paintArr, oid);
+					console.log("save polygon oid:"+oid+", arraylength: "+paintArr.length);
+				} else {
+				    console.log("oid: "+oid);
 					map.removeLayer(paintMarkers);
-					paintArr = [];
 				}
+				paintArr = [];
+				paintMarkers = L.layerGroup();
 			}
 		});
 		
@@ -193,6 +196,7 @@
 		var arendatorMarker2;
 		var arendatorMarkers = [];
 		var polylines = [];
+		var currentCommOid = 0;
 
 		window.onhashchange = function(){
 			hashchange(mapObjects, arrComm, arrLines);
@@ -214,6 +218,7 @@
 			for (var i=0; i < arrLines[commNum].length; i++) {
 				arrLines[commNum][i].setStyle({opacity: visible ? 1 : 0});
 			}
+			currentCommOid = 0;
 		}
 		function setCommsVisible(visible){
 			for (var i=0; i < arrComm.length; i++) {
@@ -292,6 +297,7 @@
 				getCommVisible = this.ind;
 				setCommVisible(getCommVisible, true);
 				//console.log("Электр: "+electroId + "\n Тепло" + teploId + "\n Вода " + waterId + "\n Канализ " + kanalId);
+				currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind] : 0;
 			}
 			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
@@ -327,6 +333,7 @@
 ////////////include territorias
 			$(pObjects).append("<br>Земельный участок:<br>");
 			var fclick = function(){
+				if (isPaintMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 				fillCard2(["Правоустанавливающие документы", "Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа", "Файлы","Земельные участки"], this.oid, pDopData);
@@ -342,6 +349,7 @@
 			$(pObjects).append("<br>Состав имущества на объекте ("+zd.length+"):<br>");
 			var fclick = function(){
 				console.log("zd oid: "+this.oid);
+				if (isPaintMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 				var photo = objectlink.gOrm("gT2",[["Здания и сооружения", "Фото"],[]/*,[]*/,[],false, ["`Фото`"], "and `id_Здания и сооружения` = "+this.oid+" order by `id_Фото`"]);
