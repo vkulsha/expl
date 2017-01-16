@@ -109,6 +109,9 @@
 			if (event.keyCode == 27) {
 				modal.style.display = "none";
 				
+			} else 
+			if (event.keyCode == 119) {
+				if (isPaintMode) deleteLastPaintedPolygon(lastPaintedPolyline);
 			}
 		};
 
@@ -150,8 +153,10 @@
 ///paint editor
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
-		var isPaintMode = false;
+		var lastPaintMarkers = L.layerGroup();
+		var isPaintMode = true;
 		var isEditMode = false;
+		var lastPaintedPolyline = 0;
 
 		gDom("chPaintMode").onclick = function() {
 			isPaintMode = this.checked;
@@ -173,10 +178,13 @@
 		});
 		map.on('contextmenu', function(e) {
 			if (isPaintMode && paintArr.length) {
-				var oid = prompt("oid for link", currentCommOid);
+				var n = objectlink.gOrm("gN",[currentCommOid]);
+				var oid = prompt(n || "", currentCommOid);
 				if (oid && oid != 0) {
-					createPolylineFromArr(paintArr, oid);
-					console.log("save polygon oid:"+oid+", arraylength: "+paintArr.length);
+					lastPaintedPolyline = createPolylineFromArr(paintArr, oid);
+					lastPaintMarkers = paintMarkers;
+					console.log("save polygon oid:"+oid+", arraylength: "+paintArr.length+", polyId: "+lastPaintedPolyline);
+					window.alert("сохранена линия № "+lastPaintedPolyline);
 				} else {
 				    console.log("oid: "+oid);
 					map.removeLayer(paintMarkers);
@@ -186,8 +194,16 @@
 			}
 		});
 		
+		function deleteLastPaintedPolygon(oid){
+			var oid = prompt("Удалить последнюю линию №", oid);
+			if (oid) {
+				objectlink.gOrm("eO",[oid]);
+				map.removeLayer(lastPaintMarkers);
+			}
+		}
+		
 		function createPolylineFromArr(arr, oid) {
-			createPolygonObject(arr, oid, "полигон на карте объекта " + oid + " " + d2str(new Date()));
+			return createPolygonObject(arr, oid, "полигон на карте объекта " + oid + " " + d2str(new Date()));
 		}
 ///		
 		var arrComm = [[], [], [], []];
@@ -218,7 +234,7 @@
 			for (var i=0; i < arrLines[commNum].length; i++) {
 				arrLines[commNum][i].setStyle({opacity: visible ? 1 : 0});
 			}
-			currentCommOid = 0;
+			//currentCommOid = 0;
 		}
 		function setCommsVisible(visible){
 			for (var i=0; i < arrComm.length; i++) {
@@ -430,8 +446,8 @@
 				if (teLines && teLines.length){
 					var teCoord = teLines[0].getLatLngs()[0];
 					var markerTeplo = markerAddToMap(map, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
-					var teCounter1 = markerAddToMap(map, [teCoord.lat-0.0001, teCoord.lng], "images/markerTeploCounter.png")
-					arrComm_[1] = [markerTeplo, teCounter1];
+					//var teCounter1 = markerAddToMap(map, [teCoord.lat-0.0001, teCoord.lng], "images/markerTeploCounter.png")
+					arrComm_[1] = [markerTeplo/*, teCounter1*/];
 					arrLines_[1] = teLines;
 					setCommVisible(1, false);
 				}
@@ -1231,6 +1247,7 @@
 			</div>
 		</div>
 		<div id='pDop' hidden style='position:absolute; height:300px; width:500px; left:1030px; top:540px; background-color:rgba(0,0,0,0.8); z-index:100000; overflow-y:auto; overflow-x:hidden'>
+			<div style="text-align:right;width:100%; cursor:pointer" onmousedown="gDom('pDop').hidden=true">Х</div>
 			<div id='pDopData' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
 			</div>
 		</div>
@@ -1239,7 +1256,7 @@
 			<tr><td colspan=2><h3>Настройки</h3></td></tr>
 			<tr><td>Ширина информационного окна</td><td><input type='edit' id='eDopWidth' /></td></tr>
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
-			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode'/></td></tr>
+			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode' checked/></td></tr>
 			</table>
 		</div>
 		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.7)' hidden id='mainContainer'>
