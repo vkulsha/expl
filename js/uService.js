@@ -945,13 +945,14 @@ function getIconFile(filename){
 }
 				
 function getFileButtonHtml(fn){
+	if (fn) {
 	var cap = fn.split("/")[fn.split("/").length-1];
 	var iconFile = getIconFile(fn.toLowerCase());
 	var isImage = iconFile == "images/jpg.png";
 	return "<button style='border: 0px; cursor:pointer' onclick='openWindow(\""+domain+url2cp1251(fn)+"\")' title='скачать файл' >"+
 		"<table style='display:inline'><tr align='middle'><td><img src='"+(!isImage ? iconFile : domain+url2cp1251(fn))+"' width='"+(!isImage ? 32 : 64)+"'/></td></tr>"+
 		"<tr align='middle'><td style='font-size:11px; width:64px'>"+cap+"</td></tr></table></button>";
-	
+	} else { return "" }
 }
 
 ////////////codedecode charset
@@ -1040,11 +1041,15 @@ function urldecode (str) {
 	}
 	
 function url2cp1251(str) {
-	var arr = str.split("/");
-	var val = arr[arr.length-1];
-	val = convert_to_cp1251(urlencode(val));
-	arr[arr.length-1] = val;
-	return (host == "kulsha.ru") ? arr.join("/") : str;
+	if (str) {
+		var arr = str.split("/");
+		var val = arr[arr.length-1];
+		val = convert_to_cp1251(urlencode(val));
+		arr[arr.length-1] = val;
+		return (host == "kulsha.ru") ? arr.join("/") : str;
+	} else {
+		return str;
+	}
 }
 /*
 function codenet_urlencode(str) {
@@ -1382,7 +1387,9 @@ function fillCard2(arr, oid, cont){
 	var cn_ = arr[0];
 	$(cont).append("<tr class='h3caption'><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 	var arrC = arr;
-	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").join(",")," and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
+	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`")).join(","),
+		" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
+	console.log(rows);
 	var tb = cont.appendChild(cDom("TABLE"));
 	var filesInd = arrC.indexOf("Файлы");
 
@@ -1410,17 +1417,19 @@ function fillCard2(arr, oid, cont){
 		var val = null;
 		var vals = [];
 		for (var j=0; j < rows.length; j++){
-			if (val != rows[j][i] && vals.indexOf(rows[j][i]) == -1){
-				vals.push(rows[j][i]);
+			var val_ = rows[j][i];
+			if (val != val_ && vals.indexOf(val_) == -1){
+				vals.push(val_);
 				if (isFiles) {
-					$(divVal).append(getFileButtonHtml(rows[j][i]));
+					$(divVal).append("<input class='chFileButtonHtml' type='checkbox' id='oid"+rows[j][(i+1)*2]+"' value='"+domain+url2cp1251(val_)+"' hidden/>");
+					$(divVal).append(getFileButtonHtml(val_));
 				} else {
 					divVal = td2.appendChild(cDom("DIV"));
-					divVal.innerHTML = rows[j][i];
+					divVal.innerHTML = val_;
 				}
 			}
-			val = rows[j][i];
-			isValsNotNull = isValsNotNull || (rows[j][i] != "")
+			val = val_;
+			isValsNotNull = isValsNotNull || (val_ != "")
 		}
 		if (!isFiles && (divVal.innerHTML == "")) {
 			tr.hidden = true;

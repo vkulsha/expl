@@ -161,6 +161,9 @@
 		gDom("chPaintMode").onclick = function() {
 			isPaintMode = this.checked;
 		}
+		gDom("chEditMode").onclick = function() {
+			isEditMode = this.checked;
+		}
 		map.on('click', function(e) {
 			if (isPaintMode) {
 				paintArr.push([e.latlng.lat, e.latlng.lng]);
@@ -205,6 +208,61 @@
 		function createPolylineFromArr(arr, oid) {
 			return createPolygonObject(arr, oid, "полигон на карте объекта " + oid + " " + d2str(new Date()));
 		}
+		
+		function createCardUploadFiles(dom, oid) {
+			getHttp("cardUploadFiles.htm", function(data){ 
+				dom.innerHTML += data; 
+				gDom("selectFileUploadPath").setAttribute("value", "data/"+oid+"/");
+				gDom("selectFileUploadId").setAttribute("value", oid);
+
+				var arrChFileButtonHtml = document.getElementsByClassName("chFileButtonHtml");
+				for (var i=0; i < arrChFileButtonHtml.length; i++) {
+					arrChFileButtonHtml[i].hidden = false;
+				}
+
+				var butDelete = cInp("BUTTON", null, pDopData);
+				butDelete.value = "Удалить выделенные файлы";
+				butDelete.arrChbxs = arrChFileButtonHtml;
+
+				butDelete.onclick = function(){
+					var arr = [];
+					var oids = [];
+					for (var i=0; i < this.arrChbxs.length; i++) {
+						if (this.arrChbxs[i].checked) {
+							arr.push(this.arrChbxs[i].value);
+							oids.push(this.arrChbxs[i].id.slice(3));
+						};
+					}
+					
+					if (prompt("Удалить файлы ("+arr.length+" шт.)?", "Да") == "Да") {
+						$.post('delete.php', {deletePath: "data/"+oid+"/", file: arr})
+						.done(function( data ) {
+							if (data && data.length) {
+								for (var i=0; i < data.length; i++) {
+									if (data[i].status == "fail") {
+										alert("Ошибка удаления файла: "+data[i].name);
+										for (var j=0; j < arr.length; j++) {
+											if (arr[j].indexOf(data[i].name)+1) {
+												oids.splice(j,1);
+											}
+										}
+									}
+								}
+							}
+							for (var i=0; i < oids.length; i++) {
+								objectlink.gOrm("eO",[oids[i]]);
+							}
+							console.log("delete files and eO:");
+							console.log(oids);
+						});
+					}
+					
+				};
+				cDom("BR",undefined,pDopData); cDom("BR",undefined,pDopData);
+
+			}, true);
+		}
+
 ///		
 		var arrComm = [[], [], [], []];
 		var arrLines = [[], [], [], []];
@@ -305,6 +363,7 @@
 			];
 			var fclick = function(){
 				pDopData.innerHTML = "";
+
 				for (var i=0; i < this.params.length; i++){
 					fillCard2(this.params[i], oid, pDopData);
 				}
@@ -314,6 +373,11 @@
 				setCommVisible(getCommVisible, true);
 				//console.log("Электр: "+electroId + "\n Тепло" + teploId + "\n Вода " + waterId + "\n Канализ " + kanalId);
 				currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind] : 0;
+				
+				if (isEditMode) {
+					createCardUploadFiles(pDopData, currentCommOid);
+				}
+				
 			}
 			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 ////////////other object information
@@ -442,7 +506,7 @@
 				
 ////////////////markers teplo
 				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Отопление` = "+teploId+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-				var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:2}, map);
+				var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, map);
 				if (teLines && teLines.length){
 					var teCoord = teLines[0].getLatLngs()[0];
 					var markerTeplo = markerAddToMap(map, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
@@ -454,7 +518,7 @@
 
 ////////////////markers water
 				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_ХВС` = "+waterId+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-				var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:2}, map);
+				var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, map);
 				if (waLines && waLines.length){
 					var waCoord = waLines[0].getLatLngs()[0];
 					var markerWater = markerAddToMap(map, [waCoord.lat, waCoord.lng], "images/markerWater.png")
@@ -465,7 +529,7 @@
 
 ////////////////markers kanalization
 				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]]/*,[]*/,[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], "and `id_Канализация` = "+kanalId+" and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-				var kaLines = mapPaint(ka, L.polyline, {color:"#552200", weight:2}, map);
+				var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, map);
 				if (kaLines && kaLines.length){
 					var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
 					var markerKanal = markerAddToMap(map, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
@@ -629,7 +693,6 @@
 				getCommVisible = undefined;
 			} else {
 				pDopData.innerHTML = "";
-
 			}
 			
 /////////////arendator
@@ -1257,6 +1320,7 @@
 			<tr><td>Ширина информационного окна</td><td><input type='edit' id='eDopWidth' /></td></tr>
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
 			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode' checked/></td></tr>
+			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode'/></td></tr>
 			</table>
 		</div>
 		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.7)' hidden id='mainContainer'>
