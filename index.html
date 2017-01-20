@@ -154,8 +154,8 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
-		var isPaintMode = true;
-		var isEditMode = false;
+		var isPaintMode = false;
+		var isEditMode = true;
 		var lastPaintedPolyline = 0;
 
 		gDom("chPaintMode").onclick = function() {
@@ -798,6 +798,20 @@
 							var td = tr.appendChild(cDom("TD"));
 							td.innerHTML = value;
 							td.style.borderBottom = "1px solid #333";
+							
+							if (isEditMode && caption == "Договор") {
+								var td = tr.appendChild(cDom("TD"));
+								var but = td.appendChild(cDom("BUTTON"));
+								but.innerHTML = "...";
+								but.onclick = function () {
+									console.log("Договор аренды "+d2str(new Date()));
+									var frmContainerMenu1 = new TForm(null,null,null,null,20,200000,true);
+									var cnt = cDom("DIV");
+									cnt.innerHTML = "test<br>test<br>test";
+									frmContainerMenu1.setBody(cnt);
+								}
+								td.style.borderBottom = "1px solid #333";
+							}
 						}
 					}
 					
@@ -1272,6 +1286,63 @@
 		}
 		
 	})
+	
+function TForm (parentDom, width, height, left, top, zIndex, visible){
+	var that = this;
+	var dom = cDom("DIV");
+	parentDom = parentDom || document.body;
+	if (parentDom) parentDom.appendChild(dom);
+	dom.style.display = visible ? "block" : "none";
+	dom.style.position = "fixed";
+	dom.style.zIndex = zIndex || 100;
+	dom.style.left = 0;
+	dom.style.top = 0;
+	dom.style.width = "100%";
+	dom.style.height = "100%";
+	dom.style.overflow = "hidden";
+	dom.style.backgroundColor = "rgba(0,0,0,0.8)";
+
+	var body = dom.appendChild(cDom("DIV"));
+	body.innerHTML = "<br><br>";
+	body.style.position = "relative";
+	body.style.backgroundColor = "#000";
+	body.style.margin = "auto";
+	body.style.padding = "5px 5px 5px 5px";
+	body.style.left = left || 0;
+	body.style.top = top || 0;
+	body.style.width = width || "90%";
+	body.style.height = height || body.style.height;
+	body.style.boxShadow = "0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19)";
+	
+	var head = cDom("DIV");
+	head.style.color = "#fff";
+	head.style.float = "right";
+	head.style.fontSize = "28px";
+	head.style.fontWeight = "bold";
+	head.style.cursor = "pointer";
+	head.style.padding = "0px 5px";
+	
+	var span = head.appendChild(cDom("SPAN"));
+	span.innerHTML = "&times";
+	span.onclick = function() {	that.setVisible(false);	}
+	
+	this.setBody = function(val) {
+		$(body).html("");
+		$(body).append(head);
+		$(body).append("<BR><BR>");
+		$(body).append(val);
+	}
+	
+	this.setVisible = function(val) { dom.style.display = val ? "block" : "none"; }
+	this.getDom = function() { return dom; }
+	this.getBody = function() { return body; }
+	this.setWidth = function(val) {	body.style.width = val; }
+	this.setHeight = function(val) { body.style.height = val; }
+	this.setTop = function(val) { body.style.top = val; }
+	this.setLeft = function(val) { body.style.left = val; }
+	this.setZIndex = function(val) { dom.style.zIndex = val; }
+	
+}	
 </script>
 
 	</head>
@@ -1319,8 +1390,8 @@
 			<tr><td colspan=2><h3>Настройки</h3></td></tr>
 			<tr><td>Ширина информационного окна</td><td><input type='edit' id='eDopWidth' /></td></tr>
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
-			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode' checked/></td></tr>
-			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode'/></td></tr>
+			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode'/></td></tr>
+			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode' checked/></td></tr>
 			</table>
 		</div>
 		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.7)' hidden id='mainContainer'>

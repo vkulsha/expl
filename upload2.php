@@ -35,6 +35,7 @@ for($i=0; $i<count($files); $i++){
 }
 
 //header('Location: ' . $_SERVER['HTTP_REFERER']);
-header("location:javascript://history.go(-1)");
+//header("location:javascript://history.go(-1)");
+echo "<script>window.close();</script>";
 
 ?>
