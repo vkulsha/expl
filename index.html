@@ -155,7 +155,7 @@
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
 		var isPaintMode = false;
-		var isEditMode = true;
+		var isEditMode = false;
 		var lastPaintedPolyline = 0;
 
 		gDom("chPaintMode").onclick = function() {
@@ -715,9 +715,9 @@
 				var arendators = objectlink.gOrm("gT2", [
 					//["Актуальные арендаторы", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Объект"],
 					//[[2,1],[3,2],[4,3],[5,3],[6,3],[7,2]],[],1,
-					["Объект", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки"],
+					["Объект", "Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь"/*, "Здания и сооружения", "Земельные участки"*/],
 					[[2,1],[3,2],[4,3],[5,3],[6,3]],[],false,
-					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`", "`id_Здания и сооружения`", "`id_Земельные участки`"],
+					["`id_Арендаторы`", "`Арендаторы`", "`Договоры аренды`", "`Занимаемая площадь`"/*, "`id_Здания и сооружения`", "`id_Земельные участки`"*/],
 					"and `id_Объект` = "+oid+" order by `id_Арендаторы`"
 					]);
 				console.log("Завершено");
@@ -728,8 +728,8 @@
 						var arendator = arendators[i][1];
 						var dog = arendators[i][2] ? arendators[i][2].split(",").join("<br>") : "";
 						var square = arendators[i][3] ? arendators[i][3].split(",").join("<br>") : "";
-						var zd = arendators[i][4] ? arendators[i][4].split(",") : null;
-						var zu = arendators[i][5];
+						//var zd = arendators[i][4] ? arendators[i][4].split(",") : null;
+						//var zu = arendators[i][5];
 						
 						var tr = tb.appendChild(cDom("TR"));
 						var td = tr.appendChild(cDom("TD"));
@@ -738,8 +738,8 @@
 						but.id = "but"+id;
 						but.oid = id;	
 						but.style.width = "100%";
-						but.zd = zd;
-						but.zu = zu;
+						//but.zd = zd;
+						//but.zu = zu;
 						but.polylines = polylines;
 						
 						var td = tr.appendChild(cDom("TD"));
@@ -753,19 +753,30 @@
 				}
 				
 				function funcclick(){
+					var zdZu = objectlink.gOrm("gT2", [
+					["Арендаторы", "Договоры аренды", "Участок аренды", "Здания и сооружения", "Земельные участки"],
+					[[2,1],[3,2],[4,2]],[],false,
+					["`id_Здания и сооружения`", "`id_Земельные участки`"],
+					"and `id_Арендаторы` = "+this.oid
+					]);
+					var arr = [];
+					for (var i=0; i < zdZu.length; i++){
+						if (zdZu[i][0]) arr.push(zdZu[i][0]);
+						if (zdZu[i][1]) arr.push(zdZu[i][1]);
+					}
+					arr = arr.filter(function onlyUnique(value, index, self) {return self.indexOf(value) === index;});
+				
 					var polylines = this.polylines;
 					for (var i=0; i < arendatorMarkers.length; i++){
 						arendatorMarkers[i].setOpacity(0);
 					}
-					var arr = this.zd || [];
-					arr.push(this.zu);
-					var zuNum = this.zu ? arr.length-1 : -1;
+					//var zuNum = this.zu ? arr.length-1 : -1;
 					for (var m=0; m < arr.length; m++){
 						for (var i=0; i < polylines.length; i++){
 							var points = [];
 							if (polylines[i].oid == arr[m]){
 								for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-									var lat = polylines[i].getLatLngs()[0][j].lat - (m == zuNum ? 0.00033 : 0);
+									var lat = polylines[i].getLatLngs()[0][j].lat;// - (m == zuNum ? 0.00033 : 0);
 									var lng = polylines[i].getLatLngs()[0][j].lng;
 									points.push([lat, lng]);
 								
@@ -815,6 +826,19 @@
 									var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[],[],false, null, "and `id_Объект` = "+oid]);									
 									zd = zu.concat(zd);
 									var dogOid = this.oid;
+									///прикрепленные здания к участку
+									var ua = objectlink.gOrm("gAnd",[[dogOid,classes["Участок аренды"]],null,true])
+									var chZdZu = [];
+									for (var i=0; i < ua.length; i++){
+										var chZd = objectlink.gOrm("gAnd",[[ua[i][0],classes["Здания и сооружения"]],null,true]);
+										var chZu = objectlink.gOrm("gAnd",[[ua[i][0],classes["Земельные участки"]],null,true]);
+										chZdZu = chZdZu.concat(chZd.concat(chZu));
+									}
+									///
+									var tr = tb.appendChild(cDom("TR"));
+									var td = tr.appendChild(cDom("TD"));
+									td.innerHTML = "<h3>Связанные с договором аренды и арендодателем здания и земельные участки:</h3><br>";
+									
 									for (var i=0; i < zd.length; i++){
 										var tr = tb.appendChild(cDom("TR"));
 										var td = tr.appendChild(cDom("TD"));
@@ -824,31 +848,31 @@
 										ch.id = chId;
 										ch.oid = chOid;
 										ch.dogOid = dogOid;
+
+										for (var j=0; j < chZdZu.length; j++){
+											if (chZdZu[j][0] == chOid) ch.checked = true;
+										}
+
 										var label = td.appendChild(cDom("LABEL"));
 										label.innerHTML = zd[i][3];
 										label.setAttribute("for", chId);
 										ch.onchange = function(){
 											var dogOid = this.dogOid;//2360;//test
-											var ua = objectlink.gOrm("gAnd",[[dogOid,classes["Участок аренды"]],null,true])
-											ua = ua && ua.length ? ua[0][0] : null;
 											if (this.checked) {
-												console.log("cO "+this.oid);
-												console.log("cO "+dogOid);
-												console.log(ua);
-												if (!ua){
-													var val = "участок договора "+dogOid+" здания/зу "+this.oid+" "+d2str(new Date());
-													ua = objectlink.gOrm("cO", [val, classes["Участок аренды"]]);
-												}
-												
+												var val = "участок договора "+dogOid+" здания/зу "+this.oid+" "+d2str(new Date());
+												ua = objectlink.gOrm("cO", [val, classes["Участок аренды"]]);
 												if (ua) {
 													objectlink.gOrm("cL", [ua, dogOid]);
 													objectlink.gOrm("cL", [this.oid, ua]);
-													console.log("cO "+ua+ "; cL ("+this.oid+"," +ua+")");
+													console.log("создан Участок аренды: "+ua+ "; cL ("+this.oid+"," +ua+")");
 												}
 											} else {
+												var ua = objectlink.gOrm("gAnd",[[dogOid,classes["Участок аренды"],this.oid],null,true])
+												ua = ua && ua.length ? ua[0][0] : null;
 												if (ua) {
 													objectlink.gOrm("eL", [this.oid, ua]);
-													console.log("eL "+this.oid+","+ua);
+													objectlink.gOrm("eO", [ua]);
+													console.log("удален Участок аренды: "+ua+ "; eL ("+this.oid+"," +ua+")");
 												}
 											}
 										}
@@ -1436,7 +1460,7 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 			<tr><td>Ширина информационного окна</td><td><input type='edit' id='eDopWidth' /></td></tr>
 			<tr><td>Высота информационного окна</td><td><input type='edit' id='eDopHeight'/></td></tr>
 			<tr><td>Режим рисования полигонов</td><td><input type='checkbox' id='chPaintMode'/></td></tr>
-			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode' checked/></td></tr>
+			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode' /></td></tr>
 			</table>
 		</div>
 		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.7)' hidden id='mainContainer'>
