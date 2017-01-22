@@ -782,13 +782,13 @@
 					var ar = objectlink.gOrm("gT2", [
 						["Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"],
 						[[2,1],[3,2],[4,2],[5,2],[6,1]],[],false,
-						decorateArr(fields, "`"),
+						decorateArr(fields, "`").concat(["`id_Договоры аренды`"]),
 						" and `id_Арендаторы` = "+this.oid+" order by "+decorateArr(fields, "`id_", "`").join(",")
 						]);
 					var tb = pDopData.appendChild(cDom("TABLE"));
 					var div = cDom("DIV");
-					
-					var fill = function(cont, caption, value){
+
+					var fill = function(cont, caption, value, _oid){
 						if (value) {
 							var tr = cont.appendChild(cDom("TR"));
 							var td = tr.appendChild(cDom("TD"));
@@ -803,12 +803,56 @@
 								var td = tr.appendChild(cDom("TD"));
 								var but = td.appendChild(cDom("BUTTON"));
 								but.innerHTML = "...";
+								but.oid = _oid;
+
 								but.onclick = function () {
 									console.log("Договор аренды "+d2str(new Date()));
 									var frmContainerMenu1 = new TForm(null,null,null,null,20,200000,true);
 									var cnt = cDom("DIV");
-									cnt.innerHTML = "test<br>test<br>test";
 									frmContainerMenu1.setBody(cnt);
+									var tb = cnt.appendChild(cDom("TABLE"));
+									var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения"],[],[],false, null, "and `id_Объект` = "+oid]);									
+									var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[],[],false, null, "and `id_Объект` = "+oid]);									
+									zd = zu.concat(zd);
+									var dogOid = this.oid;
+									for (var i=0; i < zd.length; i++){
+										var tr = tb.appendChild(cDom("TR"));
+										var td = tr.appendChild(cDom("TD"));
+										var ch = td.appendChild(cInp("checkbox"));
+										var chOid = zd[i][2];
+										var chId = "oid"+chOid;
+										ch.id = chId;
+										ch.oid = chOid;
+										ch.dogOid = dogOid;
+										var label = td.appendChild(cDom("LABEL"));
+										label.innerHTML = zd[i][3];
+										label.setAttribute("for", chId);
+										ch.onchange = function(){
+											var dogOid = this.dogOid;//2360;//test
+											var ua = objectlink.gOrm("gAnd",[[dogOid,classes["Участок аренды"]],null,true])
+											ua = ua && ua.length ? ua[0][0] : null;
+											if (this.checked) {
+												console.log("cO "+this.oid);
+												console.log("cO "+dogOid);
+												console.log(ua);
+												if (!ua){
+													var val = "участок договора "+dogOid+" здания/зу "+this.oid+" "+d2str(new Date());
+													ua = objectlink.gOrm("cO", [val, classes["Участок аренды"]]);
+												}
+												
+												if (ua) {
+													objectlink.gOrm("cL", [ua, dogOid]);
+													objectlink.gOrm("cL", [this.oid, ua]);
+													console.log("cO "+ua+ "; cL ("+this.oid+"," +ua+")");
+												}
+											} else {
+												if (ua) {
+													objectlink.gOrm("eL", [this.oid, ua]);
+													console.log("eL "+this.oid+","+ua);
+												}
+											}
+										}
+									}
 								}
 								td.style.borderBottom = "1px solid #333";
 							}
@@ -822,9 +866,10 @@
 					var ind = 0;
 					for (var i=0; i < ar.length; i++){
 						var dog = ar[i][1];
+						var dogOid = ar[i][9];
 						if (dog_ != dog) {
 							$(tb).append("<tr style='height:10px'><td colspan=2></td></tr>");
-							fill(tb, "Договор", dog);
+							fill(tb, "Договор", dog, dogOid);
 							
 						}
 						dog_ = dog;
