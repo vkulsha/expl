@@ -155,15 +155,21 @@
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
 		var isPaintMode = false;
-		var isEditMode = false;
+		var isEditMode = true;
 		var lastPaintedPolyline = 0;
 
-		gDom("chPaintMode").onclick = function() {
+		var chPaintMode = gDom("chPaintMode");
+		chPaintMode.checked = isPaintMode;
+		chPaintMode.onclick = function() {
 			isPaintMode = this.checked;
 		}
-		gDom("chEditMode").onclick = function() {
+		
+		var chEditMode = gDom("chEditMode");
+		chEditMode.checked = isEditMode;
+		chEditMode.onclick = function() {
 			isEditMode = this.checked;
 		}
+
 		map.on('click', function(e) {
 			if (isPaintMode) {
 				paintArr.push([e.latlng.lat, e.latlng.lng]);
