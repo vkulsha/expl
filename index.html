@@ -311,6 +311,16 @@
 			}
 			
 		}
+		function getPolylineByOid(oid){
+			for (var i=0; i < polylines.length; i++){
+				if (oid == polylines[i].oid) {
+					return polylines[i];
+				}
+			}
+		}
+		function setPolylineColor(polyline, color){
+			polyline.setStyle({"color" : color});
+		}
 		
 		function hashchange(mapObjects_, arrComm_, arrLines_){
 			//var hideDopPanel = oid != $_GET("oid", "#", location.hash);
@@ -385,7 +395,7 @@
 				}
 				
 			}
-			/*if (oid==115 || oid==1223 || oid==174)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			loadPanel(el, pObjects, 0, 1, fclick, null, null, 2, true, 3);
 ////////////other object information
 			$(pObjects).append("Дополнительно:<br>");
 			var el = [
@@ -426,7 +436,7 @@
 					console.log(currentCommOid);
 				}
 			}
-			/*if (oid==115)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
+			loadPanel(el, pObjects, 0, 1, fclick, null, null, 2, true, 3);
 			
 ////////////include territorias
 			$(pObjects).append("<br>Земельный участок:<br>");
@@ -434,15 +444,24 @@
 				if (isPaintMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
-				fillCard2(["Правоустанавливающие документы", "Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа", "Файлы","Земельные участки"], this.oid, pDopData);
-				fillCard2(["Кадастровый паспорт", "Общая площадь", "Кадастровый номер", "Категория земель", "Разрешенное использование", "Кадастровая стоимость", "Обременения", "Лица в отношении которых применены обременения", "Дата постановки на ГКУ", "Файлы", "Земельные участки"], this.oid, pDopData);
+				fillCard2(["Правоустанавливающие документы", /*"Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа",*/ "Файлы","Земельные участки"], this.oid, pDopData);
+				fillCard2(["Кадастровый паспорт", "Общая площадь", "Кадастровый номер", /*"Категория земель", "Разрешенное использование", "Кадастровая стоимость", "Обременения", "Лица в отношении которых применены обременения", "Дата постановки на ГКУ",*/ "Файлы", "Земельные участки"], this.oid, pDopData);
 				pDop.hidden = false;
 				setCommsVisible(false);
 				getCommVisible = undefined;
 				
 				//showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
 			}
-			/*if (oid==115)*/ loadPanel(zu, pObjects, 2, 3, fclick);
+			function fover(){
+				this.style.backgroundColor = "rgba(0,255,0,0.3)";
+				setPolylineColor(getPolylineByOid(this.oid), "#ff5555");
+			}
+			function fout(){
+				this.style.backgroundColor = "rgba(0,0,0,0.3)";
+				setPolylineColor(getPolylineByOid(this.oid), "#00ff00");
+			}
+			
+			loadPanel(zu, pObjects, 2, 3, fclick, fover, fout);
 ////////////include object properties
 			$(pObjects).append("<br>Состав имущества на объекте ("+zd.length+"):<br>");
 			var fclick = function(){
@@ -491,16 +510,16 @@
 				}
 				
 				//fillCard2(["Коммуникации на объекте", "Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана", "Здания и сооружения"], this.oid, pDopData)
-				fillCard2(["Правоустанавливающие документы", "Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа", "Файлы", "Здания и сооружения"], this.oid, pDopData);
-				fillCard2(["Технические данные", "Общая площадь", "Полезная площадь", "Площадь застройки", "Число этажей", "Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент", "Год постройки", "Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа", "Файлы", "Здания и сооружения"], this.oid, pDopData);
-				fillCard2(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", "Здания и сооружения"], this.oid, pDopData);
+				fillCard2(["Правоустанавливающие документы", /*"Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
+				fillCard2(["Технические данные", "Общая площадь", /*"Полезная площадь", "Площадь застройки",*/ "Число этажей", /*"Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент",*/ "Год постройки", /*"Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
+				//fillCard2(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				pDop.hidden = false;
 				setCommsVisible(false);
 				getCommVisible = undefined;
 
 //				showModal("iCard"+getCardVersionByOid(this.oid)+".htm", this.oid, oid);
 			}
-			/*if (oid==115)*/ loadPanel(zd, pObjects, 2, 3, fclick);
+			loadPanel(zd, pObjects, 2, 3, fclick, fover, fout);
 
 			if (oids.indexOf(oid) == -1) {
 				polylines = [];				
@@ -573,6 +592,7 @@
 ////////////////events and paint photos of polylines			
 				var mar = objectlink.gOrm("gT2",[["Здания и сооружения", "Электроснабжение","Отопление","ХВС","Канализация","Объект"],[],[],false, 
 					["id_Электроснабжение","id_Отопление","id_ХВС","id_Канализация", "`id_Здания и сооружения`","id_Объект"], "and `id_Объект` = "+oid]);
+				
 				for (var i=0; i < polylines.length; i++){
 					polylines[i].on('mouseover', function(e) {
 						this.setStyle({color : "#ff5555"});
@@ -1292,58 +1312,7 @@
 				{"icon":icon}
 			).addTo(map);
 		}
-				
-////////////////load to panel
-		function loadPanel(arr, container, idInd, valInd, funcClick, iconInd, cells2row, paramsInd){
-			var drow;
-			if (cells2row) {
-				drow = container.appendChild(cDom("DIV"));
-				drow.classList.add("div-table-row");
-				drow.classList.add("alpha");
-			}
-			for (var i=0; i < arr.length; i++){
-				var row = arr[i];
-				if (!cells2row) {
-					drow = container.appendChild(cDom("DIV"));
-					drow.classList.add("div-table-row");
-					drow.classList.add("alpha");
-				}
-				var dcol = drow.appendChild(cDom("DIV"));
-				if (!cells2row) { dcol.classList.add("div-table-col") } else { dcol.style.display = "inline" };
-				dcol.classList.add("alpha");
-				dcol.style.backgroundColor = "rgba(0,0,0,0.1)";
-				var but = dcol.appendChild(cDom("BUTTON"));
-				but.oid = row[idInd];
-				but.id = "but"+but.oid;
-				but.params = row[paramsInd];
-				but.row = row;
-				but.ind = i;
-				var iconUrl = row[iconInd];
-				but.innerHTML = iconUrl ? "<img src='"+iconUrl+"' style='width:32px'>" : row[valInd];
-				but.setAttribute("title", iconUrl ? row[valInd] : "");
-				but.style.width = cells2row ? "auto" : "100%";
-				but.classList.add("alpha");
-
-				but.onclick = funcClick;
-				but.onmouseover = function(){
-					this.style.backgroundColor = "rgba(0,255,0,0.3)";
-					for (var i=0; i < polylines.length; i++){
-						if (this.oid == polylines[i].oid) {
-							polylines[i].setStyle({color : "#ff5555"});
-						}
-					}
-				}
-				but.onmouseout = function(){
-					this.style.backgroundColor = "rgba(0,0,0,0.3)";
-					for (var i=0; i < polylines.length; i++){
-						if (this.oid == polylines[i].oid) {
-							polylines[i].setStyle({color : "#00ff00"});
-						}
-					}
-				}
-			}
-		}
-
+						
 ////////////////search objects or addres
 		var addressMarker = L.marker([0, 0]);
 		addressMarker = markerAddToMap(map, [0, 0], "images/marker21.png", 32);

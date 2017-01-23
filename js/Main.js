@@ -160,3 +160,158 @@ function initMap(map){
 	
 	
 }
+
+////////////////load to panel
+function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, iconInd, cells2row, paramsInd){
+	var drow;
+	if (cells2row) {
+		drow = container.appendChild(cDom("DIV"));
+		drow.classList.add("div-table-row");
+		drow.classList.add("alpha");
+	}
+	for (var i=0; i < arr.length; i++){
+		var row = arr[i];
+		if (!cells2row) {
+			drow = container.appendChild(cDom("DIV"));
+			drow.classList.add("div-table-row");
+			drow.classList.add("alpha");
+		}
+		var dcol = drow.appendChild(cDom("DIV"));
+		if (!cells2row) { dcol.classList.add("div-table-col") } else { dcol.style.display = "inline" };
+		dcol.classList.add("alpha");
+		dcol.style.backgroundColor = "rgba(0,0,0,0.1)";
+		var but = dcol.appendChild(cDom("BUTTON"));
+		but.oid = row[idInd];
+		but.id = "but"+but.oid;
+		but.params = row[paramsInd];
+		but.row = row;
+		but.ind = i;
+		var iconUrl = row[iconInd];
+		but.innerHTML = iconUrl ? "<img src='"+iconUrl+"' style='width:32px'>" : row[valInd];
+		but.setAttribute("title", iconUrl ? row[valInd] : "");
+		but.style.width = cells2row ? "auto" : "100%";
+		but.classList.add("alpha");
+
+		but.onclick = funcClick;
+		but.onmouseover = funcOver;
+		but.onmouseout = funcOut;
+		
+	}
+}
+
+function fillCard2(arr, oid, cont){
+	if (!cont || !arr || !arr.length) {
+		$(cont).append("<h3 style='color:#999'>Нет данных</h3>");
+		return;
+	}
+	var cn_ = arr[0];
+	$(cont).append("<tr class='h3caption'><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
+	var arrC = arr;
+	//var dt = new Date();
+	//var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`")).join(","),
+	//	" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
+	var rows = objectlink.gOrm("gT2",[arrC, [],/*[arrC.length-1],*/[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`"))/*.join(",")*/,
+		" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
+	//console.log(new Date()-dt);
+	///console.log(rows);
+	var tb = cont.appendChild(cDom("TABLE"));
+	var filesInd = arrC.indexOf("Файлы");
+
+	var vals = [];
+	var isValsNotNull = false;
+	for (var i=1; i < arrC.length-1; i++){
+		var isFiles = filesInd && filesInd == i;
+
+		var tr = tb.appendChild(cDom("TR"));
+		var td1 = tr.appendChild(cDom("TD"));
+		var td2;
+		td1.style.borderBottom = "1px solid #333";
+		td1.style.color = "#999";
+		var divVal = td1.appendChild(cDom("DIV"));
+		
+		if (isFiles) {
+			td1.setAttribute("colspan", 2);
+		} else {
+			td1.innerHTML = arrC[i];
+			td1.setAttribute("valign", "top");
+			td2 = tr.appendChild(cDom("TD"));
+			td2.style.borderBottom = "1px solid #333";
+		}
+		
+		var val = null;
+		var vals = [];
+		for (var j=0; j < rows.length; j++){
+			var val_ = rows[j][i];
+			if (val != val_ && vals.indexOf(val_) == -1){
+				vals.push(val_);
+				if (isFiles) {
+					$(divVal).append("<input class='chFileButtonHtml' type='checkbox' id='oid"+rows[j][(i+1)*2]+"' value='"+domain+url2cp1251(val_)+"' hidden/>");
+					$(divVal).append(getFileButtonHtml(val_));
+				} else {
+					divVal = td2.appendChild(cDom("DIV"));
+					divVal.innerHTML = val_;
+				}
+			}
+			val = val_;
+			isValsNotNull = isValsNotNull || (val_ != "")
+		}
+		if (!isFiles && (divVal.innerHTML == "")) {
+			tr.hidden = true;
+		}
+	}
+	var caps = document.getElementsByClassName("h3caption")
+	caps[caps.length-1].hidden = !isValsNotNull;
+}	
+
+function fillCardEasy(arr, id, cont){
+	if (!cont || !arr || !arr.length) {
+		$(cont).append("<h3 style='color:#999'>Нет данных</h3>");
+		return;
+	}
+
+	var arrC = arr;
+	var filesInd = arrC.indexOf("Файлы");
+	var rows = objectlink.gOrm("gT2",[arrC,[],[],false,decorateArr(arrC, "`")," and `id_"+arrC[0]+"`="+id+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
+	var tb = cont.appendChild(cDom("TABLE"));
+
+	var vals = [];
+	var isValsNotNull = false;
+	for (var i=0; i < arrC.length; i++){
+		var isFiles = filesInd && filesInd == i;
+
+		var tr = tb.appendChild(cDom("TR"));
+		var td1 = tr.appendChild(cDom("TD"));
+		var td2;
+		td1.style.borderBottom = "1px solid #333";
+		td1.style.color = "#999";
+		var divVal = td1.appendChild(cDom("DIV"));
+		
+		if (isFiles) {
+			td1.setAttribute("colspan", 2);
+		} else {
+			td1.innerHTML = arrC[i];
+			td1.setAttribute("valign", "top");
+			td2 = tr.appendChild(cDom("TD"));
+			td2.style.borderBottom = "1px solid #333";
+		}
+		
+		var val = null;
+		var vals = [];
+		for (var j=0; j < rows.length; j++){
+			if (val != rows[j][i] && vals.indexOf(rows[j][i]) == -1){
+				vals.push(rows[j][i]);
+				if (isFiles) {
+					$(divVal).append(getFileButtonHtml(rows[j][i]));
+				} else {
+					divVal = td2.appendChild(cDom("DIV"));
+					divVal.innerHTML = rows[j][i];
+				}
+			}
+			val = rows[j][i];
+			isValsNotNull = isValsNotNull || (rows[j][i] != "")
+		}
+		if (!isFiles && (divVal.innerHTML == "")) {
+			tr.hidden = true;
+		}
+	}
+}	
