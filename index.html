@@ -413,6 +413,18 @@
 				pDop.hidden = false;				
 				setCommsVisible(false);
 				getCommVisible = undefined;
+
+				if (isEditMode && this.ind<3) {
+					currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind+4] : 0;
+					var el = ["Интернет","Вывоз КГМ и ТБО","Охрана"];
+					if (!currentCommOid) {
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
+						objectlink.gOrm("cL", [currentCommOid, oid]);
+					}
+					
+					createCardUploadFiles(pDopData, currentCommOid);
+					console.log(currentCommOid);
+				}
 			}
 			/*if (oid==115)*/ loadPanel(el, pObjects, 0, 1, fclick, 2, true, 3);
 			
@@ -754,11 +766,13 @@
 						td.innerHTML = square;
 						
 						but.onclick = funcclick;
+						//but.addEventListener("click", funcclick);
 					//}
 					//idOld = id;
 				}
 				
 				function funcclick(){
+					console.log(1);
 					var zdZu = objectlink.gOrm("gT2", [
 					["Арендаторы", "Договоры аренды", "Участок аренды", "Здания и сооружения", "Земельные участки"],
 					[[2,1],[3,2],[4,2]],[],false,
