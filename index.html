@@ -1401,6 +1401,56 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 	this.setZIndex = function(val) { dom.style.zIndex = val; }
 	
 }	
+
+function testindex(){
+	var arr = getOrm("select * from ttt_dog_zatrat where f1 is not null", "rows2object");
+	
+	for (var i=0; i < arr.length; i++) {//contracts
+		var oid = arr[i].f1;
+		var type = arr[i].f2;
+		var dog = arr[i].f3+" "+arr[i].f4;
+		var dogAgent = arr[i].f3;
+		var dogNum = arr[i].f4;
+		var dogDate = arr[i].f5;
+		
+		switch (type) {
+			case "Водоснабжение": type = "ХВС";
+			break;
+			case "Водоотведение": type = "Канализация";
+			break;
+			case "Теплоснабжение": type = "Отопление";
+			break;
+			case "Вывоз ТБО": type = "Вывоз КГМ и ТБО";
+			break;
+		}
+		
+		
+		if (i<9) {
+			var commClassOid = classes[type];
+			if (!commClassOid) {//если нет типа договора - создать
+				commClassOid = objectlink.gOrm("cO", [type, classes["Класс"]]);
+			}
+			
+			var commOid = objectlink.gOrm("gAnd", [[commClassOid,oid]]);
+			if (!commOid) {//если нет типа договора в объекте - создать
+				commOid = objectlink.gOrm("cO", [type+" "+oid, commClassOid]);
+				objectlink.gOrm("cL", [commOid, oid]);
+			} else {
+				commOid = commOid[0][0];
+			}
+			//if (commOid) console.log(oid + " " + commOid + " " + objectlink.gOrm("gN", [commOid]));
+
+			for (var j=0; j < 12; j++) {//months
+				var fn1 = j*2+6;
+				var fn2 = j*2+7;
+				var currMonthCredit = arr[i]["f"+fn1];
+				var currMonthDebit  = arr[i]["f"+fn2];
+			}
+		}
+	}
+
+}
+
 </script>
 
 	</head>
