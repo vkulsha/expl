@@ -311,15 +311,15 @@
 			}
 			
 		}
-		function getPolylineByOid(oid){
+		function getPolylineByOid(oid_){
 			for (var i=0; i < polylines.length; i++){
-				if (oid == polylines[i].oid) {
+				if (oid_ == polylines[i].oid) {
 					return polylines[i];
 				}
 			}
 		}
 		function setPolylineColor(polyline, color){
-			polyline.setStyle({"color" : color});
+			if (polyline) polyline.setStyle({"color" : color});
 		}
 		
 		function hashchange(mapObjects_, arrComm_, arrLines_){
@@ -364,9 +364,9 @@
 				["Отопление", "Договоры", "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
 				["ХВС", "Договоры", "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
 				["Канализация", "Договоры", "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год", "Файлы", "Объект"],
-				["Интернет", "Файлы", "Объект"],
-				["Вывоз КГМ и ТБО", "Файлы", "Объект"],
-				["Охрана", "Вид охраны", "Количество постов", "Количество человек", "ФИО", "Файлы", "Объект"],
+				["Интернет", "Договоры", "Файлы", "Объект"],
+				["Вывоз КГМ и ТБО", "Договоры", "Файлы", "Объект"],
+				["Охрана", "Договоры", "Вид охраны", "Количество постов", "Количество человек", "ФИО", "Файлы", "Объект"],
 				["Работники", "Инф о работнике", "Файлы", "Объект"],
 				[],
 			]
@@ -425,7 +425,7 @@
 				getCommVisible = undefined;
 
 				if (isEditMode && this.ind<3) {
-					currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind+4] : 0;
+					currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind] : 0;
 					var el = ["Интернет","Вывоз КГМ и ТБО","Охрана"];
 					if (!currentCommOid) {
 						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
@@ -1424,31 +1424,49 @@ function testindex(){
 			break;
 		}
 		
-		
-		if (i<9) {
+		console.log(arr.length + "/" + i+1);
+		//if (i<9) {
 			var commClassOid = classes[type];
 			if (!commClassOid) {//если нет типа договора - создать
 				commClassOid = objectlink.gOrm("cO", [type, classes["Класс"]]);
+				objectlink.gOrm("cL", [classes["Договоры"], commClassOid]);
+				//console.log("cO ("+type+" "+classes["Класс"]+") = "+commClassOid);
 			}
 			
 			var commOid = objectlink.gOrm("gAnd", [[commClassOid,oid]]);
-			if (!commOid) {//если нет типа договора в объекте - создать
+			if (!commOid || !commOid.length) {//если нет типа договора в объекте - создать
 				commOid = objectlink.gOrm("cO", [type+" "+oid, commClassOid]);
 				objectlink.gOrm("cL", [commOid, oid]);
+				//console.log("cO ("+type+" "+oid+","+commClassOid+") = "+commOid);
+				//console.log("cL ("+commOid+","+oid+")");
 			} else {
 				commOid = commOid[0][0];
+				//console.log("gAnd ("+commClassOid+","+oid+") = "+commOid);
 			}
-			//if (commOid) console.log(oid + " " + commOid + " " + objectlink.gOrm("gN", [commOid]));
+			
+			if (commOid) {
+				dogOid = objectlink.gOrm("cO", [dog, classes["Договоры"]]);
+				if (dogOid) objectlink.gOrm("cL", [dogOid, commOid]);
+			/*
+				for (var j=0; j < 12; j++) {//months
+					var fn1 = j*2+6;
+					var fn2 = j*2+7;
+					var currMonthCredit = arr[i]["f"+fn1];
+					var currMonthDebit  = arr[i]["f"+fn2];
+				}
+			*/	
+			};
 
-			for (var j=0; j < 12; j++) {//months
-				var fn1 = j*2+6;
-				var fn2 = j*2+7;
-				var currMonthCredit = arr[i]["f"+fn1];
-				var currMonthDebit  = arr[i]["f"+fn2];
-			}
-		}
+/*			objectlink.gOrmA("gT2", [
+				["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год","Арендаторы","Объект"],
+				[],[],false,
+				["sum(`Счет стоимость`)"],
+				" and `id_Объект`="+obj+" and `Счет год`="+year+" and `Счет месяц`="+(month+1)+" and `Счет продукт`='"+products[product]+"' and `id_Арендаторы` is "+(isArendator ? "not" : "")+" null group by `id_Объект` "
+*/
+
+		//}
 	}
-
+	return "finish";
 }
 
 </script>
