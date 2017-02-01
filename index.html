@@ -283,7 +283,10 @@
 		}
 
 		var oid = $_GET("oid", "#", location.hash);
-		if (oid) hashchange(mapObjects, arrComm, arrLines);
+		if (oid) 
+			hashchange(mapObjects, arrComm, arrLines)
+		else
+		 	loadMainListOfObjects();
 		
 		//if (location.hash == "#oid=115") {
 		//	hashchange(mapObjects, arrComm, arrLines);
@@ -1319,6 +1322,11 @@
 		var eSearch = document.getElementById('addressSearch');
 		eSearch.onkeydown = function(e){
 			if (e.which == 13) {
+				if (this.value == "") {
+					loadMainListOfObjects();
+					return;
+				}
+				
 				var objects = objectlink.gOrm("gT2",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,["distinct `id_Объект`", "`Объект`", "`Широта`", "`Долгота`"],
 				"and (`Объект` like '%"+this.value+"%' or `Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
 				if (objects.length) {
@@ -1341,6 +1349,38 @@
 					}
 				}
 			}
+		}
+		
+		function loadMainListOfObjects(){
+			pObjects.innerHTML = "";
+			var arrTu = [[1252,"УЭИ"],[1253,"СЗТП"],[1254,"СиДВ"]];
+			for (var i=0; i < arrTu.length; i++){
+				if (i>0) pObjects.appendChild(cDom("BR"));
+				var div = pObjects.appendChild(cDom("DIV",arrTu[i][1]));
+				div.style.textAlign = "center";
+				div.style.fontWeight = "bold";
+				var arrIk = objectlink.gOrm("gAnd",[[arrTu[i][0],classes["ИК"]]]);
+				for (var j=0; j < arrIk.length; j++){
+					if (arrIk[j][1] == "ТУ") continue;
+					//pObjects.appendChild(cDom("BR"));
+					var div = pObjects.appendChild(cDom("DIV",arrIk[j][1]));
+					div.style.textAlign = "center";
+					div.style.fontWeight = "bold";
+					var objects = objectlink.gOrm("gAnd",[[arrIk[j][0],classes["Объект"]]]);
+					
+					for (var k=0; k < objects.length; k++) {
+						if (objects[k][1] == "ИК") objects.splice(k,1);
+					}
+					
+					if (objects.length) {
+						fclick = function(){
+							location.href = mainHtmlPage+"#oid="+this.oid;
+							
+						}
+						loadPanel(objects, pObjects, 0, 1, fclick);							
+					}
+				}
+			}			
 		}
 		
 	})
@@ -1506,7 +1546,7 @@ function testindex(){
 		</div>
 		
 		<div id='pSearch' style='position:absolute; left:10px; top:100px; width:350px; background-color:rgba(0,0,0,0.5); z-index:100000' class='div-table'>
-			<input autofocus type="text" id="addressSearch" placeholder="Поиск объектов или адреса" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
+			<input type="text" id="addressSearch" placeholder="Поиск объектов или адреса" style="width:100%; color:#fff; border: 1px solid #999" class='alpha' />
 		</div>
 		<div id='pMain' style='position:absolute; height:600px; width:350px; left:10px; top:140px; background-color:rgba(0,0,0,0.5); z-index:100000; overflow-y:auto; overflow-x:hidden'>
 			<div id='pObjects' style='background-color:rgba(0,0,0,0); border:0px; width:100%' class='div-table'>
