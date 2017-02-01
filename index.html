@@ -1403,10 +1403,11 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 }	
 
 function testindex(){
-	var arr = getOrm("select * from ttt_dog_zatrat where f1 is not null", "rows2object");
+	var arr = getOrm("select * from ttt_dog_zatrat where f1 is not null and f1 <> ''", "rows2object");
 	
 	for (var i=0; i < arr.length; i++) {//contracts
 		var oid = arr[i].f1;
+		if (!oid) continue;
 		var type = arr[i].f2;
 		var dog = arr[i].f3+" "+arr[i].f4;
 		var dogAgent = arr[i].f3;
@@ -1445,8 +1446,13 @@ function testindex(){
 			}
 			
 			if (commOid) {
-				dogOid = objectlink.gOrm("cO", [dog, classes["Договоры"]]);
-				if (dogOid) objectlink.gOrm("cL", [dogOid, commOid]);
+				var dogOid = objectlink.gOrm("gAnd", [[commOid, classes["Договоры"]]]);
+				if (!dogOid || !dogOid.length) {
+					dogOid = objectlink.gOrm("cO", [dog, classes["Договоры"]]);
+					if (dogOid) objectlink.gOrm("cL", [dogOid, commOid]);
+				} else {
+					dogOid = dogOid[0][0];
+				}
 			/*
 				for (var j=0; j < 12; j++) {//months
 					var fn1 = j*2+6;
