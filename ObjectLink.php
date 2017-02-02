@@ -139,10 +139,18 @@ class ObjectLink {
 	public function eO($params){//erase object from database
 		try {
 			$id = $params[0];
+			$fn = $params[1];
+			
+			if ($fn) {
+				try {
+					$path = mb_convert_encoding($fn, "cp1251", "UTF-8");
+					unlink($path);
+				} catch(Exception $e) {
+				}
+			}
 			
 			$ret = $this->sql->dT(["link", "and (o1=$id or o2=$id)"]);  
 			$ret = $this->sql->dT(["object", "and id=$id"]);  
-			return $ret;
 			
 		} catch (Exception $e) {
 			print($e);

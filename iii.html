@@ -390,9 +390,11 @@
 
 	var bEO = document.getElementById("bEO");
 	bEO.onclick = function(){
-		result = prompt("eO (id)", oid);
+		var fn = undefined;
+		if (isFile) fn = objectlink.gOrm("gN",[oid]);
+		result = prompt("eO (id) "+fn, oid);
 		if (result) {
-			objectlink.gOrm("eO",[result]);
+			objectlink.gOrm("eO",[result,fn]);
 			history.back();
 			//hashchange();
 			//goHome();

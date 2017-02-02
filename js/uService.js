@@ -1236,7 +1236,6 @@ function createObjectsFromTable1(){
 	var addrId = zd2[0][4];
 	var	subjPravoId = objectlink.gOrm("gO", ["АО \"ГУОВ\"", null, null, classes["Субъект права"]]);
 	var	vidPravoId = objectlink.gOrm("gO", ["Собственность", null, null, classes["Вид права"]]);
-	
 	var count = 0;
 	for (var i=0; i < zd1.length; i++) {
 		var val1 = innerTrim(zd1[i][0]).trim();
