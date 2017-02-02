@@ -83,19 +83,23 @@ function mapPaint(coords, funcL, paramsL, map){
 	var polyId = coords[0][1];
 	for (var i=0; i < coords.length; i++){
 		var oid;
+		var objid;
 		if (polyId != coords[i][1] && poly.length) {
 			var p = funcL(poly, paramsL).addTo(map);
 			p.oid = oid;
+			p.objid = objid;
 			ret.push(p);
 			poly = [];
 		}
 		oid = coords[i][2];
+		objid = coords[i][3];
 		var coord = coords[i][0].split(" ");
 		poly.push(coord);
 		polyId = coords[i][1];
 		if (i == coords.length-1){
 			var p = funcL(poly, paramsL).addTo(map);
 			p.oid = oid;
+			p.objid = objid;
 			ret.push(p);
 			
 		}
@@ -164,6 +168,7 @@ function initMap(map){
 ////////////////load to panel
 function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, iconInd, cells2row, paramsInd){
 	var drow;
+	var buttons = [];
 	if (cells2row) {
 		drow = container.appendChild(cDom("DIV"));
 		drow.classList.add("div-table-row");
@@ -195,8 +200,9 @@ function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, 
 		but.onclick = funcClick;
 		but.onmouseover = funcOver;
 		but.onmouseout = funcOut;
-		
+		buttons.push(but);
 	}
+	return buttons;
 }
 
 function fillCard2(arr, oid, cont){
