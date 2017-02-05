@@ -166,7 +166,7 @@ function initMap(map){
 }
 
 ////////////////load to panel
-function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, iconInd, cells2row, paramsInd){
+function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, iconInd, cells2row, paramsInd, polylines){
 	var drow;
 	var buttons = [];
 	if (cells2row) {
@@ -200,6 +200,7 @@ function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, 
 		but.onclick = funcClick;
 		but.onmouseover = funcOver;
 		but.onmouseout = funcOut;
+		but.polylines = polylines;
 		buttons.push(but);
 	}
 	return buttons;
