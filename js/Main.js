@@ -151,7 +151,6 @@ function initMap(map){
 	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота","Масштаб на карте"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`","`Масштаб на карте`"]]);
 	var mapObjects = mapLoad(arrObjects, {}, markerClick);
 
-
 	markers.clearLayers();
 	markers = mapObjects.markers;
 	markers.addTo(map);
