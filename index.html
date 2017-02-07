@@ -153,8 +153,8 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
-		var isPaintMode = false;
-		var isEditMode = true;
+		var isPaintMode = true;
+		var isEditMode = false;
 		var lastPaintedPolyline = 0;
 		var zdzuPolygonsLayer = L.layerGroup();
 		var commPolygonsLayer = L.layerGroup();
@@ -415,7 +415,9 @@
 ////////////object communications
 			var getCommVisible;
 			var comms = ["Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана"];
-			var getCommOnObject = objectlink.gOrm("gT2",[["Объект"].concat(comms),[]/*,[]*/,[],false,decorateArr(comms, "`id_", "`")/*.join(",")*/," and `id_Объект`="+oid+" limit 1"]);
+			var getCommOnObject = objectlink.gOrm("gT2",[["Объект"].concat(comms),[]/*,[]*/,[],false,decorateArr(comms, "`id_", "`")/*.join(",")*/," and `id_Объект`="+oid+" order by "+decorateArr(comms, "`id_", "` desc ").join(",")+" limit 1"]);
+			//console.log(objectlink.gOrm("gTq2",[["Объект"].concat(comms),[],[],false,decorateArr(comms, "`id_", "`")," and `id_Объект`="+oid]));
+			//console.log(getCommOnObject[0]);
 			var electroId = getCommOnObject[0][0];
 			var teploId = getCommOnObject[0][1];
 			var waterId = getCommOnObject[0][2];
@@ -455,6 +457,15 @@
 				
 				if (isEditMode) {
 					createCardUploadFiles(pDopData, currentCommOid);
+				}
+
+				if (isPaintMode) {
+					var el = ["Электроснабжение","Отопление","ХВС","Канализация"];
+					if (!currentCommOid) {
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
+						objectlink.gOrm("cL", [currentCommOid, oid]);
+						getCommOnObject[0][this.ind] = currentCommOid;
+					}
 				}
 				
 			}
