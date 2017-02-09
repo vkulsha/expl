@@ -17,7 +17,10 @@
 
 <script>
 ////////////policy
+	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
+	var classes = hash4arr(classes_);
 	//var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
+/*
 	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 	var classes = hash4arr(classes_);
 	var oids = [];
@@ -29,13 +32,12 @@
 	if (userId && userId.length){
 		userId = userId[0][0];
 		var mainInterface = getMainInterfaceKey(userId);
-		
 		if (mainInterface) {
 			$(document).ready(function() {
 				var pLogin = gDom("pLogin");
 				pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
 				pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
-				var policy = showInterfaceElements(userId, mainInterface);
+				//var policy = showInterfaceElements(userId, mainInterface);
 
 				var bLogin = gDom("bLogin");
 				bLogin.onclick = function(){
@@ -47,6 +49,7 @@
 					if (u && p && u.length && p.length){
 						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
 						if (key && key.length){
+							key = key[0][0];
 							gDom("mainContainer").hidden = true;
 							gDom("pMain").hidden = false;
 							gDom("addressSearch").focus();
@@ -57,10 +60,34 @@
 			});
 		}
 	}
-
+*/
 			
 ////////////documentReady
 	$(document).ready(function(){
+		var oids = [];
+		console.log("classes count: "+classes_.length);
+
+		var pLogin = gDom("pLogin");
+		pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
+		pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
+
+		var bLogin = gDom("bLogin");
+		bLogin.onclick = function(){
+			var eUser = $("#eUser").val();
+			var password = document.fLogin.ePassword.value;
+			var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
+			var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
+			if (u && p && u.length && p.length){
+				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
+				if (key && key.length){
+					key = key[0][0];
+					gDom("mainContainer").hidden = true;
+					gDom("pMain").hidden = false;
+					gDom("addressSearch").focus();
+				}
+			}
+		}
+		
 		var pMain = gDom("pMain");
 		pMain.style.height = windowHeight()-170+"px";
 		var pObjects = gDom("pObjects");
@@ -153,8 +180,8 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
-		var isPaintMode = true;
-		var isEditMode = false;
+		var isPaintMode = false;
+		var isEditMode = true;
 		var lastPaintedPolyline = 0;
 		var zdzuPolygonsLayer = L.layerGroup();
 		var commPolygonsLayer = L.layerGroup();
@@ -218,7 +245,7 @@
 		
 		function createCardUploadFiles(dom, oid) {
 			getHttp("cardUploadFiles.htm", function(data){ 
-				dom.innerHTML += data; 
+				$(dom).append(data);
 				gDom("selectFileUploadPath").setAttribute("value", "data/"+oid+"/");
 				gDom("selectFileUploadId").setAttribute("value", oid);
 
@@ -715,7 +742,7 @@
 					var ar = objectlink.gOrm("gT2", [
 						["Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"],
 						[[2,1],[3,2],[4,2],[5,2],[6,1]],[],false,
-						decorateArr(fields, "`").concat(["`id_Договоры аренды`"]),
+						decorateArr(fields, "`").concat(["`id_Договоры аренды`", "`id_Файлы`"]),
 						" and `id_Арендаторы` = "+this.oid+" order by "+decorateArr(fields, "`id_", "`").join(",")
 						]);
 					var tb = pDopData.appendChild(cDom("TABLE"));
@@ -837,7 +864,9 @@
 						square_ = square;
 						
 						var file = ar[i][6];
+						var fileOid = ar[i][10];
 						if (files && !~files.indexOf(file)){
+							$(div).append("<input class='chFileButtonHtml' type='checkbox' id='oid"+fileOid+"' value='"+domain+url2cp1251(file)+"' hidden/>");
 							$(div).append(getFileButtonHtml(file));
 							files.push(file);
 						}
@@ -878,10 +907,13 @@
 						but.onclick = orderclick;
 
 					}
-					
+					if (isEditMode) {
+						createCardUploadFiles(pDopData, this.oid);
+					}
 				}
 				
 				showInf(pDopData, tb);
+				
 			}
 			
 			function getReportsInf(){
@@ -1507,7 +1539,7 @@ function testindex(){
 			<tr><td>Режим редактирования</td><td><input type='checkbox' id='chEditMode' /></td></tr>
 			</table>
 		</div>
-		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.9)' hidden id='mainContainer'>
+		<div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.9)' id='mainContainer'>
 			<div id='pLogin' style='position:fixed; left:500px; top:400px; background-color:rgba(0,0,0,0.5)'>
 				<form name="fLogin" onsubmit='return false;' id='fLogin'>
 				<table cellpadding="5" cellspacing="5">
