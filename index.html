@@ -1380,6 +1380,7 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 	dom.style.height = "100%";
 	dom.style.overflow = "hidden";
 	dom.style.backgroundColor = "rgba(0,0,0,0.8)";
+	dom.style.overflowY = "scroll";
 
 	var body = dom.appendChild(cDom("DIV"));
 	body.innerHTML = "<br><br>";
