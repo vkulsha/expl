@@ -185,6 +185,7 @@
 		var lastPaintedPolyline = 0;
 		var zdzuPolygonsLayer = L.layerGroup();
 		var commPolygonsLayer = L.layerGroup();
+		var arendPolygonsLayer = L.layerGroup();
 
 		var chPaintMode = gDom("chPaintMode");
 		chPaintMode.checked = isPaintMode;
@@ -299,8 +300,7 @@
 
 		var arrComm = [[], [], [], []];
 		var arrLines = [[], [], [], []];
-		var arendatorMarker;
-		var arendatorMarker2;
+		var arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9;
 		var arendatorMarkers = [];
 		var polylines = [];
 		var currentCommOid = 0;
@@ -330,9 +330,10 @@
 			for (var i=0; i < arrComm.length; i++) {
 				setCommVisible(i, visible);
 			}
-			for (var i=0; i < arendatorMarkers.length; i++){
-				arendatorMarkers[i].setOpacity(visible ? 1 : 0);
-			}
+			//for (var i=0; i < arendatorMarkers.length; i++){
+			//	arendatorMarkers[i].setOpacity(visible ? 1 : 0);
+			//}
+			arendPolygonsLayer.clearLayers();
 		}
 		function getPolylineByOid(oid_, polylines_){
 			if (polylines_) {
@@ -657,9 +658,17 @@
 			}
 			
 /////////////arendator
-			arendatorMarker = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
-			arendatorMarker2 = markerAddToMap(map, [0, 0], "images/arendator.png", 64);
-			arendatorMarkers = [arendatorMarker, arendatorMarker2];
+			arendatorMarker0 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker2 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker3 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker4 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker5 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker6 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker7 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker8 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendatorMarker9 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
+			arendPolygonsLayer.addTo(map);
+			arendatorMarkers = [arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9];
 			
 			function getArendatorInf(polylines, oid){
 				var tb = cDom("TABLE");
@@ -717,9 +726,10 @@
 					arr = arr.filter(function onlyUnique(value, index, self) {return self.indexOf(value) === index;});
 				
 					var polylines = this.polylines;
-					for (var i=0; i < arendatorMarkers.length; i++){
-						arendatorMarkers[i].setOpacity(0);
-					}
+					//for (var i=0; i < arendatorMarkers.length; i++){
+					//	arendatorMarkers[i].setOpacity(0);
+					//}
+					arendPolygonsLayer.clearLayers();
 					for (var m=0; m < arr.length; m++){
 						for (var i=0; i < polylines.length; i++){
 							var points = [];

@@ -139,7 +139,7 @@ class ObjectLink {
 	public function eO($params){//erase object from database
 		try {
 			$id = $params[0];
-			$fn = $params[1];
+			$fn = isset($params[1]) ? $params[1] : null;
 			
 			if ($fn) {
 				try {
