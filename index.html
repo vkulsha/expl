@@ -965,7 +965,7 @@
 			}
 			
 			function getReportsInf(){
-				var arr = ["Пустующий фонд по объекту", "Затраты и перевыставление"/*, "тестовый"*/];
+				var arr = ["Арендуемые и свободные площади", "Затраты и перевыставления"/*, "тестовый"*/];
 				pDopData.innerHTML = "";
 				var tb = pDopData.appendChild(cDom("TABLE"));
 				tb.style.width = "100%";
@@ -983,10 +983,10 @@
 				function funcclick(){
 					switch (this.reportId) {
 						case 0:
-							reportEmptyFond();
+							reportEmptyFond2();
 						break
 						case 1:
-							reportCommunicationOrders();
+							reportCommunicationOrders2();
 						break
 						case 2:
 							reportTest();
@@ -994,6 +994,88 @@
 					
 					}
 				}
+			}
+
+			function reportCommunicationOrders2(){
+				var arr = getOrm("select f2,f3,f4,'затраты','перевыст',f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,f27,f28,f29 "
+					+"from expl_zatrat where f1 is not null and f1 <> '' and f1 = "+oid, "all2object").data;
+				var arrH = ["Тип", "Поставщик", "Договор", "+/-", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь", "Итого"];
+				var arrF = ["Итого","","","затраты","перевыст",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+				arr.splice(0,0,arrH);
+				arr.push(arrF);
+				var div = cDom("DIV");
+				var lab = div.appendChild(cDom("H3"));
+				lab.innerHTML = "Отчет по затратам и перевыставлениям за 2016 год";
+				var tb = div.appendChild(cDom("TABLE"));
+				for (var i=0; i < arr.length; i++){
+					if (!arr[i] || !arr[i].length) return ret;
+					var tr = tb.appendChild(cDom("TR"));
+					var ind = 0;
+					var zat_sum = 0;
+					var per_sum = 0;
+					for (var j=0; j < arrH.length; j++){
+						var td = tr.appendChild(cDom("TD"));
+						td.style.width = "5%";
+						td.style.fontSize = "11px";
+						
+						if (i == 0) {
+							td.style.fontWeight = "bold";
+							td.innerHTML = arrH[j];
+						} else {
+							if (j < 3) {
+								td.innerHTML = arr[i][j] || "";
+							} else if (j === arrH.length-1) {
+								td.innerHTML = zat_sum.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ')+"<HR style='border:0; height:0; border-top:1px solid #fff'>"+per_sum.toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ');
+							} else {
+								var zat = arr[i][3+ind*2] || "0.00";
+								var per = arr[i][4+ind*2] || "0.00";
+
+								td.innerHTML = zat+"<BR>"+per;
+								if (j > 3) {
+									td.innerHTML = parseFloat(zat).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ')+"<HR style='border:0; height:0; border-top:1px solid #999'>"+parseFloat(per).toFixed(2).replace(/(\d)(?=(\d{3})+\.)/g, '$1 ');
+									zat_sum += parseFloat(zat);
+									per_sum += parseFloat(per);
+									
+									if (i < arr.length-1) {
+										td.style.color = "#999";
+									}
+									//td.style.fontSize = "11px";
+									//td.style.width = "7%";
+									arr[arr.length-1][3+ind*2] += parseFloat(zat);
+									arr[arr.length-1][4+ind*2] += parseFloat(per);
+								}
+								ind++;
+							}
+						}
+						td.style.border = "1px solid #999";
+					}
+				}
+				//showModalHtml(div, true);
+				var frmContainerMenu1 = new TForm(null,null,null,null,20,200000,true);
+				frmContainerMenu1.setBody(div);
+
+			}
+
+			function reportEmptyFond2(){
+				var arr = getOrm("select f4,f5,f6,f7,f9,f10,f11,f12,f8 from expl_arenda_square where f1 is not null and f1 <> '' and f1 = "+oid, "all2object").data;
+				var arrH = ["Тип", "Общая площадь, м2", "Пригодная площадь, м2", "Непригодная площадь, м2","Площадь в аренде, м2","Площадь в аренде, %","Свободные площади, м2","Свободные площади, %","Примечание"];
+				arr.splice(0,0,arrH);
+				var div = cDom("DIV");
+				var lab = div.appendChild(cDom("H3"));
+				lab.innerHTML = "Отчет по занятым и свободным площадям на 01.02.2017";
+				var tb = div.appendChild(cDom("TABLE"));
+				for (var i=0; i < arr.length; i++){
+					if (!arr[i] || !arr[i].length) return ret;
+					var tr = tb.appendChild(cDom("TR"));
+					for (var j=0; j < arr[i].length; j++){
+						var td = tr.appendChild(cDom("TD"));
+						td.innerHTML = arr[i][j];
+						if (i==0) td.style.fontWeight = "bold";
+						td.style.width = "10%";
+						td.style.border = "1px solid #999";
+					}
+				}
+				showModalHtml(div, true);
 			}
 			
 			function reportEmptyFond(){
@@ -1266,7 +1348,7 @@
 					for (var i=0; i < data.length; i++) {
 						var dogClassId = data[i][0];
 						var dogClassName = data[i][1];
-						if (["Организации","Документы","Арендаторы"].indexOf(dogClassName) == -1) {
+						if (["Организации","Документы","Арендаторы","Коммуникации на объекте"].indexOf(dogClassName) == -1) {
 							var arr = objectlink.gOrm("gAnd",[[classes[dogClassName],oid]]);
 							if (arr && arr.length)
 								fillCard2([dogClassName, "Договоры", "Файлы", "Объект"], oid, pDopData);

@@ -434,6 +434,7 @@
 	}
 	
 	window.onkeydown = function(event) {
+		console.log("keyCode: "+event.keyCode);
 		if (event.keyCode == 118 && event.shiftKey) {
 			createClass();
 		} else 
@@ -448,6 +449,11 @@
 			terminalRow.hidden = !terminalRow.hidden;
 			terminalRow.height = "100%";
 			terminal.focus();
+
+		}
+		if (event.keyCode == 113) {
+			var n = prompt("gO(n)","");
+			if (n) window.alert(n+" oid: "+objectlink.gOrm("gO",[n]));
 
 		}
 	};
