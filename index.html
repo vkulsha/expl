@@ -645,6 +645,7 @@
 				//fillCard2(["Коммуникации на объекте", "Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана", "Здания и сооружения"], this.oid, pDopData)
 				fillCard2(["Правоустанавливающие документы", /*"Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				fillCard2(["Технические данные", "Общая площадь", /*"Полезная площадь", "Площадь застройки",*/ "Число этажей", /*"Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент",*/ "Год постройки", /*"Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
+				fillCard2(["Файлы", "Здания и сооружения"], this.oid, pDopData);
 				//fillCard2(["Материально ответственное лицо", "ФИО", "Телефон", "Email", "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				pDop.hidden = false;
 				setCommsVisible(false);
@@ -653,7 +654,7 @@
 			loadPanel(zd, pObject, 2, 3, fclick, fover, fout, undefined, undefined, undefined, polylines);
 			
 			//if (oid && oid != 115){
-			if (false){
+			if (true){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>Общая информация</h3>");
 
@@ -682,6 +683,7 @@
 						$(pDopData).append("<p>Файлы:</p>");
 						var divVal = pDopData.appendChild(cDom("DIV"));
 						for (var i=0; i < otherFiles.length; i++) {
+							if (otherFiles[i].indexOf("passport") > -1 && !isEditMode) continue;
 							var fileButton = getFileButtonHtml(objectPath+url2cp1251(otherFiles[i]));
 							$(divVal).append(fileButton);
 						}

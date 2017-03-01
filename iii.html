@@ -392,7 +392,7 @@
 	bEO.onclick = function(){
 		var fn = undefined;
 		if (isFile) fn = objectlink.gOrm("gN",[oid]);
-		result = prompt("eO (id) "+fn, oid);
+		result = prompt("УДАЛИТЬ ОБЪЕКТ? eO (id) "+fn, oid);
 		if (result) {
 			objectlink.gOrm("eO",[result,fn]);
 			history.back();

@@ -219,14 +219,16 @@ function fillCard2(arr, oid, cont){
 	var rows = objectlink.gOrm("gT2",[arrC, [],/*[arrC.length-1],*/[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`"))/*.join(",")*/,
 		" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
 	//console.log(new Date()-dt);
-	///console.log(rows);
+	//console.log(rows);
 	var tb = cont.appendChild(cDom("TABLE"));
 	var filesInd = arrC.indexOf("Файлы");
 
 	var vals = [];
 	var isValsNotNull = false;
-	for (var i=1; i < arrC.length-1; i++){
-		var isFiles = filesInd && filesInd == i;
+	var startColumnNum = arrC[0] == "Файлы" ? 0 : 1;
+	
+	for (var i=startColumnNum; i < arrC.length-1; i++){
+		var isFiles = filesInd >= 0 && filesInd == i;
 
 		var tr = tb.appendChild(cDom("TR"));
 		var td1 = tr.appendChild(cDom("TD"));
@@ -248,6 +250,7 @@ function fillCard2(arr, oid, cont){
 		var vals = [];
 		for (var j=0; j < rows.length; j++){
 			var val_ = rows[j][i];
+			if (val_ && val_.toLowerCase().indexOf(".pdf") == -1) continue;
 			if (val != val_ && vals.indexOf(val_) == -1){
 				vals.push(val_);
 				if (isFiles) {
