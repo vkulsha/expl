@@ -166,6 +166,14 @@ class ObjectLink {
 			$id = $params[0];
 			$fn = isset($params[1]) ? $params[1] : null;
 			
+			if ($fn) {
+				try {
+					$path = mb_convert_encoding($fn, "cp1251", "UTF-8");
+					unlink($path);
+				} catch(Exception $e) {
+				}
+			}
+			
 			$ret = $this->sql->uT(["object", "c=0", "and id=$id"]);  
 			return $ret;
 			
