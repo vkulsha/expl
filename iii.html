@@ -394,7 +394,7 @@
 		if (isFile) fn = objectlink.gOrm("gN",[oid]);
 		result = prompt("УДАЛИТЬ ОБЪЕКТ? eO (id) "+fn, oid);
 		if (result) {
-			objectlink.gOrm("eO",[result,fn]);
+			objectlink.gOrm("nO",[result,fn]);
 			history.back();
 			//hashchange();
 			//goHome();
@@ -539,7 +539,7 @@
 				if (objects[0] && !objects[1]) {
 					var o1 = objects[0].split(",");
 					for (var i=0; i < o1.length; i++){
-						objectlink.gOrm("eO",[objectlink.gOrm("gO",[o1[i]])])
+						objectlink.gOrm("nO",[objectlink.gOrm("gO",[o1[i]])])
 						//console.log("eO "+objectlink.gO(o1[i]));
 					}
 					goHome();

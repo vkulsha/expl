@@ -125,6 +125,7 @@ class ObjectLink {
 		try {
 			$id = $params[0];
 			$n = $params[1];
+			//$u = isset($params[2]) ? $params[2] : 1;
 			
 			$ret = $this->sql->uT(["object", "n='$n'", "and id=$id"]);  
 			return $ret;
@@ -137,7 +138,7 @@ class ObjectLink {
 	}
 	
 	public function eO($params){//erase object from database
-		try {
+		/*try {
 			$id = $params[0];
 			$fn = isset($params[1]) ? $params[1] : null;
 			
@@ -151,6 +152,22 @@ class ObjectLink {
 			
 			$ret = $this->sql->dT(["link", "and (o1=$id or o2=$id)"]);  
 			$ret = $this->sql->dT(["object", "and id=$id"]);  
+			
+		} catch (Exception $e) {
+			print($e);
+			$ret = null;
+		}
+		return $ret;*/
+		return $this->nO($params);
+	}
+	
+	public function nO($params){//update object status
+		try {
+			$id = $params[0];
+			$fn = isset($params[1]) ? $params[1] : null;
+			
+			$ret = $this->sql->uT(["object", "c=0", "and id=$id"]);  
+			return $ret;
 			
 		} catch (Exception $e) {
 			print($e);
@@ -373,7 +390,7 @@ class ObjectLink {
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$b = 
 							"from (\n".
-							"	select id, n from object where id in ( \n".
+							"	select id, n from object where c>0 and id in ( \n".
 							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
@@ -557,11 +574,11 @@ class ObjectLink {
 			$isClass1 = $isClass ? "and o1 $isClass" : "";
 			$isClass2 = $isClass ? "and o2 $isClass" : "";
 			
-			$sel = "and id in ( ".
+			$sel = "and c>0 and id in ( ".
 					"select o1 from ( ".
-					"select o1, o2, false parent from link where o2 in ($objects) $notIsClass1 $isClass1 ".
+					"select o1, o2, false parent from link where c>0 and o2 in ($objects) $notIsClass1 $isClass1 ".
 					"union all ".
-					"select o2, o1, true  parent from link where o1 in ($objects) $notIsClass2 $isClass2 ".
+					"select o2, o1, true  parent from link where c>0 and o1 in ($objects) $notIsClass2 $isClass2 ".
 					")x where 1=1 ".
 					"$parent ".
 					"group by o1 ".
@@ -681,12 +698,12 @@ class ObjectLink {
 			$order = isset($params[1]) ? $params[1] : "";
 			
 			$query = "select * from ( ".
-			"	select distinct link.o1, object.n, link.o2, /*case when class.o2 is not null then 'Класс' end*/null c, link.t from ( ".
+			"	select distinct link.o1, object.n, link.o2, /*case when class.o2 is not null then 'Класс' end*/null c, link.t, object.c c_ from ( ".
 			"		select o1, o2, 'child' t from link union all select o2, o1, 'parent' from link ".
 			"	)link ".
 			"	join object on object.id = link.o1 ".
 			"	/*left join link class on class.o1 = link.o1 and class.o2 = 1*/ ".
-			")x where 1=1 and (o1 <> o2 or (o1 = o2 and t='parent')) ";
+			")x where 1=1 and c_>0 and (o1 <> o2 or (o1 = o2 and t='parent')) ";
 			
 			return $this->sql->sT(["(".$query.")x", "*", $where, $order, ""]);
 			
