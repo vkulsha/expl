@@ -229,7 +229,6 @@ function fillCard2(arr, oid, cont){
 	
 	for (var i=startColumnNum; i < arrC.length-1; i++){
 		var isFiles = filesInd >= 0 && filesInd == i;
-
 		var tr = tb.appendChild(cDom("TR"));
 		var td1 = tr.appendChild(cDom("TD"));
 		var td2;
@@ -250,7 +249,7 @@ function fillCard2(arr, oid, cont){
 		var vals = [];
 		for (var j=0; j < rows.length; j++){
 			var val_ = rows[j][i];
-			if (val_ && val_.toLowerCase().indexOf(".pdf") == -1) continue;
+			if (val_ && isFiles && val_.toLowerCase().indexOf(".pdf") == -1) continue;
 			if (val != val_ && vals.indexOf(val_) == -1){
 				vals.push(val_);
 				if (isFiles) {
