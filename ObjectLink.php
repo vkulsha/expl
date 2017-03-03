@@ -174,6 +174,7 @@ class ObjectLink {
 				}
 			}
 			
+			$ret = $this->sql->uT(["link", "c=0", "and (o1=$id or o2=$id)"]);
 			$ret = $this->sql->uT(["object", "c=0", "and id=$id"]);  
 			return $ret;
 			
