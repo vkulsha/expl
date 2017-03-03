@@ -679,11 +679,11 @@
 						}
 					}
 					
-					if (otherFiles.length) {
+					if (isEditMode && otherFiles.length) {
 						$(pDopData).append("<p>Файлы:</p>");
 						var divVal = pDopData.appendChild(cDom("DIV"));
 						for (var i=0; i < otherFiles.length; i++) {
-							if (otherFiles[i].indexOf("passport") > -1 && !isEditMode) continue;
+							//if (otherFiles[i].indexOf("passport") > -1 && !isEditMode) continue;
 							var fileButton = getFileButtonHtml(objectPath+url2cp1251(otherFiles[i]));
 							$(divVal).append(fileButton);
 						}
