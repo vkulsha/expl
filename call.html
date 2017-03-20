@@ -8,7 +8,7 @@
 	<script src="js/objectlink.js"></script></head>
 
 <style>
-	table, tr, td, select, option, button {
+	table, tr, td, select, option, button, input {
 		font-size : 24px;
 		width: 100%;
 		padding-top : 5px;
@@ -50,6 +50,7 @@ var arrUsers = [
 $(document).ready(function(){
 	arrUsers.sort();
 	var cbUser = gDom("cbUser");
+	var eTxt = gDom("eTxt");
 	var buttonsCalls = gDom("buttonsCalls");
 	var op = cDom("OPTION",arrUsers[i],cbUser);
 	
@@ -61,8 +62,8 @@ $(document).ready(function(){
 		bt.style.width = "100%";
 		td.style.width = "200px";
 		bt.onclick = function() {
-			objectlink.gOrm("setCall",[cbUser.value, this.innerHTML]);
-			alert(cbUser.value + " вызвал " + this.innerHTML);
+			objectlink.gOrm("setCall",[cbUser.value, this.innerHTML, eTxt.value]);
+			alert("["+cbUser.value + "] отправил \n адресату [" + this.innerHTML+"] \n сообщение:"+eTxt.value);
 			
 		}
 		
@@ -71,7 +72,7 @@ $(document).ready(function(){
 	var timerId = setInterval(function() {
 		var ret = objectlink.gOrm("getCall",[cbUser.value]);
 		if (ret && ret.length) {
-			alert("Вас вызывает \n"+ret[0][0]);
+			alert("Сообщение от ["+ret[0][0] + "]: \n `" + ret[0][1]+"`");
 		}
 	}, 5000);
 	
@@ -83,9 +84,12 @@ $(document).ready(function(){
 <body>
 	<table id="buttonsCalls">
 		<tr>
-			<td>Пользователь:<br><select id="cbUser"></select></td>
+			<td>От кого:<br><select id="cbUser"></select></td>
 		</tr>
-		<tr><td>Вызвать:</td><td></tr>
+		<tr>
+			<td>Сообщение:<br><input type="edit" id="eTxt" value="Подойди..."></td>
+		</tr>
+		<tr><td>Кому:</td><td></tr>
 	</table>
 </body>
 </html>

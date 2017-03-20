@@ -859,7 +859,8 @@ class ObjectLink {
 		try {
 			$u1 = $params[0];
 			$u2 = $params[1];
-			$ret = $this->sql->iT(["calls", "u1,u2", "'$u1','$u2'"]);  
+			$txt = isset($params[2]) ? $params[2] : "Подойди...";
+			$ret = $this->sql->iT(["calls", "u1,u2,txt", "'$u1','$u2','$txt'"]);  
 
 			return $ret;
 			
@@ -872,7 +873,7 @@ class ObjectLink {
 	public function getCall($params){
 		try {
 			$u = $params[0];
-			$ret = $this->sql->sT(["calls", "u1", "and u2 = '$u' and status is null"]);
+			$ret = $this->sql->sT(["calls", "u1,txt", "and u2 = '$u' and status is null"]);
 			$this->sql->uT(["calls", "status = CURRENT_TIMESTAMP", "and u2 = '$u' and status is null"]);
 			return $ret;
 			
