@@ -1,0 +1,91 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+	<meta http-equiv="Cache-Control" content="no-cache" />
+	
+	<script src="js/jquery-2.2.0.min.js"></script>
+	<script src="js/uService.js"></script>
+	<script src="js/objectlink.js"></script></head>
+
+<style>
+	table, tr, td, select, option, button {
+		font-size : 24px;
+		width: 100%;
+		padding-top : 5px;
+		padding-bottom : 5px;
+	}
+	
+</style>
+	
+<script>
+////////////policy
+
+var arrUsers = [
+"Токовой", 
+"Паршинцев", 
+"Рудометов", 
+"Кульша", 
+"Скуратов",
+
+"Кузьмин", 
+"Авдахин", 
+"Дмитренко", 
+"Хорошилов", 
+"Салим", 
+"Зыбенков", 
+"Иванова", 
+"Дурова", 
+"Бачурин", 
+"Гричанова", 
+"Пучков", 
+
+"Шарикова", 
+"Иванов", 
+"Богаткевич", 
+"Аргентова", 
+"Алешина", 
+];
+			
+////////////documentReady
+$(document).ready(function(){
+	arrUsers.sort();
+	var cbUser = gDom("cbUser");
+	var buttonsCalls = gDom("buttonsCalls");
+	var op = cDom("OPTION",arrUsers[i],cbUser);
+	
+	for (var i=0; i < arrUsers.length; i++) {
+		var op = cDom("OPTION",arrUsers[i],cbUser);
+		var tr = cDom("TR","",buttonsCalls);
+		var td = cDom("TD","",tr);
+		var bt = cDom("BUTTON",arrUsers[i],td);
+		bt.style.width = "100%";
+		td.style.width = "200px";
+		bt.onclick = function() {
+			objectlink.gOrm("setCall",[cbUser.value, this.innerHTML]);
+			alert(cbUser.value + " вызвал " + this.innerHTML);
+			
+		}
+		
+	}
+	
+	var timerId = setInterval(function() {
+		var ret = objectlink.gOrm("getCall",[cbUser.value]);
+		if (ret && ret.length) {
+			alert("Вас вызывает \n"+ret[0][0]);
+		}
+	}, 5000);
+	
+})
+
+</script>
+
+</head>
+<body>
+	<table id="buttonsCalls">
+		<tr>
+			<td>Пользователь:<br><select id="cbUser"></select></td>
+		</tr>
+		<tr><td>Вызвать:</td><td></tr>
+	</table>
+</body>
+</html>

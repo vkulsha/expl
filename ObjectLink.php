@@ -855,6 +855,32 @@ class ObjectLink {
 		}
 	}
 	
+	public function setCall($params){
+		try {
+			$u1 = $params[0];
+			$u2 = $params[1];
+			$ret = $this->sql->iT(["calls", "u1,u2", "'$u1','$u2'"]);  
+
+			return $ret;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
+	public function getCall($params){
+		try {
+			$u = $params[0];
+			$ret = $this->sql->sT(["calls", "u1", "and u2 = '$u' and status is null"]);
+			$this->sql->uT(["calls", "status = CURRENT_TIMESTAMP", "and u2 = '$u' and status is null"]);
+			return $ret;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
 	
 }
 
