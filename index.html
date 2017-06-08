@@ -200,6 +200,7 @@
 		}
 
 		map.on('click', function(e) {
+			console.log(e.latlng.lat, e.latlng.lng)
 			if (isPaintMode) {
 				paintArr.push([e.latlng.lat, e.latlng.lng]);
 			}
