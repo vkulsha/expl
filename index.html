@@ -75,17 +75,30 @@
 		bLogin.onclick = function(){
 			var eUser = $("#eUser").val();
 			var password = document.fLogin.ePassword.value;
-			var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
-			var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
-			if (u && p && u.length && p.length){
-				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
-				if (key && key.length){
-					key = key[0][0];
-					gDom("mainContainer").hidden = true;
-					gDom("pMain").hidden = false;
-					gDom("addressSearch").focus();
+			getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
+				var resp = JSON.parse(responce);
+				if (resp) {
+					var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
+					if (u && u.length && u[0][0]) {
+						gDom("mainContainer").hidden = true;
+						gDom("pMain").hidden = false;
+						gDom("addressSearch").focus();
+					}
+				} else {
+					var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
+					var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
+					if (u && p && u.length && p.length){
+						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
+						if (key && key.length){
+							key = key[0][0];
+							gDom("mainContainer").hidden = true;
+							gDom("pMain").hidden = false;
+							gDom("addressSearch").focus();
+						}
+					}
 				}
-			}
+			}, false);
+
 		}
 		
 		var pMain = gDom("pMain");
