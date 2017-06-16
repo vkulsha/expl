@@ -7,7 +7,7 @@
     //подсоединяемся к LDAP серверу
     $ldap = ldap_connect($_GET['p3']) or die(0);
     //Включаем LDAP протокол версии 3
-    //ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
+    ldap_set_option($ldap, LDAP_OPT_PROTOCOL_VERSION, 3);
  
     if ($ldap) {
         // Пытаемся войти в LDAP при помощи введенных логина и пароля
@@ -15,9 +15,11 @@
  
         if ($bind) {
 			echo 1;
+			
         } else {
 			echo 0;
         }
+		ldap_close($ldap);
     }
 
 ?>
