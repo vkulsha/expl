@@ -981,7 +981,7 @@
 			}
 			
 			function getReportsInf(){
-				var arr = ["Арендуемые и свободные площади", "Затраты и перевыставления"/*, "тестовый"*/];
+				var arr = ["Арендуемые и свободные площади", "Затраты и перевыставления за 2017 год", "Затраты и перевыставления за 2016 год"/*, "тестовый"*/];
 				pDopData.innerHTML = "";
 				var tb = pDopData.appendChild(cDom("TABLE"));
 				tb.style.width = "100%";
@@ -1002,19 +1002,20 @@
 							reportEmptyFond2();
 						break
 						case 1:
-							reportCommunicationOrders2();
+							reportCommunicationOrders2(2017);
 						break
 						case 2:
-							reportTest();
+							reportCommunicationOrders2(2016);
+							//reportTest();
 						break
 					
 					}
 				}
 			}
 
-			function reportCommunicationOrders2(){
+			function reportCommunicationOrders2(year){
 				var arr = getOrm("select f2,f3,f4,'затраты','перевыст',f6,f7,f8,f9,f10,f11,f12,f13,f14,f15,f16,f17,f18,f19,f20,f21,f22,f23,f24,f25,f26,f27,f28,f29 "
-					+"from expl_zatrat where f1 is not null and f1 <> '' and f1 = "+oid, "all2object").data;
+					+"from expl_zatrat_"+year+" where f1 is not null and f1 <> '' and f1 = "+oid, "all2object").data;
 				var arrH = ["Тип", "Поставщик", "Договор", "+/-", "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь", "Итого"];
 				var arrF = ["Итого","","","затраты","перевыст",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 				arr.splice(0,0,arrH);
