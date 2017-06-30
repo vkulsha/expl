@@ -606,7 +606,7 @@ class ObjectLink {
 	
 	public function objectsFromText($pid, $structIdent){
 		if ($pid) {
-			if (!$structIdent) {$structIdent = "	"};//TAB
+			if (!$structIdent) {$structIdent = "	";};//TAB
 			$lines = file('load.txt');
 			$arr = array();
 			$level = array($pid,0,0,0,0,0,0,0,0,0);
