@@ -604,15 +604,16 @@ class ObjectLink {
 		return $params;
 	}
 	
-	public function objectsFromText($pid, $structIdent){
+	public function objectsFromText($params){
+		$pid = $params[0];
+		$structIdent = isset($params[1]) ? $params[1] : "	";//TAB
 		if ($pid) {
-			if (!$structIdent) {$structIdent = "	";};//TAB
 			$lines = file('load.txt');
 			$arr = array();
 			$level = array($pid,0,0,0,0,0,0,0,0,0);
 			$pid = $level[0];
 			foreach ($lines as $line_num => $line) {
-				//if ($line_num > 4) break;//test
+				if ($line_num > 4) break;//test
 				$count = substr_count($line, $structIdent);
 				$pid = $level[$count];
 				$level[$count+1] = $this->cO([$line, $pid]);
