@@ -604,6 +604,24 @@ class ObjectLink {
 		return $params;
 	}
 	
+	public function objectsFromText($pid, $structIdent){
+		if ($pid) {
+			if (!$structIdent) {$structIdent = "	"};//TAB
+			$lines = file('load.txt');
+			$arr = array();
+			$level = array($pid,0,0,0,0,0,0,0,0,0);
+			$pid = $level[0];
+			foreach ($lines as $line_num => $line) {
+				//if ($line_num > 4) break;//test
+				$count = substr_count($line, $structIdent);
+				$pid = $level[$count];
+				$level[$count+1] = $this->cO([$line, $pid]);
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public function createPolygonObject($params){
 		try {
 			$coords = $params[0];
