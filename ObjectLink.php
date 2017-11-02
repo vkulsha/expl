@@ -902,6 +902,28 @@ class ObjectLink {
 		}
 	}
 	
+	public function getObject(){
+		try {
+			$ret = $this->sql->sT(["object","*"]);
+			return $ret;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
+	public function getLink(){
+		try {
+			$ret = $this->sql->sT(["link","*"]);
+			return $ret;
+			
+		} catch (Exception $e){
+			print($e);
+			return null;
+		}
+	}
+	
 }
 
 
