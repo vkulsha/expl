@@ -902,9 +902,10 @@ class ObjectLink {
 		}
 	}
 	
-	public function getObject(){
+	public function getObject($params){
 		try {
-			$ret = $this->sql->sT(["object","*"]);
+			$cond = isset($params[0]) ? $params[0] : "";
+			$ret = $this->sql->sT(["object","*",$cond]);
 			return $ret;
 			
 		} catch (Exception $e){
@@ -913,9 +914,10 @@ class ObjectLink {
 		}
 	}
 	
-	public function getLink(){
+	public function getLink($params){
 		try {
-			$ret = $this->sql->sT(["link","*"]);
+			$cond = isset($params[0]) ? $params[0] : "";
+			$ret = $this->sql->sT(["link","*",$cond]);
 			return $ret;
 			
 		} catch (Exception $e){
