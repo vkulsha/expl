@@ -321,7 +321,7 @@ class ObjectLink {
 			if ($groupbyind !== false) {
 				$foot[] = "group by o".$groupbyind.".id having 1=1 \n\n";
 			}
-			$result = join("",$head).join("",$body).join("foot",$foot);
+			$result = join("",$head).join("",$body).join("",$foot);
 			return $result;
 			
 		} catch (Exception $e){
@@ -383,6 +383,7 @@ class ObjectLink {
 			$head = [];
 			$body = [];
 			$foot = [];
+			$c_bigger_zero = [];
 			$i = -1;
 			foreach ($paramsArr as $cc){
 				$i++;
@@ -399,14 +400,17 @@ class ObjectLink {
 						$l = $id ? $id : "(select id from object where n='".$col."' limit 1)";
 						$b = 
 							"from (\n".
-							"	select id, n from object where c>0 and id in ( \n".
-							"		select o1 from link where c>0 and o2 = ".$l." \n".
+							"	select id, n, c from object where 2=2 and id in ( \n".
+							"		select o1 from link where 2=2 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by id \n".
 							")o".$i." \n";
+						$c = " where 1=1 and (o".$i.".c>0  or o".$i.".id is null)\n";
+
 						$head[] = $h;
 						$body[] = $b;
+						$c_bigger_zero[] = $c;
 					} else {
 						$h = "";
 						if ($groupbyind !== false) {///*order by o".$i.".id desc*/
@@ -425,20 +429,22 @@ class ObjectLink {
 						$parentCol = $pcol ? $pcol : 0;
 						$b = 
 							"left join ( \n".
-							"	select o1, o2, d, c from link where c>0 and o1 in ( \n".
+							"	select o1, o2, d, c from link where 2=2 and o1 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							" union all \n".
-							"	select o2, o1, d, c from link where c>0 and o2 in ( \n".
+							"	select o2, o1, d, c from link where 2=2 and o2 in ( \n".
 							"		select o1 from link where o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by o1, o2 \n".
 							")l".$i." on l".$i.".o2 = o".$parentCol.".id left join object o".$i." on o".$i.".id = l".$i.".o1 \n";
-						
+						$c = " and (o".$i.".c>0  or o".$i.".id is null)\n";
+
 						$head[] = $h;
 						$body[] = $b;
+						$c_bigger_zero[] = $c;
 					}
 				}
 			}
@@ -446,7 +452,7 @@ class ObjectLink {
 			if ($groupbyind !== false) {
 				$foot[] = "group by o".$groupbyind.".id having 1=1 \n\n";
 			}
-			$result = join("",$head).join("",$body).join("foot",$foot);
+			$result = join("",$head).join("",$body).join("",$foot).join("",$c_bigger_zero);
 			return $result;
 			
 		} catch (Exception $e){

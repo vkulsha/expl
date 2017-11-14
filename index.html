@@ -364,7 +364,9 @@
 
 ////////////////polygons communications
 ////////////////markers electro
+//console.time();
 		var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+//console.timeEnd();
 		var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer);
 		if (elLines && elLines.length){
 			var elCoord = elLines[0].getLatLngs()[0];
@@ -375,7 +377,9 @@
 		}
 		
 ////////////////markers teplo
+//console.time();
 		var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+//console.timeEnd();
 		var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer);
 		if (teLines && teLines.length){
 			var teCoord = teLines[0].getLatLngs()[0];
@@ -386,7 +390,9 @@
 		}
 
 ////////////////markers water
+//console.time();
 		var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+//console.timeEnd();
 		var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer);
 		if (waLines && waLines.length){
 			var waCoord = waLines[0].getLatLngs()[0];
@@ -397,7 +403,9 @@
 		}
 
 ////////////////markers kanalization
+//console.time();
 		var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], " and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+//console.timeEnd();
 		var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer);
 		if (kaLines && kaLines.length){
 			var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
@@ -448,8 +456,10 @@
 			pObject.innerHTML = "";
 			pDop.hidden = false;
 ////////////about object			
+//console.time();
 			var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,null, "and `id_Объект` = "+oid+" order by `id_Здания и сооружения`"]);
 			var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[]/*,[]*/,[],false,null, "and `id_Объект` = "+oid+" order by `id_Земельные участки`"]);
+//console.timeEnd();
 			$(pObject).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
 			$(pObject).append("Адрес: <label style='color:#00ff00'>"+zd[0][5]+"</label><br>");
 			$(pObject).append("Территориальное управление: <label style='color:#00ff00'>"+zd[0][11]+"</label><br>");
@@ -457,7 +467,9 @@
 ////////////object communications
 			var getCommVisible;
 			var comms = ["Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана"];
+//console.time();
 			var getCommOnObject = objectlink.gOrm("gT2",[["Объект"].concat(comms),[]/*,[]*/,[],false,decorateArr(comms, "`id_", "`")/*.join(",")*/," and `id_Объект`="+oid+" order by "+decorateArr(comms, "`id_", "` desc ").join(",")+" limit 1"]);
+//console.timeEnd();
 			//console.log(objectlink.gOrm("gTq2",[["Объект"].concat(comms),[],[],false,decorateArr(comms, "`id_", "`")," and `id_Объект`="+oid]));
 			//console.log(getCommOnObject[0]);
 			var electroId = getCommOnObject[0][0];
@@ -617,7 +629,9 @@
 				if (isPaintMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
+//console.time();
 				var photo = objectlink.gOrm("gT2",[["Здания и сооружения", "Фото"],[]/*,[]*/,[],false, ["`Фото`"], "and `id_Здания и сооружения` = "+this.oid+" order by `id_Фото`"]);
+//console.timeEnd();
 				if (photo && photo.length) {
 					if (photo[0][0]) {
 						$(pDopData).append("<button id='bImg'><img src="+photo[0][0]+" width='64'/></button>")
@@ -672,7 +686,9 @@
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>Общая информация</h3>");
 
+//console.time();
 				var objectId = objectlink.gOrm("gT2",[["Номер","Объект"],[],[],false,null,"and `id_Объект` ="+oid+" limit 1"]);
+//console.timeEnd();
 				if (objectId && objectId.length) {
 					objectId = objectId[0][1];
 					var objectPath = getObjectsDir()+"/"+objectId+"/";
@@ -1465,8 +1481,10 @@ function loadMainListOfObjects(){
 	
 function loadAndPaintAllPolygons(map){
 	var polylines = []
+//console.time();
 	var zu = objectlink.gOrm("gT2",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Земельные участки`", "`id_Объект`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 	var zd = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Здания и сооружения`", "`id_Объект`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+//console.timeEnd();
 	var paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:3}, map);
 	var paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:2}, map);
 	polylines = paintZu ? polylines.concat(paintZu) : polylines;
