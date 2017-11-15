@@ -641,7 +641,10 @@
 						bImg.style.border = "0px";
 						bImg.style.cursor = "pointer";
 						bImg.onclick = function(){
-							showModal("cardPhoto.htm", this.oid, oid);
+							cardPhotoOid = this.oid;
+							//showModal("cardPhoto.htm", this.oid, oid);
+							showModal("cardPhoto.htm");
+							
 						}
 					}
 				}

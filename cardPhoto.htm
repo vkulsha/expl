@@ -9,7 +9,8 @@
 </table>
 
 <script>
-	var objectId = $_GET(objectIdUrlKey, "#", location.hash);
+	//var objectId = $_GET(objectIdUrlKey, "#", location.hash);
+	var objectId = cardPhotoOid;
 	var objectName = objectlink.gOrm("gN",[objectId]);
 	$("#label").html(objectName);
 	
@@ -25,14 +26,13 @@
 	var imgContainer = cDom("DIV");
 	tdImg.appendChild(imgContainer);
 
-	var imgObject = new Image();
-	
 	///Фото
 	$(imgContainer)
 		.css("height", windowHeight() - 150 + "px")
 		//.css("width", dataContainer.getBoundingClientRect().right - dataContainer.getBoundingClientRect().left);
 
 	var images = objectlink.gOrm("gT2",[["Здания и сооружения","Фото"],[],[],false,null,"and `id_Здания и сооружения` ="+objectId+" order by `id_Фото`"]);
+	var imgObject = new Image();
 	if (images && images.length) {
 		var imgInd = 0;
 		

@@ -1,4 +1,5 @@
 var mainHtmlPage = "";//"index.html";
+var cardPhotoOid = 0;
 
 function mapLoad(arrLatLon, opts, click){
 	var ObjectIcon = L.Icon.extend({
