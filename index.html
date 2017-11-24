@@ -72,10 +72,26 @@
 		pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
 
 		var bLogin = gDom("bLogin");
+		
 		bLogin.onclick = function(){
 			var eUser = $("#eUser").val();
 			var password = document.fLogin.ePassword.value;
 
+			var getLDAP = function() {
+				getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
+					var resp = JSON.parse(responce);
+					if (resp) {
+						var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
+						if (u && u.length && u[0][0]) {
+							gDom("mainContainer").hidden = true;
+							gDom("pMain").hidden = false;
+							gDom("addressSearch").focus();
+						}
+					} else {
+					}
+				}, false);
+			}
+			
 			var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
 			var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
 			if (u && p && u.length && p.length){
@@ -86,19 +102,10 @@
 					gDom("pMain").hidden = false;
 					gDom("addressSearch").focus();
 				} else {
-					getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
-						var resp = JSON.parse(responce);
-						if (resp) {
-							var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
-							if (u && u.length && u[0][0]) {
-								gDom("mainContainer").hidden = true;
-								gDom("pMain").hidden = false;
-								gDom("addressSearch").focus();
-							}
-						} else {
-						}
-					}, false);
+					getLDAP();
 				}
+			} else {
+				getLDAP();
 			}
 
 		}
