@@ -19,48 +19,6 @@
 ////////////policy
 	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 	var classes = hash4arr(classes_);
-	//var classes_ = objectlink.gOrm("gAnd",[[1],"n,id"]);
-/*
-	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
-	var classes = hash4arr(classes_);
-	var oids = [];
-	console.log("classes count: "+classes_.length);
-	
-	var key = $_GET("key", "#", location.hash);
-	var userKey = parseInt(key) || objectlink.gOrm("getObjectFromClass", [classes["Ключи доступа пользователей"] || 0, "undefined"])[0][0] || 0;
-	var userId = objectlink.gOrm("gAnd",[[userKey, classes["Пользователи"]]]);
-	if (userId && userId.length){
-		userId = userId[0][0];
-		var mainInterface = getMainInterfaceKey(userId);
-		if (mainInterface) {
-			$(document).ready(function() {
-				var pLogin = gDom("pLogin");
-				pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
-				pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
-				//var policy = showInterfaceElements(userId, mainInterface);
-
-				var bLogin = gDom("bLogin");
-				bLogin.onclick = function(){
-					var eUser = $("#eUser").val();
-					var password = document.fLogin.ePassword.value;
-				
-					var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
-					var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
-					if (u && p && u.length && p.length){
-						var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
-						if (key && key.length){
-							key = key[0][0];
-							gDom("mainContainer").hidden = true;
-							gDom("pMain").hidden = false;
-							gDom("addressSearch").focus();
-						}
-					}
-				}
-				//gDom("mainContainer").hidden = true;/////удалить после работы
-			});
-		}
-	}
-*/
 			
 ////////////documentReady
 	$(document).ready(function(){

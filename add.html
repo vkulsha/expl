@@ -169,6 +169,28 @@
 			eFilterObject.innerHTML = "";
 			var filterObjects = objectlink.gOrm("gAnd",[[this.value],"id,n",true]);
 			fillSelectDom(eFilterObject, filterObjects);
+			
+			var c4f = eClass4filter.value;
+			if (!c4f) return;
+			var cn4f = gDom("opt"+c4f).innerHTML;
+			if (!cn4f) return;
+			
+			var fc = eFilterClass.value;
+			if (!fc) return;
+			var fcn = gDom("opt"+fc).innerHTML;
+			if (!fcn) return;
+			var fo = gDom("cb"+fc).value;//!!!!!
+			if (!fo) return;
+			
+			var cb = gDom("cb"+c4f);
+			if (!cb) return;
+			cb.innerHTML = "";
+
+			var values = objectlink.gOrm("gT2",[[cn4f, cn, fcn],[[2,1]],[],false,null," and `id_"+fcn+"`="+fo]);
+			//console.log(cn4f, fc, fcn, fo, cid, values);
+			if (!values || !values.length) return;
+			fillSelectDom(cb, values);
+			
 		}
 		
 ////////filter class
