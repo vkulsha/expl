@@ -82,12 +82,16 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 	paramsL = paramsL || {};
 	funcL = funcL || L.polygon;
 	var polyId = coords[0][1];
+	function onmouseover(e) { this.setStyle({color:"#ff0000", weight:5}); };
+	function onmouseout(e) { this.setStyle(paramsL); };
 	
-	var funcdel = (cid, oid) => {
-		var q = prompt("Удалить выделенный объект cid:"+(cid||"")+" oid:"+oid+" ?", "да");
-		if (q == "да" && oid) {
-			objectlink.gOrm("eO",[oid]);
-			poly.setStyle({color : "#000000", weight:0});
+	var funcdel = (pl) => {
+		var q = prompt("Удалить выделенный объект cid:"+(pl.cid||"")+" oid:"+pl.polyId+" ?", "да");
+		if (q == "да" && pl.polyId) {
+			objectlink.gOrm("eO",[pl.polyId]);
+			pl.off('mouseover');
+			pl.off('mouseout');
+			pl.setStyle({color : "#000000", weight:0});
 		}
 	}
 
@@ -103,14 +107,10 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 
 			p.on('contextmenu', function(e) {
 				console.log(this.polyId);
-				funcdel(this.cid, this.polyId);
+				funcdel(this);
 			})
-			p.on('mouseover', function(e) {
-				this.setStyle({color:"#ff0000", weight:5});
-			})
-			p.on('mouseout', function(e) {
-				this.setStyle(paramsL);
-			})
+			p.on('mouseover', onmouseover);
+			p.on('mouseout', onmouseout);
 
 			ret.push(p);
 			poly = [];
@@ -129,7 +129,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 
 			p.on('contextmenu', function(e) {
 				console.log(this.polyId);
-				funcdel(this.cid, this.polyId);
+				funcdel(this);
 			})
 			p.on('mouseover', function(e) {
 				this.setStyle({color:"#ff0000", weight:5});
