@@ -75,13 +75,22 @@ function searchAddress(query){
 	return result;
 }
 
-function mapPaint(coords, funcL, paramsL, map){
+function mapPaint(coords, funcL, paramsL, map, cid){
 	if (!coords || !coords.length) return;
 	var ret = [];
 	var poly = [];
 	paramsL = paramsL || {};
 	funcL = funcL || L.polygon;
 	var polyId = coords[0][1];
+	
+	var funcdel = (cid, oid) => {
+		var q = prompt("Удалить выделенный объект cid:"+(cid||"")+" oid:"+oid+" ?", "да");
+		if (q == "да" && oid) {
+			objectlink.gOrm("eO",[oid]);
+			poly.setStyle({color : "#000000", weight:0});
+		}
+	}
+
 	for (var i=0; i < coords.length; i++){
 		var oid;
 		var objid;
@@ -89,6 +98,20 @@ function mapPaint(coords, funcL, paramsL, map){
 			var p = funcL(poly, paramsL).addTo(map);
 			p.oid = oid;
 			p.objid = objid;
+			p.polyId = polyId;
+			p.cid = cid;
+
+			p.on('contextmenu', function(e) {
+				console.log(this.polyId);
+				funcdel(this.cid, this.polyId);
+			})
+			p.on('mouseover', function(e) {
+				this.setStyle({color:"#ff0000", weight:5});
+			})
+			p.on('mouseout', function(e) {
+				this.setStyle(paramsL);
+			})
+
 			ret.push(p);
 			poly = [];
 		}
@@ -101,6 +124,20 @@ function mapPaint(coords, funcL, paramsL, map){
 			var p = funcL(poly, paramsL).addTo(map);
 			p.oid = oid;
 			p.objid = objid;
+			p.polyId = polyId;
+			p.cid = cid;
+
+			p.on('contextmenu', function(e) {
+				console.log(this.polyId);
+				funcdel(this.cid, this.polyId);
+			})
+			p.on('mouseover', function(e) {
+				this.setStyle({color:"#ff0000", weight:5});
+			})
+			p.on('mouseout', function(e) {
+				this.setStyle(paramsL);
+			})
+
 			ret.push(p);
 			
 		}

@@ -334,7 +334,7 @@
 //console.time();
 		var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 //console.timeEnd();
-		var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer);
+		var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer, classes["Электроснабжение"]);
 		if (elLines && elLines.length){
 			var elCoord = elLines[0].getLatLngs()[0];
 			var markerElectro = markerAddToMap(commPolygonsLayer, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
@@ -342,12 +342,12 @@
 			arrLines[0] = elLines;
 			setCommVisible(0, false);
 		}
-		
+
 ////////////////markers teplo
 //console.time();
 		var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 //console.timeEnd();
-		var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer);
+		var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer, classes["Отопление"]);
 		if (teLines && teLines.length){
 			var teCoord = teLines[0].getLatLngs()[0];
 			var markerTeplo = markerAddToMap(commPolygonsLayer, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
@@ -360,7 +360,7 @@
 //console.time();
 		var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 //console.timeEnd();
-		var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer);
+		var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer, classes["ХВС"]);
 		if (waLines && waLines.length){
 			var waCoord = waLines[0].getLatLngs()[0];
 			var markerWater = markerAddToMap(commPolygonsLayer, [waCoord.lat, waCoord.lng], "images/markerWater.png")
@@ -373,7 +373,7 @@
 //console.time();
 		var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], " and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 //console.timeEnd();
-		var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer);
+		var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer, classes["Канализация"]);
 		if (kaLines && kaLines.length){
 			var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
 			var markerKanal = markerAddToMap(commPolygonsLayer, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
@@ -1455,8 +1455,8 @@ function loadAndPaintAllPolygons(map){
 	var zu = objectlink.gOrm("gT2",[["Объект", "Земельные участки", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Земельные участки`", "`id_Объект`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 	var zd = objectlink.gOrm("gT2",[["Объект", "Здания и сооружения", "Полигоны на карте", "Координаты на карте"],[[2,1],[3,2]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Здания и сооружения`", "`id_Объект`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
 //console.timeEnd();
-	var paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:3}, map);
-	var paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:2}, map);
+	var paintZu = mapPaint(zu, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:3}, map, classes["Земельные участки"]);
+	var paintZd = mapPaint(zd, L.polygon, {color:"#00ff00", fillOpacity:0.1, weight:2}, map, classes["Здания и сооружения"]);
 	polylines = paintZu ? polylines.concat(paintZu) : polylines;
 	polylines = paintZd ? polylines.concat(paintZd) : polylines;
 	
