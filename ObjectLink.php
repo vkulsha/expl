@@ -405,7 +405,7 @@ class ObjectLink {
 						$b = 
 							"from (\n".
 							"	select id, n, c from object where 2=2 and id in ( \n".
-							"		select o1 from link where 2=2 and o2 = ".$l." \n".
+							"		select o1 from link where 2=2 and c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by id \n".
@@ -434,16 +434,16 @@ class ObjectLink {
 						$b = 
 							"left join ( \n".
 							"	select o1, o2, d, c from link where 2=2 and o1 in ( \n".
-							"		select o1 from link where o2 = ".$l." \n".
+							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							" union all \n".
 							"	select o2, o1, d, c from link where 2=2 and o2 in ( \n".
-							"		select o1 from link where o2 = ".$l." \n".
+							"		select o1 from link where c>0 and o2 = ".$l." \n".
 							($inClass ? "" : "and o1 not in (select o1 from link where o2 = 1) \n").
 							"	) \n".
 							"	group by o1, o2 \n".
-							")l".$i." on l".$i.".o2 = o".$parentCol.".id left join object o".$i." on o".$i.".id = l".$i.".o1 \n";
+							")l".$i." on l".$i.".o2 = o".$parentCol.".id and l".$i.".c>0 left join object o".$i." on o".$i.".id = l".$i.".o1 \n";
 						$c = " and (o".$i.".c>0  or o".$i.".id is null)\n";
 
 						$head[] = $h;
