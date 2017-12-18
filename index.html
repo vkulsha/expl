@@ -1,19 +1,20 @@
+<!DOCTYPE html>
 <html>
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<meta http-equiv="Cache-Control" content="no-cache" />
-	
-	<link rel="shortcut icon" href="/images/logo.png" type="image/png">
-	<link rel="stylesheet" href="css/leaflet.css" />
-	<link rel="stylesheet" type="text/css" href="css/main.css">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta http-equiv="Cache-Control" content="no-cache" />
+		
+		<link rel="shortcut icon" href="/images/logo.png" type="image/png">
+		<link rel="stylesheet" href="css/leaflet.css" />
+		<link rel="stylesheet" type="text/css" href="css/main.css">
 
-	<script src="js/jquery-2.2.0.min.js"></script>
-	<script src="js/d3.min.js"></script>
-	<script src="js/leaflet.js"></script>		
-	<script src="js/uService.js"></script>
-	<script src="js/Main.js"></script>
-	<script src="js/objectlink.js"></script>
-	<script src="js/jscharts.js"></script>
+		<script src="js/jquery-2.2.0.min.js"></script>
+		<script src="js/d3.min.js"></script>
+		<script src="js/leaflet.js"></script>		
+		<script src="js/uService.js"></script>
+		<script src="js/Main.js"></script>
+		<script src="js/objectlink.js"></script>
+		<script src="js/jscharts.js"></script>
 
 <script>
 ////////////policy
@@ -64,6 +65,7 @@
 			} else if (u && u.length){
 				getLDAP();
 			}
+			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
 		}
 		
 		var pMain = gDom("pMain");
@@ -214,7 +216,7 @@
 		function deleteLastPaintedPolygon(oid){
 			var oid = prompt("Удалить последнюю линию №", oid);
 			if (oid) {
-				objectlink.gOrm("eO",[oid]);
+				objectlink.gOrm("eO",[oid, null, currentUser.oid]);
 				map.removeLayer(lastPaintMarkers);
 			}
 		}
@@ -264,7 +266,7 @@
 								}
 							}
 							for (var i=0; i < oids.length; i++) {
-								objectlink.gOrm("eO",[oids[i]]);
+								objectlink.gOrm("eO",[oids[i], null, currentUser.oid]);
 							}
 							console.log("delete files and eO:");
 							console.log(oids);
@@ -481,7 +483,7 @@
 				if (isPaintMode) {
 					var el = ["Электроснабжение","Отопление","ХВС","Канализация"];
 					if (!currentCommOid) {
-						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]], currentUser.oid]);
 						objectlink.gOrm("cL", [currentCommOid, oid]);
 						getCommOnObject[0][this.ind] = currentCommOid;
 					}
@@ -555,7 +557,7 @@
 					currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind] : 0;
 					var el = ["Интернет","Вывоз КГМ и ТБО","Охрана"];
 					if (!currentCommOid) {
-						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]], currentUser.oid]);
 						objectlink.gOrm("cL", [currentCommOid, oid]);
 					}
 					
@@ -857,7 +859,7 @@
 											var dogOid = this.dogOid;//2360;//test
 											if (this.checked) {
 												var val = "участок договора "+dogOid+" здания/зу "+this.oid+" "+d2str(new Date());
-												ua = objectlink.gOrm("cO", [val, classes["Участок аренды"]]);
+												ua = objectlink.gOrm("cO", [val, classes["Участок аренды"], currentUser.oid]);
 												if (ua) {
 													objectlink.gOrm("cL", [ua, dogOid]);
 													objectlink.gOrm("cL", [this.oid, ua]);
@@ -868,7 +870,7 @@
 												ua = ua && ua.length ? ua[0][0] : null;
 												if (ua) {
 													objectlink.gOrm("eL", [this.oid, ua]);
-													objectlink.gOrm("eO", [ua]);
+													objectlink.gOrm("eO", [ua, null, currentUser.oid]);
 													console.log("удален Участок аренды: "+ua+ "; eL ("+this.oid+"," +ua+")");
 												}
 											}
@@ -1637,14 +1639,13 @@ function testindex(){
 }
 
 </script>
-
 	</head>
 	<body>
 		<div id="myModal" class="modal">
 		  <div class="modal-content">
 			<div class="modal-header">
 			  <span class="close">&times;</span>
-			  <h3 id='modalTitle'></h2>
+			  <h3 id='modalTitle'></h3>
 			</div>
 			<div class="modal-body" id='modalBody'>
 			</div>

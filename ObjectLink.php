@@ -32,7 +32,7 @@ class ObjectLink {
 				}
 				
 				if (!$id) {
-					$id = $this->sql->iT(["object", "n", "'$n'"]);  
+					$id = $this->sql->iT(["object", "n,u", "'$n',$u"]);  
 					
 					if ($pid) {
 						$this->cL([$id, $pid, $u]);
@@ -165,6 +165,7 @@ class ObjectLink {
 		try {
 			$id = $params[0];
 			$fn = isset($params[1]) ? $params[1] : null;
+			$u = isset($params[2]) ? $params[2] : 1;
 			
 			if ($fn) {
 				try {
@@ -174,8 +175,8 @@ class ObjectLink {
 				}
 			}
 			
-			$ret = $this->sql->uT(["link", "c=0", "and (o1=$id or o2=$id)"]);
-			$ret = $this->sql->uT(["object", "c=0", "and id=$id"]);  
+			$ret = $this->sql->uT(["link", "c=0,u=".$u, "and (o1=$id or o2=$id)"]);
+			$ret = $this->sql->uT(["object", "c=0,u=".$u, "and id=$id"]);  
 			return $ret;
 			
 		} catch (Exception $e) {
@@ -189,8 +190,9 @@ class ObjectLink {
 		try {
 			$o1 = $params[0];
 			$o2 = $params[1];
+			$u = isset($params[2]) ? $params[2] : 1;
 			
-			$ret = $this->sql->uT(["link", "c=0", "and ((o1=$o1 and o2=$o2) or (o2=$o1 and o1=$o2))"]);  
+			$ret = $this->sql->uT(["link", "c=0,u=".$u, "and ((o1=$o1 and o2=$o2) or (o2=$o1 and o1=$o2))"]);  
 			return $ret;
 			
 		} catch (Exception $e) {
@@ -201,7 +203,7 @@ class ObjectLink {
 	}
 		
 	public function eL($params){//erase link from database
-		try {
+		/*try {
 			$o1 = $params[0];
 			$o2 = $params[1];
 			
@@ -212,7 +214,9 @@ class ObjectLink {
 			print($e);
 			$ret = null;
 		}
-		return $ret;
+		return $ret;*/
+		return $this->nL($params);
+		
 	}
 	
 	public function gC($params){//get class object fields
