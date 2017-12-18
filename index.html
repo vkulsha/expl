@@ -12,8 +12,9 @@
 		<script src="js/leaflet.js"></script>		
 		<script src="js/uService.js"></script>
 		<script src="js/Main.js"></script>
-		<script src="js/objectlink.js"></script></head>
-		<script src="js/jscharts.js"></script></head>
+		<script src="js/objectlink.js"></script>
+		<script src="js/jscharts.js"></script>
+	</head>
 
 <script>
 ////////////policy
@@ -32,19 +33,21 @@
 		var bLogin = gDom("bLogin");
 		
 		bLogin.onclick = function(){
+			var auth = false;
 			var eUser = $("#eUser").val();
 			var password = document.fLogin.ePassword.value;
 
+			var openview = function() {
+				gDom("mainContainer").hidden = true;
+				gDom("pMain").hidden = false;
+				gDom("addressSearch").focus();
+			}
+			
 			var getLDAP = function() {
 				getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
 					var resp = JSON.parse(responce);
 					if (resp) {
-						var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
-						if (u && u.length && u[0][0]) {
-							gDom("mainContainer").hidden = true;
-							gDom("pMain").hidden = false;
-							gDom("addressSearch").focus();
-						}
+						openview();
 					} else {
 					}
 				}, false);
@@ -55,17 +58,13 @@
 			if (u && p && u.length && p.length){
 				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
 				if (key && key.length){
-					key = key[0][0];
-					gDom("mainContainer").hidden = true;
-					gDom("pMain").hidden = false;
-					gDom("addressSearch").focus();
-				} else {
+					openview();
+				} else if (u && u.length) {
 					getLDAP();
 				}
-			} else {
+			} else if (u && u.length){
 				getLDAP();
 			}
-
 		}
 		
 		var pMain = gDom("pMain");

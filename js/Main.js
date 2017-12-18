@@ -85,7 +85,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 	function onmouseover(e) { this.setStyle({color:"#ff0000", weight:5}); };
 	function onmouseout(e) { this.setStyle(paramsL); };
 	
-	var funcdel = (pl) => {
+	var funcdel = function (pl) {
 		var q = prompt("Удалить выделенный объект cid:"+(pl.cid||"")+" oid:"+pl.polyId+" ?", "да");
 		if (q == "да" && pl.polyId) {
 			objectlink.gOrm("eO",[pl.polyId]);

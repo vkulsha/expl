@@ -4,7 +4,6 @@ var domain = "http://"+host+"/";
 var interfaceUrlKey = "interface";
 var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
-var lastSelectedPolyline;
 var currentUser = {};
 var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
