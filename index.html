@@ -17,57 +17,11 @@
 
 <script>
 ////////////policy
-	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
-	var classes = hash4arr(classes_);
+	var classes_;
+	var classes;
 			
 ////////////documentReady
 	$(document).ready(function(){
-		var oids = [];
-		console.log("classes count: "+classes_.length);
-
-		var pLogin = gDom("pLogin");
-		pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
-		pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
-
-		var bLogin = gDom("bLogin");
-		
-		bLogin.onclick = function(){
-			var auth = false;
-			var eUser = $("#eUser").val();
-			var password = document.fLogin.ePassword.value;
-
-			var openview = function() {
-				gDom("mainContainer").hidden = true;
-				gDom("pMain").hidden = false;
-				gDom("addressSearch").focus();
-				hashchange(mapObjects, arrComm, arrLines);
-			}
-			
-			var getLDAP = function() {
-				getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
-					var resp = JSON.parse(responce);
-					if (resp) {
-						openview();
-					} else {
-					}
-				}, false);
-			}
-			
-			var u = objectlink.gOrm("gAnd",[[classes["Пользователи"]],"id",false,"and n='"+eUser+"'"]);
-			var p = objectlink.gOrm("gAnd",[[classes["Пароли пользователей"]],"id",false,"and n='"+password+"'"]);
-			if (u && p && u.length && p.length){
-				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], classes["Ключи доступа пользователей"]]]);
-				if (key && key.length){
-					openview();
-				} else if (u && u.length) {
-					getLDAP();
-				}
-			} else if (u && u.length){
-				getLDAP();
-			}
-			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
-		}
-		
 		var pMain = gDom("pMain");
 		pMain.style.height = windowHeight()-170+"px";
 		var pObjects = gDom("pObjects");
@@ -152,10 +106,18 @@
 			$(container).append(html);
 			container.parentNode.hidden = false;				
 		}
+
+		var oids = [];
+
+		var pLogin = gDom("pLogin");
+		pLogin.style.left = Math.round(windowWidth()/2) - 100 + "px";
+		pLogin.style.top = Math.round(windowHeight()/2) - 50 + "px";
+
+		var bLogin = gDom("bLogin");
 		
 ////////////////map init
 		var map = L.map('map');
-		var mapObjects = initMap(map);
+		var mapObjects;
 ///paint editor
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
@@ -279,25 +241,6 @@
 			}, true);
 		}
 
-		var arrComm = [[], [], [], []];
-		var arrLines = [[], [], [], []];
-		var arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9;
-		var arendatorMarkers = [];
-		var polylines = [];
-		var currentCommOid = 0;
-
-		window.onhashchange = function(){
-			hashchange(mapObjects, arrComm, arrLines);
-		}
-
-	 	loadMainListOfObjects();
-		polylines = loadAndPaintAllPolygons(zdzuPolygonsLayer);
-		zdzuPolygonsLayer.addTo(map);
-		var oid = $_GET("oid", "#", location.hash);
-		if (oid) {
-			hashchange(mapObjects, arrComm, arrLines)
-		}
-
 		function setCommVisible(commNum, visible){
 			if (commNum == undefined || commNum > arrComm.length-1) return;
 			for (var i=0; i < arrComm[commNum].length; i++) {
@@ -328,62 +271,128 @@
 		function setPolylineColor(polyline, color){
 			if (polyline) polyline.setStyle({"color" : color});
 		}
+		
+		var arrComm = [[], [], [], []];
+		var arrLines = [[], [], [], []];
+		var arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9;
+		var arendatorMarkers = [];
+		var polylines = [];
+		var currentCommOid = 0;
 
-////////////////polygons communications
-////////////////markers electro
-//console.time();
-		var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-//console.timeEnd();
-		var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer, classes["Электроснабжение"]);
-		if (elLines && elLines.length){
-			var elCoord = elLines[0].getLatLngs()[0];
-			var markerElectro = markerAddToMap(commPolygonsLayer, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
-			arrComm[0] = [markerElectro];
-			arrLines[0] = elLines;
-			setCommVisible(0, false);
+		window.onhashchange = function(){
+			hashchange(mapObjects, arrComm, arrLines);
 		}
+		var oid = $_GET("oid", "#", location.hash);
+		var progressBar = gDom("progressBar");
+		progressBar.max = 5;
+		//progressBar.hidden = false;
+		//progressBar.value = 0;
+		
+///////LOGIN		
+		bLogin.onclick = function(){
+			var auth = false;
+			var eUser = $("#eUser").val();
+			var password = document.fLogin.ePassword.value;
+			function f(n){progressBar.value = n; console.log(n);};
 
-////////////////markers teplo
-//console.time();
-		var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-//console.timeEnd();
-		var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer, classes["Отопление"]);
-		if (teLines && teLines.length){
-			var teCoord = teLines[0].getLatLngs()[0];
-			var markerTeplo = markerAddToMap(commPolygonsLayer, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
-			arrComm[1] = [markerTeplo];
-			arrLines[1] = teLines;
-			setCommVisible(1, false);
-		}
+			var openview = function() {
+				classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
+				classes = hash4arr(classes_);
+				console.log("classes count: "+classes_.length);
 
-////////////////markers water
-//console.time();
-		var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-//console.timeEnd();
-		var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer, classes["ХВС"]);
-		if (waLines && waLines.length){
-			var waCoord = waLines[0].getLatLngs()[0];
-			var markerWater = markerAddToMap(commPolygonsLayer, [waCoord.lat, waCoord.lng], "images/markerWater.png")
-			arrComm[2] = [markerWater];
-			arrLines[2] = waLines;
-			setCommVisible(2, false);
-		}
+				mapObjects = initMap(map);
+				loadMainListOfObjects();
+				polylines = loadAndPaintAllPolygons(zdzuPolygonsLayer);
+				zdzuPolygonsLayer.addTo(map);
+				if (oid) {
+					hashchange(mapObjects, arrComm, arrLines)
+				}
 
-////////////////markers kanalization
-//console.time();
-		var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], " and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-//console.timeEnd();
-		var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer, classes["Канализация"]);
-		if (kaLines && kaLines.length){
-			var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
-			var markerKanal = markerAddToMap(commPolygonsLayer, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
-			arrComm[3] = [markerKanal];
-			arrLines[3] = kaLines;
-			setCommVisible(3, false);
+		////////////////polygons communications
+		////////////////markers electro
+		//console.time();
+				var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+		//console.timeEnd();
+				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer, classes["Электроснабжение"]);
+				if (elLines && elLines.length){
+					var elCoord = elLines[0].getLatLngs()[0];
+					var markerElectro = markerAddToMap(commPolygonsLayer, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
+					arrComm[0] = [markerElectro];
+					arrLines[0] = elLines;
+					setCommVisible(0, false);
+				}
+
+		////////////////markers teplo
+		//console.time();
+				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+		//console.timeEnd();
+				var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer, classes["Отопление"]);
+				if (teLines && teLines.length){
+					var teCoord = teLines[0].getLatLngs()[0];
+					var markerTeplo = markerAddToMap(commPolygonsLayer, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
+					arrComm[1] = [markerTeplo];
+					arrLines[1] = teLines;
+					setCommVisible(1, false);
+				}
+
+		////////////////markers water
+		//console.time();
+				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+		//console.timeEnd();
+				var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer, classes["ХВС"]);
+				if (waLines && waLines.length){
+					var waCoord = waLines[0].getLatLngs()[0];
+					var markerWater = markerAddToMap(commPolygonsLayer, [waCoord.lat, waCoord.lng], "images/markerWater.png")
+					arrComm[2] = [markerWater];
+					arrLines[2] = waLines;
+					setCommVisible(2, false);
+				}
+
+		////////////////markers kanalization
+		//console.time();
+				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], " and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+		//console.timeEnd();
+				var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer, classes["Канализация"]);
+				if (kaLines && kaLines.length){
+					var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
+					var markerKanal = markerAddToMap(commPolygonsLayer, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
+					arrComm[3] = [markerKanal];
+					arrLines[3] = kaLines;
+					setCommVisible(3, false);
+				}
+				commPolygonsLayer.addTo(map);
+		/////////////////////////////					
+				
+				gDom("mainContainer").hidden = true;
+				gDom("pMain").hidden = false;
+				gDom("addressSearch").focus();
+			}
+			
+			var getLDAP = function() {
+				getHttp("ldap.php?p1="+eUser+"&p2="+password+"&p3=guss.ru", function(responce) {
+					var resp = JSON.parse(responce);
+					if (resp) {
+						openview();
+					} else {
+					}
+				}, false);
+			}
+			
+			var u = objectlink.gOrm("gAnd",[[1576/*classes["Пользователи"]*/],"id",false,"and n='"+eUser+"'"]);
+			var p = objectlink.gOrm("gAnd",[[1579/*classes["Пароли пользователей"]*/],"id",false,"and n='"+password+"'"]);
+			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
+			if (u && p && u.length && p.length){
+				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596/*classes["Ключи доступа пользователей"]*/]]);
+				if (key && key.length){
+					openview();
+				} else if (u && u.length) {
+					getLDAP();
+				}
+			} else if (u && u.length){
+				getLDAP();
+			}
 		}
-		commPolygonsLayer.addTo(map);
-/////////////////////////////					
-	
+			
 		function hashchange(mapObjects_, arrComm_, arrLines_){
 			var oid_ = oid;
 			oid = $_GET("oid", "#", location.hash);// || "115";
@@ -1397,13 +1406,13 @@ function loadMainListOfObjects(){
 		var div = pObjects.appendChild(cDom("DIV",arrTu[i][1]));
 		div.style.textAlign = "center";
 		div.style.fontWeight = "bold";
-		var arrIk = objectlink.gOrm("gAnd",[[arrTu[i][0],classes["ИК"]]]);
+		var arrIk = objectlink.gOrm("gAnd",[[arrTu[i][0],1331/*classes["ИК"]*/]]);
 		for (var j=0; j < arrIk.length; j++){
 			if (arrIk[j][1] == "ТУ") continue;
 			var div = pObjects.appendChild(cDom("DIV",arrIk[j][1]));
 			div.style.textAlign = "center";
 			div.style.fontWeight = "bold";
-			var objects = objectlink.gOrm("gAnd",[[arrIk[j][0],classes["Объект"]]]);
+			var objects = objectlink.gOrm("gAnd",[[arrIk[j][0],2/*classes["Объект"]*/]]);
 			
 			for (var k=0; k < objects.length; k++) {
 				if (objects[k][1] == "ИК") objects.splice(k,1);
@@ -1540,67 +1549,6 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 }	
 
 function testindex(){
-	var frmProgress = new TForm(null,null,null,null,20,250000,true);
-	var progressBarDiv = cDom("DIV");
-	frmProgress.setBody(progressBarDiv);
-	var progressBar = progressBarDiv.appendChild(cDom("progress"));
-	var data = objectlink.gOrm("gT2", [["Объект","Здания и сооружения","Правоустанавливающие документы","Файлы","Полигоны на карте","Координаты на карте"],[[2,1],[3,1],[4,1],[5,4]]], progressBar);
-	console.log(data);
-/*
-	var arr = getOrm("select * from ttt_dog_zatrat where f1 is not null and f1 <> ''", "rows2object");
-	
-	for (var i=0; i < arr.length; i++) {//contracts
-		var oid = arr[i].f1;
-		if (!oid) continue;
-		var type = arr[i].f2;
-		var dog = arr[i].f3+" "+arr[i].f4;
-		var dogAgent = arr[i].f3;
-		var dogNum = arr[i].f4;
-		var dogDate = arr[i].f5;
-		
-		switch (type) {
-			case "Водоснабжение": type = "ХВС";
-			break;
-			case "Водоотведение": type = "Канализация";
-			break;
-			case "Теплоснабжение": type = "Отопление";
-			break;
-			case "Вывоз ТБО": type = "Вывоз КГМ и ТБО";
-			break;
-		}
-		
-		console.log(arr.length + "/" + i+1);
-		//if (i<9) {
-			var commClassOid = classes[type];
-			if (!commClassOid) {//если нет типа договора - создать
-				commClassOid = objectlink.gOrm("cO", [type, classes["Класс"]]);
-				objectlink.gOrm("cL", [classes["Договоры"], commClassOid]);
-				//console.log("cO ("+type+" "+classes["Класс"]+") = "+commClassOid);
-			}
-			
-			var commOid = objectlink.gOrm("gAnd", [[commClassOid,oid]]);
-			if (!commOid || !commOid.length) {//если нет типа договора в объекте - создать
-				commOid = objectlink.gOrm("cO", [type+" "+oid, commClassOid]);
-				objectlink.gOrm("cL", [commOid, oid]);
-				//console.log("cO ("+type+" "+oid+","+commClassOid+") = "+commOid);
-				//console.log("cL ("+commOid+","+oid+")");
-			} else {
-				commOid = commOid[0][0];
-				//console.log("gAnd ("+commClassOid+","+oid+") = "+commOid);
-			}
-			
-			if (commOid) {
-				var dogOid = objectlink.gOrm("gAnd", [[commOid, classes["Договоры"]]]);
-				if (!dogOid || !dogOid.length) {
-					dogOid = objectlink.gOrm("cO", [dog, classes["Договоры"]]);
-					if (dogOid) objectlink.gOrm("cL", [dogOid, commOid]);
-				} else {
-					dogOid = dogOid[0][0];
-				}
-			};
-
-	}*/
-	return "finish";
 }
 
 </script>
@@ -1662,6 +1610,7 @@ function testindex(){
 					<tr><td>Логин:</td><td> <input type='text' id='eUser' autofocus></td></tr>
 					<tr><td>Пароль:</td><td> <input type='password' id='ePassword' name='ePassword'></td></tr>
 					<tr><td colspan=2 align='center'><button id='bLogin'>Войти</button></td></tr>
+					<tr><td colspan=2 align='center'><progress id="progressBar" hidden></progress></td></tr>
 				</table>
 				</form>
 			</div>
