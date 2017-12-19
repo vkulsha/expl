@@ -201,7 +201,7 @@ function sqlAsync(query, async, func, funcError, funcFinnaly) {
 };
 
 function postOrm(params, async, func, funcError, funcFinnaly) {
-	postJSON("orm.php", {f : params.f, p : JSON.stringify(params.p)}, async, func, funcError, funcFinnaly)
+	postJSON("orm.php", {f : params.f, p : JSON.stringify(params.p), u : currentUser.oid}, async, func, funcError, funcFinnaly)
 };
 	
 function sql(query, funcError, funcFinnaly){

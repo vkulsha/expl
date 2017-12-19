@@ -13,11 +13,13 @@
 		if (isset($_GET['f'])) {
 			$f = $_GET['f'];
 			$p = $_GET['p'];
+			$u = isset($_GET['u']) ? $_GET['u'] : 1;
 		} else if (isset($_POST['f'])) {
 			$f = $_POST['f'];
 			$p = $_POST['p'];
+			$u = isset($_POST['u']) ? $_POST['u'] : 1;
 		};
-
+		$objectlink->u = $u;
 		$func = array($objectlink, $f);
 		$ret = $func(json_decode($p));
 		echo json_encode($ret, JSON_UNESCAPED_UNICODE);

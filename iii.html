@@ -80,7 +80,7 @@
 	//var classes = hash4arr(classes_);
 	var classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 	var classes = hash4arr(classes_);
-	var currentUser = {};
+	//var currentUser = {};
 	var arr = objectlink.gOrm("gAnd",[[1],"id"]);
 	var classes2 = [];
 	for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
@@ -160,6 +160,7 @@
 			getLDAP();
 		}
 		currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
+		reload();
 	}
 
 	
@@ -169,7 +170,7 @@
 		location.href = "#."+oid;
 	}
 	
-	function load(where_, order_){
+	function load(where_, order_, currentUserId){
 		//var result = orm(query+where_+" "+order_, "all2array");
 		var result = getOrmObject({columns:["1","2","3","4","5"],data:objectlink.gOrm("iii", [where_, order_])}, "all2array");
 		var data = result;

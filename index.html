@@ -216,7 +216,7 @@
 		function deleteLastPaintedPolygon(oid){
 			var oid = prompt("Удалить последнюю линию №", oid);
 			if (oid) {
-				objectlink.gOrm("eO",[oid, null, currentUser.oid]);
+				objectlink.gOrm("eO",[oid, null]);
 				map.removeLayer(lastPaintMarkers);
 			}
 		}
@@ -266,7 +266,7 @@
 								}
 							}
 							for (var i=0; i < oids.length; i++) {
-								objectlink.gOrm("eO",[oids[i], null, currentUser.oid]);
+								objectlink.gOrm("eO",[oids[i], null]);
 							}
 							console.log("delete files and eO:");
 							console.log(oids);
@@ -483,7 +483,7 @@
 				if (isPaintMode) {
 					var el = ["Электроснабжение","Отопление","ХВС","Канализация"];
 					if (!currentCommOid) {
-						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]], currentUser.oid]);
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
 						objectlink.gOrm("cL", [currentCommOid, oid]);
 						getCommOnObject[0][this.ind] = currentCommOid;
 					}
@@ -557,7 +557,7 @@
 					currentCommOid = this.ind > -1 && this.ind < 4 ? getCommOnObject[0][this.ind] : 0;
 					var el = ["Интернет","Вывоз КГМ и ТБО","Охрана"];
 					if (!currentCommOid) {
-						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]], currentUser.oid]);
+						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
 						objectlink.gOrm("cL", [currentCommOid, oid]);
 					}
 					
@@ -859,7 +859,7 @@
 											var dogOid = this.dogOid;//2360;//test
 											if (this.checked) {
 												var val = "участок договора "+dogOid+" здания/зу "+this.oid+" "+d2str(new Date());
-												ua = objectlink.gOrm("cO", [val, classes["Участок аренды"], currentUser.oid]);
+												ua = objectlink.gOrm("cO", [val, classes["Участок аренды"]]);
 												if (ua) {
 													objectlink.gOrm("cL", [ua, dogOid]);
 													objectlink.gOrm("cL", [this.oid, ua]);
@@ -870,7 +870,7 @@
 												ua = ua && ua.length ? ua[0][0] : null;
 												if (ua) {
 													objectlink.gOrm("eL", [this.oid, ua]);
-													objectlink.gOrm("eO", [ua, null, currentUser.oid]);
+													objectlink.gOrm("eO", [ua, null]);
 													console.log("удален Участок аренды: "+ua+ "; eL ("+this.oid+"," +ua+")");
 												}
 											}

@@ -1,6 +1,7 @@
 <?php
 class ObjectLink {
 	public $sql;
+	public $u;
 	
     public function __construct(SQL &$sql){
 		$this->sql = $sql;
@@ -58,6 +59,9 @@ class ObjectLink {
 			$o1 = $params[0];
 			$o2 = $params[1];
 			$u = isset($params[2]) ? $params[2] : 1;
+
+			//$func = debug_backtrace()[0]['function'];
+			//if (!$this->policy([$u, [$func,"iii"]])) return [];
 			
 			$lid = $this->sql->sT(["link", "id", "and ( (o1 = $o1 and o2 = $o2) or (o1 = $o2 and o2 = $o1) )"]);  
 			$lid = $lid ? $lid[0][0] : null;
@@ -730,10 +734,23 @@ class ObjectLink {
 		}
 	}
 
+	public function policy($params){
+		$user = isset($params[0]) ? $params[0] : 0;
+		$func = isset($params[1]) ? $params[1] : [""];
+		
+		$func = "('".(join("','", $func))."')";
+		$res = $this->gT2([["Роль системы","Правило роли системы","Функция системы","Пользователи"],[[2,1]],[],false,null,"and `id_Пользователи`=$user and `Функция системы` in $func"]);
+		return $res && count($res);
+		
+	}
+	
 	public function iii($params){
 		try {
 			$where = isset($params[0]) ? $params[0] : "";
 			$order = isset($params[1]) ? $params[1] : "";
+
+			$func = debug_backtrace()[0]['function'];
+			if (!$this->policy([$this->u, [$func]])) return [];
 			
 			$query = "select * from ( ".
 			"	select distinct link.o1, object.n, link.o2, null c, link.t, object.c c_ from ( ".
