@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 var objectlink = {
-	gOrm : function(funcName, params){
+	gOrm : function(funcName, params, progressBar){
 		return sqlOrm({f:funcName, p:params})	
 		
 	},

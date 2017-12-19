@@ -1566,6 +1566,13 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 }	
 
 function testindex(){
+	var frmProgress = new TForm(null,null,null,null,20,250000,true);
+	var progressBarDiv = cDom("DIV");
+	frmProgress.setBody(progressBarDiv);
+	var progressBar = progressBarDiv.appendChild(cDom("progress"));
+	var data = objectlink.gOrm("gT2", [["Объект","Здания и сооружения","Правоустанавливающие документы","Файлы","Полигоны на карте","Координаты на карте"],[[2,1],[3,1],[4,1],[5,4]]], progressBar);
+	console.log(data);
+/*
 	var arr = getOrm("select * from ttt_dog_zatrat where f1 is not null and f1 <> ''", "rows2object");
 	
 	for (var i=0; i < arr.length; i++) {//contracts
@@ -1616,25 +1623,9 @@ function testindex(){
 				} else {
 					dogOid = dogOid[0][0];
 				}
-			/*
-				for (var j=0; j < 12; j++) {//months
-					var fn1 = j*2+6;
-					var fn2 = j*2+7;
-					var currMonthCredit = arr[i]["f"+fn1];
-					var currMonthDebit  = arr[i]["f"+fn2];
-				}
-			*/	
 			};
 
-/*			objectlink.gOrmA("gT2", [
-				["Счет","Счет продукт","Счет количество","Счет стоимость","Счет месяц","Счет год","Арендаторы","Объект"],
-				[],[],false,
-				["sum(`Счет стоимость`)"],
-				" and `id_Объект`="+obj+" and `Счет год`="+year+" and `Счет месяц`="+(month+1)+" and `Счет продукт`='"+products[product]+"' and `id_Арендаторы` is "+(isArendator ? "not" : "")+" null group by `id_Объект` "
-*/
-
-		//}
-	}
+	}*/
 	return "finish";
 }
 
