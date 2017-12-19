@@ -9,7 +9,6 @@
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 
 		<script src="js/jquery-2.2.0.min.js"></script>
-		<script src="js/d3.min.js"></script>
 		<script src="js/leaflet.js"></script>		
 		<script src="js/uService.js"></script>
 		<script src="js/Main.js"></script>
@@ -41,6 +40,7 @@
 				gDom("mainContainer").hidden = true;
 				gDom("pMain").hidden = false;
 				gDom("addressSearch").focus();
+				hashchange(mapObjects, arrComm, arrLines);
 			}
 			
 			var getLDAP = function() {
@@ -381,32 +381,6 @@
 			arrLines[3] = kaLines;
 			setCommVisible(3, false);
 		}
-		/*///paint communications icons
-		var mar = objectlink.gOrm("gT2",[["Здания и сооружения", "Электроснабжение","Отопление","ХВС","Канализация","Объект"],[],[],false, 
-			["id_Электроснабжение","id_Отопление","id_ХВС","id_Канализация", "`id_Здания и сооружения`","id_Объект"]]);
-		for (var i=0; i < polylines.length; i++){
-////////////////////paint communications
-			var points = [];
-			for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-				var lat = polylines[i].getLatLngs()[0][j].lat;
-				var lng = polylines[i].getLatLngs()[0][j].lng;
-				points.push([lat, lng]);
-			}
-			var center = getCenterFromPoints(points);
-			var _oid = polylines[i].oid;
-			
-			var arrMar = ["Электроснабжение","Отопление","ХВС","Канализация"];
-			var arrMarIcons = ["images/markerElectro.png","images/moek.png","images/markerWater.png","images/markerKanal.png"];
-			for (var k=0; k<4; k++) {
-				for (var m=0; m < mar.length; m++) {
-					if (mar && mar.length && mar[m].length && mar[m][4] == _oid && mar[m][k] && mar[m][k] != _oid) {
-						var markerMap = markerAddToMap(commPolygonsLayer, [center[0], center[1]], arrMarIcons[k])
-						arrComm[k].push(markerMap);
-					}
-				}
-			}
-			setCommsVisible(false);
-		}*/
 		commPolygonsLayer.addTo(map);
 /////////////////////////////					
 	
