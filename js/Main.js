@@ -81,6 +81,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 	var poly = [];
 	paramsL = paramsL || {};
 	funcL = funcL || L.polygon;
+	
 	var polyId = coords[0][1];
 	function onmouseover(e) { this.setStyle({color:"#ff0000", weight:5}); };
 	function onmouseout(e) { this.setStyle(paramsL); };
@@ -95,24 +96,37 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		}
 	}
 
+	function endPaint(){
+		var funcL_ = funcL;
+		var paramsL_ = paramsL;
+		var poly_ = poly;
+		if (poly.length==1) {
+			funcL_ = L.circle;
+			paramsL_.radius = 2;
+			poly_ = [poly[0][0], poly[0][1]];
+		}
+		var p = funcL_(poly_, paramsL_).addTo(map);
+		p.oid = oid;
+		p.objid = objid;
+		p.polyId = polyId;
+		p.cid = cid;
+		
+		p.on('contextmenu', function(e) {
+			console.log(this.polyId);
+			if (isPaintMode) funcdel(this);
+		})
+		p.on('mouseover', onmouseover);
+		p.on('mouseout', onmouseout);
+
+		ret.push(p);
+		
+	}
+	
 	for (var i=0; i < coords.length; i++){
 		var oid;
 		var objid;
 		if (polyId != coords[i][1] && poly.length) {
-			var p = funcL(poly, paramsL).addTo(map);
-			p.oid = oid;
-			p.objid = objid;
-			p.polyId = polyId;
-			p.cid = cid;
-
-			p.on('contextmenu', function(e) {
-				console.log(this.polyId);
-				funcdel(this);
-			})
-			p.on('mouseover', onmouseover);
-			p.on('mouseout', onmouseout);
-
-			ret.push(p);
+			endPaint();
 			poly = [];
 		}
 		oid = coords[i][2];
@@ -121,24 +135,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		poly.push(coord);
 		polyId = coords[i][1];
 		if (i == coords.length-1){
-			var p = funcL(poly, paramsL).addTo(map);
-			p.oid = oid;
-			p.objid = objid;
-			p.polyId = polyId;
-			p.cid = cid;
-
-			p.on('contextmenu', function(e) {
-				console.log(this.polyId);
-				funcdel(this);
-			})
-			p.on('mouseover', function(e) {
-				this.setStyle({color:"#ff0000", weight:5});
-			})
-			p.on('mouseout', function(e) {
-				this.setStyle(paramsL);
-			})
-
-			ret.push(p);
+			endPaint();
 			
 		}
 	}

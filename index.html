@@ -123,8 +123,6 @@
 		var paintArr = [];
 		var paintMarkers = L.layerGroup();
 		var lastPaintMarkers = L.layerGroup();
-		var isPaintMode = false;
-		var isEditMode = false;
 		var lastPaintedPolyline = 0;
 		var zdzuPolygonsLayer = L.layerGroup();
 		var commPolygonsLayer = L.layerGroup();
@@ -243,21 +241,15 @@
 		}
 
 		function setCommVisible(commNum, visible){
-			if (commNum == undefined || commNum > arrComm.length-1) return;
-			for (var i=0; i < arrComm[commNum].length; i++) {
-				arrComm[commNum][i].setOpacity(visible ? 1 : 0);
-			}
+			if (commNum == undefined || commNum > arrLines.length-1) return;
 			for (var i=0; i < arrLines[commNum].length; i++) {
 				arrLines[commNum][i].setStyle({opacity: visible ? 1 : 0});
 			}
 		}
 		function setCommsVisible(visible){
-			for (var i=0; i < arrComm.length; i++) {
+			for (var i=0; i < arrLines.length; i++) {
 				setCommVisible(i, visible);
 			}
-			//for (var i=0; i < arendatorMarkers.length; i++){
-			//	arendatorMarkers[i].setOpacity(visible ? 1 : 0);
-			//}
 			arendPolygonsLayer.clearLayers();
 		}
 		function getPolylineByOid(oid_, polylines_){
@@ -273,7 +265,6 @@
 			if (polyline) polyline.setStyle({"color" : color});
 		}
 		
-		var arrComm = [[], [], [], []];
 		var arrLines = [[], [], [], []];
 		var arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9;
 		var arendatorMarkers = [];
@@ -281,7 +272,7 @@
 		var currentCommOid = 0;
 
 		window.onhashchange = function(){
-			hashchange(mapObjects, arrComm, arrLines);
+			hashchange(mapObjects, arrLines);
 		}
 		var oid = $_GET("oid", "#", location.hash);
 		var progressBar = gDom("progressBar");
@@ -306,63 +297,25 @@
 				polylines = loadAndPaintAllPolygons(zdzuPolygonsLayer);
 				zdzuPolygonsLayer.addTo(map);
 				if (oid) {
-					hashchange(mapObjects, arrComm, arrLines)
+					hashchange(mapObjects, arrLines)
 				}
 
-		////////////////polygons communications
-		////////////////markers electro
-		//console.time();
-				var el = objectlink.gOrm("gT2",[["Электроснабжение", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Электроснабжение`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-		//console.timeEnd();
-				var elLines = mapPaint(el, L.polyline, {color:"#ff9900", weight:2}, commPolygonsLayer, classes["Электроснабжение"]);
-				if (elLines && elLines.length){
-					var elCoord = elLines[0].getLatLngs()[0];
-					var markerElectro = markerAddToMap(commPolygonsLayer, [elCoord.lat, elCoord.lng], "images/markerElectro.png")
-					arrComm[0] = [markerElectro];
-					arrLines[0] = elLines;
-					setCommVisible(0, false);
-				}
-
-		////////////////markers teplo
-		//console.time();
-				var te = objectlink.gOrm("gT2",[["Отопление", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Отопление`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-		//console.timeEnd();
-				var teLines = mapPaint(te, L.polyline, {color:"#ffff00", weight:3}, commPolygonsLayer, classes["Отопление"]);
-				if (teLines && teLines.length){
-					var teCoord = teLines[0].getLatLngs()[0];
-					var markerTeplo = markerAddToMap(commPolygonsLayer, [teCoord.lat+0.00005, teCoord.lng], "images/moek.png")
-					arrComm[1] = [markerTeplo];
-					arrLines[1] = teLines;
-					setCommVisible(1, false);
-				}
-
-		////////////////markers water
-		//console.time();
-				var wa = objectlink.gOrm("gT2",[["ХВС", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_ХВС`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-		//console.timeEnd();
-				var waLines = mapPaint(wa, L.polyline, {color:"#0000ff", weight:3}, commPolygonsLayer, classes["ХВС"]);
-				if (waLines && waLines.length){
-					var waCoord = waLines[0].getLatLngs()[0];
-					var markerWater = markerAddToMap(commPolygonsLayer, [waCoord.lat, waCoord.lng], "images/markerWater.png")
-					arrComm[2] = [markerWater];
-					arrLines[2] = waLines;
-					setCommVisible(2, false);
-				}
-
-		////////////////markers kanalization
-		//console.time();
-				var ka = objectlink.gOrm("gT2",[["Канализация", "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_Канализация`"], " and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
-		//console.timeEnd();
-				var kaLines = mapPaint(ka, L.polyline, {color:"#ff9900", weight:3}, commPolygonsLayer, classes["Канализация"]);
-				if (kaLines && kaLines.length){
-					var kaCoord = kaLines[0].getLatLngs()[kaLines[0].getLatLngs().length-1];
-					var markerKanal = markerAddToMap(commPolygonsLayer, [kaCoord.lat, kaCoord.lng], "images/markerKanal.png")
-					arrComm[3] = [markerKanal];
-					arrLines[3] = kaLines;
-					setCommVisible(3, false);
+				////////////////polygons communications
+				var arr = {
+					comm: ["Электроснабжение","Отопление","ХВС","Канализация"],
+					color: ["#ff9900","#ffff00","#0000ff","#aa9900"],
+					width: [2,3,3,3]
+				};
+				for (var i=0; i < arr.comm.length; i++) {
+					var comm = objectlink.gOrm("gT2",[[arr.comm[i], "Полигоны на карте", "Координаты на карте"],[[2,1]],[],false, ["`Координаты на карте`", "`id_Полигоны на карте`", "`id_"+arr.comm[i]+"`"], "and `id_Координаты на карте` is not null order by `id_Полигоны на карте`,`id_Координаты на карте`"]);
+					var commLines = mapPaint(comm, L.polyline, {color:arr.color[i], weight:arr.width[i]}, commPolygonsLayer, classes[arr.comm[i]]);
+					if (commLines && commLines.length){
+						arrLines[i] = commLines;
+						setCommVisible(i, false);
+					}
 				}
 				commPolygonsLayer.addTo(map);
-		/////////////////////////////					
+				/////////////////////////////					
 				
 				gDom("mainContainer").hidden = true;
 				gDom("pMain").hidden = false;
@@ -393,8 +346,8 @@
 				getLDAP();
 			}
 		}
-			
-		function hashchange(mapObjects_, arrComm_, arrLines_){
+////////////
+		function hashchange(mapObjects_, arrLines_){
 			var oid_ = oid;
 			oid = $_GET("oid", "#", location.hash);// || "115";
 			

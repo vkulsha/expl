@@ -5,6 +5,8 @@ var interfaceUrlKey = "interface";
 var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
 var currentUser = {oid:0};
+var isPaintMode = false;
+var isEditMode = false;
 var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
 var isMobile = {
