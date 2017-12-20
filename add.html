@@ -19,6 +19,8 @@
 	var arrClasses = objectlink.gOrm("gAnd",[[1],"id,n"]);
 	var cid = $_GET("cid", "#", location.hash);
 	var oid = $_GET("oid", "#", location.hash);
+	var userid = $_GET("u", "#", location.hash) || 0;
+	var currentUser = {oid:userid};
 	var mainContainer = gDom("mainContainer");
 	var changedValues = [];
 	var changedValuesOld = [];

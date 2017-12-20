@@ -14,6 +14,7 @@
 		<script src="js/Main.js"></script>
 		<script src="js/objectlink.js"></script>
 		<script src="js/jscharts.js"></script>
+		<script src="js/md5.js"></script>
 
 <script>
 ////////////policy
@@ -378,11 +379,11 @@
 				}, false);
 			}
 			
-			var u = objectlink.gOrm("gAnd",[[1576/*classes["Пользователи"]*/],"id",false,"and n='"+eUser+"'"]);
-			var p = objectlink.gOrm("gAnd",[[1579/*classes["Пароли пользователей"]*/],"id",false,"and n='"+password+"'"]);
+			var u = objectlink.gOrm("gAnd",[[1576],"id",false,"and n='"+eUser+"'"]);
+			var p = objectlink.gOrm("gAnd",[[1579],"id",false,"and n='"+md5(password)+"'"]);
 			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 0;
 			if (u && p && u.length && p.length){
-				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596/*classes["Ключи доступа пользователей"]*/]]);
+				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596]]);
 				if (key && key.length){
 					openview();
 				} else if (u && u.length) {

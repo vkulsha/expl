@@ -8,6 +8,7 @@
 	<script src="js/jquery-2.2.0.min.js"></script>
 	<script src="js/uService.js"></script>
 	<script src="js/objectlink.js"></script></head>
+	<script src="js/md5.js"></script>
 <body>
 <div style='position:absolute; left:0px; top:0px; width:100%; height:100%; z-index:1100000; background-color:rgba(0,0,0,0.9)' id='mainContainer'>
 	<div id='pLogin' style='position:fixed; left:500px; top:400px; background-color:rgba(0,0,0,0.5)'>
@@ -146,11 +147,11 @@
 			}, false);
 		}
 		
-		var u = objectlink.gOrm("gAnd",[[1576/*classes["Пользователи"]*/],"id",false,"and n='"+eUser+"'"]);
-		var p = objectlink.gOrm("gAnd",[[1579/*classes["Пароли пользователей"]*/],"id",false,"and n='"+password+"'"]);
+		var u = objectlink.gOrm("gAnd",[[1576],"id",false,"and n='"+eUser+"'"]);
+		var p = objectlink.gOrm("gAnd",[[1579],"id",false,"and n='"+md5(password)+"'"]);
 		currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
 		if (u && p && u.length && p.length){
-			var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596/*classes["Ключи доступа пользователей"]*/]]);
+			var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596]]);
 			if (key && key.length){
 				openview();
 			} else if (u && u.length) {
@@ -614,10 +615,10 @@
 		if (!isClass) {
 			var cid = objectlink.gOrm("gCid",[oid]);
 			if (cid && cid.length) {
-				openWindow("add.html#cid="+cid[0][0]+"&oid="+oid);
+				openWindow("add.html#cid="+cid[0][0]+"&oid="+oid+"&u="+currentUser.oid);
 			}
 		} else {
-			openWindow("add.html#cid="+oid);
+			openWindow("add.html#cid="+oid+"&u="+currentUser.oid);
 		}
 		
 	}
