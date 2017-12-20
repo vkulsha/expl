@@ -504,10 +504,12 @@ class ObjectLink {
 			$funcarr = debug_backtrace();
 			$func1 = $funcarr[0]['function'];
 			$func2 = count($funcarr)>1 ? $funcarr[1]['function'] : "";
-			if ($func2 != "policy" && !$this->policy([$this->u, ["iii"]])) return [];
-			
-			$sel = $this->gTq2($params);
-			return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
+			if ($this->u>=1 || $func2 == "policy" || $this->policy([$this->u, ["iii"]])) {
+				$sel = $this->gTq2($params);
+				return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
+			} else {
+				return [];
+			}
 			
 		} catch (Exception $e){
 			print($e);
