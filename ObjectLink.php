@@ -24,7 +24,7 @@ class ObjectLink {
 		try {
 			$n = $params[0];
 			$pid = isset($params[1]) ? $params[1] : 1;
-			$u = isset($params[2]) ? $params[2] : 1;
+			$u = $this->u;//isset($params[2]) ? $params[2] : 1;
 
 			if ($n) {
 				if ($pid) {
@@ -58,7 +58,7 @@ class ObjectLink {
 		try {
 			$o1 = $params[0];
 			$o2 = $params[1];
-			$u = isset($params[2]) ? $params[2] : 1;
+			$u = $this->u;//isset($params[2]) ? $params[2] : 1;
 			
 			$lid = $this->sql->sT(["link", "id", "and ( (o1 = $o1 and o2 = $o2) or (o1 = $o2 and o2 = $o1) )"]);  
 			$lid = $lid ? $lid[0][0] : null;
@@ -166,7 +166,7 @@ class ObjectLink {
 		try {
 			$id = $params[0];
 			$fn = isset($params[1]) ? $params[1] : null;
-			$u = isset($params[2]) ? $params[2] : 1;
+			$u = $this->u;//isset($params[2]) ? $params[2] : 1;
 			
 			if ($fn) {
 				try {
@@ -191,7 +191,7 @@ class ObjectLink {
 		try {
 			$o1 = $params[0];
 			$o2 = $params[1];
-			$u = isset($params[2]) ? $params[2] : 1;
+			$u = $this->u;//isset($params[2]) ? $params[2] : 1;
 			
 			$ret = $this->sql->uT(["link", "c=0,u=".$u, "and ((o1=$o1 and o2=$o2) or (o2=$o1 and o1=$o2))"]);  
 			return $ret;
@@ -501,10 +501,11 @@ class ObjectLink {
 			$cond = isset($params[5]) ? $params[5] : "";
 			$includeLinkDate = isset($params[6]) && $params[6] ? true : false;
 
-			$funcarr = debug_backtrace();
-			$func1 = $funcarr[0]['function'];
-			$func2 = count($funcarr)>1 ? $funcarr[1]['function'] : "";
-			if ($this->u>=1 || $func2 == "policy" || $this->policy([$this->u, ["iii"]])) {
+			//$funcarr = debug_backtrace();
+			//$func1 = $funcarr[0]['function'];
+			//$func2 = count($funcarr)>1 ? $funcarr[1]['function'] : "";
+			//if ($this->u>=1 || $func2 == "policy" || $this->policy([$this->u, ["iii"]])) {
+			if ($this->u>1 && $this->gL([1576,$this->u])) {
 				$sel = $this->gTq2($params);
 				return $this->sql->sT(["(".$sel.")x", $fields, $cond]);
 			} else {

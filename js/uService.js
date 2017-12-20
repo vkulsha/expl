@@ -4,7 +4,7 @@ var domain = "http://"+host+"/";
 var interfaceUrlKey = "interface";
 var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
-var currentUser = {};
+var currentUser = {oid:0};
 var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
 var isMobile = {

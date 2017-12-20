@@ -380,7 +380,7 @@
 			
 			var u = objectlink.gOrm("gAnd",[[1576/*classes["Пользователи"]*/],"id",false,"and n='"+eUser+"'"]);
 			var p = objectlink.gOrm("gAnd",[[1579/*classes["Пароли пользователей"]*/],"id",false,"and n='"+password+"'"]);
-			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
+			currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 0;
 			if (u && p && u.length && p.length){
 				var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596/*classes["Ключи доступа пользователей"]*/]]);
 				if (key && key.length){
