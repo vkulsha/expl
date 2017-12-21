@@ -27,7 +27,9 @@
 		pMain.style.height = windowHeight()-170+"px";
 		var pObjects = gDom("pObjects");
 		var pObject = gDom("pObject");
-
+		var arrZd = [];
+		var isShowZdNums = false;
+		
 		var pDop =  gDom("pDop");
 		pDop.style.left = windowWidth()-parseInt(pDop.style.width)-5+"px";
 		pDop.style.top = windowHeight()-parseInt(pDop.style.height)-5+"px";
@@ -74,7 +76,32 @@
 			if (event.keyCode == 119) {
 				if (isPaintMode) deleteLastPaintedPolygon(lastPaintedPolyline);
 			}
+			if (event.keyCode == 113) {
+				isShowZdNums = !isShowZdNums;
+				showZdNums(arrZd, polylines, isShowZdNums);
+			}
 		};
+		
+		function showZdNums(arrZd, polylines_, visible){
+			var buttons = arrZd;
+			for (var i=0; i < buttons.length; i++) {
+				var but = buttons[i];
+				var poly = getPolylineByOid(but.oid, polylines_);
+				var num = String(i+1);//but.oid;
+				var label = "["+num+"] ";
+				if (visible) {
+					but.innerHTML = label+but.innerHTML;
+					if (poly && !poly._tooltip) {
+						poly.bindTooltip(num, {permanent: true, direction: 'right'});
+					}
+				} else {
+					but.innerHTML = but.innerHTML.slice(label.length);
+					if (poly && poly._tooltip) {
+						poly.unbindTooltip();
+					}
+				}
+			}
+		}
 
 ////////////////showModal
 		function showModal(uri, _oid, mainoid) {
@@ -527,7 +554,11 @@
 			
 			loadPanel(zu, pObject, 2, 3, fclick, fover, fout);
 ////////////include object properties
-			$(pObject).append("<br>Состав имущества на объекте ("+zd.length+"):<br>");
+			$(pObject).append("<br>Состав имущества на объекте ("+zd.length+"): <button id='bShowZdNums'>нумерация</button><br>");
+			gDom("bShowZdNums").onclick = function(){
+				isShowZdNums = !isShowZdNums;
+				showZdNums(arrZd, polylines, isShowZdNums);
+			};
 			var fclick = function(){
 				console.log("zd oid: "+this.oid);
 				if (isPaintMode) return;
@@ -586,7 +617,7 @@
 				setCommsVisible(false);
 				getCommVisible = undefined;
 			}
-			loadPanel(zd, pObject, 2, 3, fclick, fover, fout, undefined, undefined, undefined, polylines);
+			arrZd = loadPanel(zd, pObject, 2, 3, fclick, fover, fout, undefined, undefined, undefined, polylines);
 			
 			//if (oid && oid != 115){
 			if (true){
@@ -1443,7 +1474,7 @@ function loadAndPaintAllPolygons(map){
 	}
 	return polylines;
 }
-	
+
 function TForm (parentDom, width, height, left, top, zIndex, visible){
 	var that = this;
 	var dom = cDom("DIV");
