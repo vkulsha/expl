@@ -171,7 +171,17 @@ function initMap(map){
 	{
 	  maxZoom: 18,
 	  subdomains: [ 0, 1, 2, 3 ]
-	} ).addTo( map );
+	}
+	).addTo( map );
+/*
+	L.tileLayer( '//{s}.tile.osm.org/{z}/{x}/{y}.png',
+	{
+	  attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors",
+	  maxZoom: 18,
+	  subdomains: [ 0, 1, 2, 3 ]
+	}
+	).addTo( map );
+*/
 	
 	var cont = map.getContainer();
 	cont.style.height = "100%";
