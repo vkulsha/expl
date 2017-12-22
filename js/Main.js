@@ -83,8 +83,73 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 	funcL = funcL || L.polygon;
 	
 	var polyId = coords[0][1];
-	function onmouseover(e) { this.setStyle({color:"#ff0000", weight:5}); };
-	function onmouseout(e) { this.setStyle(paramsL); };
+	function onmouseover(e) {
+		if (!this.options.opacity) return;
+		this.setStyle({color:"#ff0000", weight:5}); 
+	}
+	function onmouseout(e) { 
+		if (!this.options.opacity) return;
+		this.setStyle(paramsL); 
+	}
+	function onmouseclick(){
+		if (isEditMode && this.options.opacity) {
+			if (selectedPoly /*&& selectedPoly.editPointLayer*/) {
+				//selectedPoly.editPointLayer.clearLayers();
+				selectedPoly.disableEdit();
+			}
+			selectedPoly = this;
+			selectedPoly.enableEdit();
+		/*	
+			var editPointLayer = L.layerGroup();
+			var iconPoint = L.icon({
+				iconUrl: 'images/markerEditPointRed.png',
+				iconSize: [10, 10],
+				iconAnchor: [5, 5],
+			});
+			var arrCoord = this.getLatLngs();
+			if (arrCoord[0].length) arrCoord = arrCoord[0];
+			if (arrCoord && arrCoord.length) {
+				for (var i=0; i < arrCoord.length; i++) {
+					var coord = arrCoord[i];
+					var point = L.marker(coord, {radius:3, draggable:true, icon: iconPoint}).addTo(editPointLayer);
+					point.poly = this;
+					point.lat = coord.lat;
+					point.lng = coord.lng;
+					point.on('mousedown', function(){
+						selectedPoint = this;
+						//var draggable = new L.Draggable(this.getElement()); draggable.enable(); draggable.on('dragend', function(e){console.log(map.mouseEventToLatLng(e.originalEvent)); });						
+					});
+					point.on('dragend', function(e){
+						//console.log(this.lat, this.lng, this.getLatLng());	
+						var arrCoord = this.poly.getLatLngs();
+						var poly = [];
+						if (arrCoord[0].length) arrCoord = arrCoord[0];
+						if (arrCoord && arrCoord.length) {
+							for (var i=0; i < arrCoord.length; i++) {
+								var coord = arrCoord[i];
+								if (coord.lat == this.lat && coord.lng == this.lng){
+									poly.push(coord);
+								} else {
+									poly.push(this.getLatLng());
+								}
+							}
+							console.log(poly);
+							L.polygon(poly).addTo(map);
+						}
+					});
+					point.on('mouseup', function(){
+						selectedPoint = null;
+					});
+				}
+				editPointLayer.addTo(map);
+				this.editPointLayer = editPointLayer;
+			}
+		*/	
+		} else if (!isEditMode && !isPaintMode) {
+			var dom = gDom("but"+this.oid);
+			if (dom) dom.onclick();
+		}
+	}
 	
 	var funcdel = function (pl) {
 		var q = prompt("Удалить выделенный объект cid:"+(pl.cid||"")+" oid:"+pl.polyId+" ?", "да");
@@ -103,7 +168,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		if (poly.length==1) {
 			funcL_ = L.circle;
 			paramsL_.radius = 2;
-			poly_ = [poly[0][0], poly[0][1]];
+			poly_ = L.latLng(poly[0].lat, poly[0].lng);
 		}
 		var p = funcL_(poly_, paramsL_).addTo(map);
 		p.oid = oid;
@@ -112,11 +177,13 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		p.cid = cid;
 		
 		p.on('contextmenu', function(e) {
+			if (!this.options.opacity) return;
 			console.log(this.polyId);
-			if (isPaintMode) funcdel(this);
+			if (isEditMode) funcdel(this);
 		})
 		p.on('mouseover', onmouseover);
 		p.on('mouseout', onmouseout);
+		p.on('click', onmouseclick);
 
 		ret.push(p);
 		
@@ -132,7 +199,7 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		oid = coords[i][2];
 		objid = coords[i][3];
 		var coord = coords[i][0].split(" ");
-		poly.push(coord);
+		poly.push(L.latLng(coord));
 		polyId = coords[i][1];
 		if (i == coords.length-1){
 			endPaint();

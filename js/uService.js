@@ -7,6 +7,10 @@ var objectsDir = "data/objects"
 var currentUser = {oid:0};
 var isPaintMode = false;
 var isEditMode = false;
+var selectedPoly;
+var selectedPoint;
+//var draggable;
+
 var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
 var isMobile = {

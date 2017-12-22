@@ -10,6 +10,7 @@
 
 		<script src="js/jquery-2.2.0.min.js"></script>
 		<script src="js/leaflet_1.2.0.js"></script>		
+		<script src="js/Leaflet.Editable.js"></script>		
 		<script src="js/uService.js"></script>
 		<script src="js/Main.js"></script>
 		<script src="js/objectlink.js"></script>
@@ -144,7 +145,7 @@
 		var bLogin = gDom("bLogin");
 		
 ////////////////map init
-		var map = L.map('map');
+		var map = L.map('map', {editable: true});
 		var mapObjects;
 ///paint editor
 		var paintArr = [];
@@ -165,6 +166,7 @@
 		chEditMode.checked = isEditMode;
 		chEditMode.onclick = function() {
 			isEditMode = this.checked;
+			if (selectedPoly && selectedPoly.editPointLayer) selectedPoly.editPointLayer.clearLayers();
 		}
 
 		map.on('click', function(e) {
@@ -534,7 +536,7 @@
 ////////////include territorias
 			$(pObject).append("<br>Земельный участок:<br>");
 			var fclick = function(){
-				if (isPaintMode) return;
+				if (isPaintMode || isEditMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 				fillCard2(["Правоустанавливающие документы", /*"Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа",*/ "Файлы","Земельные участки"], this.oid, pDopData);
@@ -561,7 +563,7 @@
 			};
 			var fclick = function(){
 				console.log("zd oid: "+this.oid);
-				if (isPaintMode) return;
+				if (isPaintMode || isEditMode) return;
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>"+this.innerHTML+"</h3>");
 //console.time();
@@ -1350,7 +1352,13 @@
 		eSearch.onkeydown = function(e){
 			if (e.which == 13) {
 				if (this.value == "") {
-					loadMainListOfObjects();
+					if (pObjects.style.display == "none"){
+						pObjects.style.display = "table";
+						pObject.style.display = "none";
+					} else {
+						pObjects.style.display = "none";
+						pObject.style.display = "table";
+					}
 					return;
 				}
 				
@@ -1404,7 +1412,9 @@ function loadMainListOfObjects(){
 			}
 			
 			if (objects.length) {
-				fclick = function(){
+				var fclick = function(){
+					pObjects.style.display = "none";
+					pObject.style.display = "table";
 					location.href = mainHtmlPage+"#oid="+this.oid;
 				}
 				var arr = loadPanel(objects, pObjects, 0, 1, fclick);
@@ -1451,26 +1461,47 @@ function loadAndPaintAllPolygons(map){
 					if (dom) dom.onmouseout();
 				})
 				poly.on('click', function(e) {
-					this.but.onclick();
+					/*
+					if (isEditMode && this.options.opacity) {
+						if (selectedPoly && selectedPoly.editPointLayer) selectedPoly.editPointLayer.clearLayers();
+						selectedPoly = this;
+
+						var editPointLayer = L.layerGroup();
+						var arrCoord = this.getLatLngs();
+						if (arrCoord[0].length) arrCoord = arrCoord[0];
+						if (arrCoord && arrCoord.length) {
+							for (var i=0; i < arrCoord.length; i++) {
+								var coord = arrCoord[i];
+								var point = L.circle(coord, {radius:3}).addTo(editPointLayer);
+								//point.poly = this;
+								//point.on('mouseover', function(){
+								//	console.log(1);
+								//});
+							}
+							editPointLayer.addTo(map);
+							this.editPointLayer = editPointLayer;
+						}
+						
+					}
 					var dom = gDom("but"+this.oid);
-					if (dom) dom.onclick();
+					if (dom) dom.onclick();*/
 				})
 			}
 		}
-		but.onmouseover = function(){
+		but.onmouseover = function(e){
 			var poly = this.poly;
 			for (var i=0; i < poly.length; i++) {
 				var p = poly[i];
 				p.setStyle({color : "#ff5555"});
 			}
-		}
-		but.onmouseout = function(){
+		};
+		but.onmouseout = function(e){
 			var poly = this.poly;
 			for (var i=0; i < poly.length; i++) {
 				var p = poly[i];
 				p.setStyle({color : "#00ff00"});
 			}
-		}
+		};
 	}
 	return polylines;
 }
