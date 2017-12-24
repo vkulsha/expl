@@ -81,6 +81,17 @@
 				isShowZdNums = !isShowZdNums;
 				showZdNums(arrZd, polylines, isShowZdNums);
 			}
+			if (event.keyCode == 46) {
+				if (isEditMode && selectedPoly) {
+					var q = prompt("Удалить выделенный объект cid:"+(selectedPoly.cid||"")+" oid:"+selectedPoly.polyId+" ?", "да");
+					if (q == "да" && selectedPoly.polyId) {
+						objectlink.gOrm("eO",[selectedPoly.polyId, null, currentUser.oid]);
+						selectedPoly.off('mouseover');
+						selectedPoly.off('mouseout');
+						selectedPoly.setStyle({color : "#000000", weight:0});
+					}
+				}
+			}
 		};
 		
 		function showZdNums(arrZd, polylines_, visible){
@@ -200,6 +211,28 @@
 				}
 				paintArr = [];
 				paintMarkers = L.layerGroup();
+			}
+			if (isEditMode) {
+				var arrCoord = selectedPoly.getLatLngs();
+				if (arrCoord[0].length) arrCoord = arrCoord[0];
+				if (arrCoord && arrCoord.length) {
+					var objId = selectedPoly.oid;
+					var n = objectlink.gOrm("gN",[objId]);
+					var objId = prompt("Сохранить линии объекта: "+n || "", objId);
+					var arr = [];
+					for (var i=0; i < arrCoord.length; i++) {
+						var coord = arrCoord[i];
+						arr.push([coord.lat, coord.lng]);
+					}
+					if (arr.length && objId && objId != 0) {
+						var newPolyId = createPolylineFromArr(arr, objId);
+						if (newPolyId) {
+							objectlink.gOrm("eO",[selectedPoly.polyId, null, currentUser.oid]);
+							selectedPoly.polyId = newPolyId;
+						}
+						window.alert("сохранена линия № "+newPolyId);
+					}
+				}
 			}
 		});
 		

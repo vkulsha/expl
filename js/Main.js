@@ -176,11 +176,11 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		p.polyId = polyId;
 		p.cid = cid;
 		
-		p.on('contextmenu', function(e) {
-			if (!this.options.opacity) return;
-			console.log(this.polyId);
-			if (isEditMode) funcdel(this);
-		})
+		//p.on('contextmenu', function(e) {
+			//if (!this.options.opacity) return;
+			//console.log(this.polyId);
+			//if (isEditMode) funcdel(this);
+		//})
 		p.on('mouseover', onmouseover);
 		p.on('mouseout', onmouseout);
 		p.on('click', onmouseclick);
