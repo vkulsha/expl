@@ -96,20 +96,29 @@
 		
 		function showZdNums(arrZd, polylines_, visible){
 			var buttons = arrZd;
+			var n = 0;
 			for (var i=0; i < buttons.length; i++) {
 				var but = buttons[i];
 				var poly = getPolylineByOid(but.oid, polylines_);
-				var num = String(i+1);//but.oid;
-				var label = "["+num+"] ";
 				if (visible) {
-					but.innerHTML = label+but.innerHTML;
 					if (poly && !poly._tooltip) {
+						n++;
+						var num = String(n);//but.oid;
+						var label = "["+num+"] ";
+						but.innerHTML = label+but.innerHTML;
 						poly.bindTooltip(num, {permanent: true, direction: 'right'});
+					} else {
+						but.style.color = "#999999";
 					}
 				} else {
-					but.innerHTML = but.innerHTML.slice(label.length);
 					if (poly && poly._tooltip) {
+						n++;
+						var num = String(n);//but.oid;
+						var label = "["+num+"] ";
+						but.innerHTML = but.innerHTML.slice(label.length);
 						poly.unbindTooltip();
+					} else {
+						but.style.color = "#ffffff";
 					}
 				}
 			}
@@ -589,7 +598,7 @@
 			
 			loadPanel(zu, pObject, 2, 3, fclick, fover, fout);
 ////////////include object properties
-			$(pObject).append("<br>Состав имущества на объекте ("+zd.length+"): <button id='bShowZdNums'>нумерация</button><br>");
+			$(pObject).append("<br>Состав имущества на объекте ("+zd.length+"): <button id='bShowZdNums'>№ на карте</button><br>");
 			gDom("bShowZdNums").onclick = function(){
 				isShowZdNums = !isShowZdNums;
 				showZdNums(arrZd, polylines, isShowZdNums);
