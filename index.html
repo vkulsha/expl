@@ -82,14 +82,11 @@
 				showZdNums(arrZd, polylines, isShowZdNums);
 			}
 			if (event.keyCode == 46) {
-				if (isEditMode && selectedPoly) {
-					var q = prompt("Удалить выделенный объект cid:"+(selectedPoly.cid||"")+" oid:"+selectedPoly.polyId+" ?", "да");
-					if (q == "да" && selectedPoly.polyId) {
-						objectlink.gOrm("eO",[selectedPoly.polyId, null, currentUser.oid]);
-						selectedPoly.off('mouseover');
-						selectedPoly.off('mouseout');
-						selectedPoly.setStyle({color : "#000000", weight:0});
-					}
+				if (isEditMode && selectedPoly.polyId && window.confirm("Удалить выделенный объект: "+(gDom("but"+selectedPoly.oid).innerHTML || "")+"?")) {
+					objectlink.gOrm("eO",[selectedPoly.polyId, null, currentUser.oid]);
+					selectedPoly.off('mouseover');
+					selectedPoly.off('mouseout');
+					selectedPoly.setStyle({color : "#000000", weight:0});
 				}
 			}
 		};
@@ -130,12 +127,8 @@
 			gDom("modalBody").innerHTML = "";
 			gDom("modalFooter").innerHTML = "";
 			
-			if (_oid) location.href = mainHtmlPage+"#oid="+mainoid+"&"+objectIdUrlKey+"="+_oid;
 			modal.style.display = "block";
 			getHttp(uri, function(data){ $("#modalBody").append(data); }, true);
-			//loadXML(uri, true, true, false, function(data){
-			//	$("#modalBody").append(data);
-			//});
 		
 		}
 
@@ -208,7 +201,7 @@
 		map.on('contextmenu', function(e) {
 			if (isPaintMode && paintArr.length) {
 				var n = objectlink.gOrm("gN",[currentCommOid]);
-				var oid = prompt(n || "", currentCommOid);
+				var oid = prompt("Сохранить линии объекта: "+n+"?" || "", currentCommOid);
 				if (oid && oid != 0) {
 					lastPaintedPolyline = createPolylineFromArr(paintArr, oid);
 					lastPaintMarkers = paintMarkers;
@@ -227,7 +220,7 @@
 				if (arrCoord && arrCoord.length) {
 					var objId = selectedPoly.oid;
 					var n = objectlink.gOrm("gN",[objId]);
-					var objId = prompt("Сохранить линии объекта: "+n || "", objId);
+					var objId = prompt("Сохранить линии объекта: "+n+"?" || "", objId);
 					var arr = [];
 					for (var i=0; i < arrCoord.length; i++) {
 						var coord = arrCoord[i];
@@ -246,8 +239,7 @@
 		});
 		
 		function deleteLastPaintedPolygon(oid){
-			var oid = prompt("Удалить последнюю линию №", oid);
-			if (oid) {
+			if (oid && confirm("Удалить последнюю линию №"+oid+"?")) {
 				objectlink.gOrm("eO",[oid, null]);
 				map.removeLayer(lastPaintMarkers);
 			}
@@ -282,7 +274,7 @@
 						};
 					}
 					
-					if (prompt("Удалить файлы ("+arr.length+" шт.)?", "Да") == "Да") {
+					if (confirm("Удалить файлы ("+arr.length+" шт.)?")) {
 						$.post('delete.php', {deletePath: "data/"+oid+"/", file: arr})
 						.done(function( data ) {
 							if (data && data.length) {
@@ -656,15 +648,12 @@
 				getCommVisible = undefined;
 			}
 			arrZd = loadPanel(zd, pObject, 2, 3, fclick, fover, fout, undefined, undefined, undefined, polylines);
-			
-			//if (oid && oid != 115){
+			/*
 			if (true){
 				pDopData.innerHTML = "";
 				$(pDopData).append("<h3>Общая информация</h3>");
 
-//console.time();
 				var objectId = objectlink.gOrm("gT2",[["Номер","Объект"],[],[],false,null,"and `id_Объект` ="+oid+" limit 1"]);
-//console.timeEnd();
 				if (objectId && objectId.length) {
 					objectId = objectId[0][1];
 					var objectPath = getObjectsDir()+"/"+objectId+"/";
@@ -689,7 +678,6 @@
 						$(pDopData).append("<p>Файлы:</p>");
 						var divVal = pDopData.appendChild(cDom("DIV"));
 						for (var i=0; i < otherFiles.length; i++) {
-							//if (otherFiles[i].indexOf("passport") > -1 && !isEditMode) continue;
 							var fileButton = getFileButtonHtml(objectPath+url2cp1251(otherFiles[i]));
 							$(divVal).append(fileButton);
 						}
@@ -699,10 +687,9 @@
 				pDop.hidden = false;
 				setCommsVisible(false);
 				getCommVisible = undefined;
-			} else {
-				pDopData.innerHTML = "";
 			}
-			
+			*/
+			pDopData.innerHTML = "";
 /////////////arendator
 			arendatorMarker0 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
 			arendatorMarker2 = markerAddToMap(arendPolygonsLayer, [0, 0], "images/arendator.png", 64);
@@ -770,30 +757,21 @@
 						if (zdZu[i][1]) arr.push(zdZu[i][1]);
 					}
 					arr = arr.filter(function onlyUnique(value, index, self) {return self.indexOf(value) === index;});
-				
+					
 					var polylines = this.polylines;
-					//for (var i=0; i < arendatorMarkers.length; i++){
-					//	arendatorMarkers[i].setOpacity(0);
-					//}
 					arendPolygonsLayer.clearLayers();
 					for (var m=0; m < arr.length; m++){
 						for (var i=0; i < polylines.length; i++){
-							var points = [];
 							if (polylines[i].oid == arr[m]){
-								for (var j=0; j < polylines[i].getLatLngs()[0].length; j++){
-									var lat = polylines[i].getLatLngs()[0][j].lat;// - (m == zuNum ? 0.00033 : 0);
-									var lng = polylines[i].getLatLngs()[0][j].lng;
-									points.push([lat, lng]);
-								
-								}
-								var center = getCenterFromPoints(points);
+								var center = polylines[i].getCenter();
 								arendatorMarkers[m].setLatLng(center);
 								arendatorMarkers[m].setOpacity(1);
+								arendatorMarkers[m].addTo(arendPolygonsLayer);
 							}
 						}
 					}
 					pDopData.innerHTML = "";
-
+					arendPolygonsLayer.addTo(map);
 					var fields = ["Арендаторы", "Договоры аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"]; 
 					var ar = objectlink.gOrm("gT2", [
 						["Арендаторы", "Договоры аренды", "Участок аренды", "Занимаемая площадь", "Здания и сооружения", "Земельные участки", "Стоимость аренды", "Файлы", "Деятельность", "Количество рабоников"],

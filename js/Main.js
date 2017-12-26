@@ -137,16 +137,6 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 			if (dom) dom.onclick();
 		}
 	}
-	
-	var funcdel = function (pl) {
-		var q = prompt("Удалить выделенный объект cid:"+(pl.cid||"")+" oid:"+pl.polyId+" ?", "да");
-		if (q == "да" && pl.polyId) {
-			objectlink.gOrm("eO",[pl.polyId, null, currentUser.oid]);
-			pl.off('mouseover');
-			pl.off('mouseout');
-			pl.setStyle({color : "#000000", weight:0});
-		}
-	}
 
 	function endPaint(){
 		var funcL_ = funcL;
@@ -162,12 +152,6 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 		p.objid = objid;
 		p.polyId = polyId;
 		p.cid = cid;
-		
-		//p.on('contextmenu', function(e) {
-			//if (!this.options.opacity) return;
-			//console.log(this.polyId);
-			//if (isEditMode) funcdel(this);
-		//})
 		p.on('mouseover', onmouseover);
 		p.on('mouseout', onmouseout);
 		p.on('click', onmouseclick);

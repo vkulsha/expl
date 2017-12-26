@@ -1,15 +1,12 @@
 ﻿"use strict";
 var host = location.host;
 var domain = "http://"+host+"/";
-var interfaceUrlKey = "interface";
-var objectIdUrlKey = "objectId";
 var objectsDir = "data/objects"
 var currentUser = {oid:0};
 var isPaintMode = false;
 var isEditMode = false;
 var selectedPoly;
 var selectedPoint;
-//var draggable;
 
 var months = ["январь", "февраль", "март", "апрель", "май", "июнь", "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"];
 
@@ -73,10 +70,6 @@ function ifns(val) {
 	return val == "" ? "null" : "'"+replace(val, "'", "''")+"'";
 }
 
-function getClientIp() {
-	return _clientIp;
-}
-
 function getObjectsDir() {
 	return objectsDir;
 }
@@ -94,51 +87,7 @@ function openWindow(url, title, params) {
 	};
 	return w;
 }
-
-function bDocDownload(objectId, docName) {
-	openWindow(getObjectUri(objectId)+"/"+docName);
-}
-
-function getPassportName(objectId){
-	return "passport "+objectId+".pdf"
-}
-
-function passportDownload(objectId) {
-	bDocDownload(objectId, getPassportName(objectId))
-}
-
-function bMap(objectId, newwindow) {
-	newwindow = newwindow == undefined ? true : false;
-	objectId = objectId == undefined ? "" : "&objectId="+objectId;
-	
-	if (newwindow) {
-		openWindow(domain+'?interface=iMap'+objectId+"&key="+userKey);
-	} else {
-		location.href = domain+'?interface=iMap'+objectId+'&key='+userKey;
-	}
-}
-
-function bCard(objectId, version) {
-	openWindow(domain+'?interface=iCard'+(version ? version : '')+'&objectId='+objectId+"&key="+userKey);
-}
-
-function getCardVersionByOid(oid){
-	var ret = objectlink.gOrm("gCid",[oid]);
-	var arr = ["1424","1425"];
-	if (ret && ret.length && (arr.indexOf(ret[0][0]) >= 0)){
-		return ret[0]
-	} else {
-		return undefined;
-	}
-}
-
-function bCadastr(objectCadastrNumber) {
-	if (objectCadastrNumber)
-		openWindow('http://maps.rosreestr.ru/PortalOnline/?cn='+objectCadastrNumber);
-		//openWindow('http://pkk5.rosreestr.ru/#text='+objectCadastrNumber+'&x=&y=&z=&type=1&app=search&opened=1');
-	
-}
-
+/*
 function loadXML(url, isGet, async, asText, func) {
 	var req = null;
 	if (window.XMLHttpRequest) {
@@ -161,7 +110,7 @@ function loadXML(url, isGet, async, asText, func) {
 			try {
 			if (req.readyState == 4) {
 				if (req.status == 200) {
-					func(asText ? req.responseText : req.responseXML);
+					func(asText ? req.responseText : req.response);
 				} else {
 					console.log("Не удалось получить данные:\n"+req.statusText);
 				}
@@ -171,8 +120,8 @@ function loadXML(url, isGet, async, asText, func) {
 		};
 		req.send(null);
 	}
-}				
-
+}*/				
+/*
 function getHttp(uri, func, async, funcError, funcFinnaly) {
 	if (async === undefined) async = true;
 
@@ -185,11 +134,8 @@ function getHttp(uri, func, async, funcError, funcFinnaly) {
 	.fail(funcError)
 	.always(funcFinnaly);
 };
-
-function getQueryJson(query, func, async, funcError, funcFinnaly) {
-	getHttp(domain+"sql2json.php?q="+query, func, async, funcError, funcFinnaly);
-};
-
+*/
+/*
 function postJSON(uri, data, async, func, funcError, funcFinnaly) {
 	if (async === undefined) async = true;
 
@@ -204,6 +150,66 @@ function postJSON(uri, data, async, func, funcError, funcFinnaly) {
 	.done(func)
 	.fail(funcError)
 	.always(funcFinnaly);
+};
+*/
+
+function getXmlHttpReq(uri, data, async, getpost, isjson, func, funcError, funcFinnaly) {
+	if (async === undefined) async = true;
+	
+	var req = null;
+	if (window.XMLHttpRequest) {
+		try {
+			req = new XMLHttpRequest();
+		} catch (e){}
+	} else if (window.ActiveXObject) {
+		try {
+			req = new ActiveXObject('Msxml2.XMLHTTP');
+		} catch (e){
+			try {
+				req = new ActiveXObject('Microsoft.XMLHTTP');
+			} catch (e){}
+		}
+	}
+
+	if (req) {
+		var formData = new FormData();
+		if (data){
+			for ( var key in data ) {
+				formData.append(key, data[key]);
+			}
+		}
+		req.open(getpost, encodeURI(uri), async);
+		req.onreadystatechange = function(){
+			try {
+			if (req.readyState == 4) {
+				if (req.status == 200) {
+					func((isjson ? JSON.parse(req.response) : req.response));
+				} else {
+					console.log("Не удалось получить данные:\n"+req.statusText);
+				}
+			}
+			} catch( e ) {
+				if (funcError && typeof funcError == 'function') funcError(e);
+			} finally {
+				if (funcFinnaly && typeof funcFinnaly == 'function') funcFinnaly();
+			}							
+		};
+		req.send(getpost=="post" ? formData : null);
+	}
+	
+}
+
+function getHttp(uri, func, async, funcError, funcFinnaly) {
+	if (async === undefined) async = true;
+	getXmlHttpReq(uri, null, async, "get", false, func, funcError, funcFinnaly);
+};
+
+function postJSON(uri, data, async, func, funcError, funcFinnaly) {
+	getXmlHttpReq(uri, data, async, "post", "json", func, funcError, funcFinnaly);
+}
+
+function getQueryJson(query, func, async, funcError, funcFinnaly) {
+	getHttp(domain+"sql2json.php?q="+query, func, async, funcError, funcFinnaly);
 };
 
 function sqlAsync(query, async, func, funcError, funcFinnaly) {
@@ -715,65 +721,6 @@ function windowWidth(){
    return window.innerWidth||document.documentElement.clientWidth||document.body.clientWidth||0;
 }	
 
-function getRowTable4Class(objectClass, objectId){
-	var result = getOrm("select * from `expls"+objectClass+"` where rowid = '"+objectId+"'", "row2table");
-	return result;
-}
-
-function domCardTable(objectId, columns){
-	//columns = [new Column({name: "rowid", caption: "№"}), new Column({name: "tu", caption: "Турритор Упр"})];
-	var js = getRowTable4Class('Object', objectId);
-	var result = document.createElement('DIV');
-	var tb = document.createElement('TABLE');
-	tb.setAttribute("border","1");
-	
-	$.each(js, function(ind, val){
-		var tr = document.createElement("TR");
-		var tdf = document.createElement("TD");
-		var tdv = document.createElement("TD");
-		tb.appendChild(tr);
-		if (columns && columns.length && columns[ind] instanceof Column){
-			tdf.innerHTML = columns[ind].caption;
-		} else {
-			tdf.innerHTML = js[ind][0];
-		}
-		tdv.innerHTML = js[ind][1];
-		tr.appendChild(tdf);
-		tr.appendChild(tdv);
-			
-	})
-	var bToCard = document.createElement("BUTTON");
-	var img = new Image();
-	img.src = domain+"images/bCard.png";
-	img.style.width = "32px";
-	bToCard.appendChild(img);
-	var l = document.createElement("LABEL");
-	l.innerHTML = "<br> карточка <br> объекта";
-	bToCard.appendChild(l);
-	bToCard.objectId = objectId;
-	
-	bToCard.onclick = function(){
-		alert(this.objectId);
-		//bCard(1);
-	}
-	result.appendChild(tb);
-	result.appendChild(bToCard);
-	return result;
-};
-
-function openCardWindow(objectId, columns, opt){
-	if (!opt) opt = {};
-	opt.width = opt.width || "300";
-	opt.height = opt.height || "370";
-	opt.left = opt.left || "500";
-	opt.top = opt.top || "250";
-	
-	var dom = domCardTable(objectId, columns);
-	var w = openWindow("blank.php", "Карточка записи", "width="+opt.width+",height="+opt.height+",left="+opt.left+",top="+opt.top);
-	w.document.write(dom.outerHTML);
-	return w;
-}
-
 function export2Excel(domTable){
 	var dom = domTable.cloneNode(true);
 	$(dom).find("IMG, DIV.other").each(function(){
@@ -1189,7 +1136,7 @@ function d2str(d) {
 	var dt = d.getFullYear() + ("0"+(d.getMonth()+1)).slice(-2) + ("0" + d.getDate()).slice(-2) + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2) + ("0" + d.getSeconds()).slice(-2);
 	return dt
 }
-
+/*
 function getFieldVal(f) {
 	var vals = [];
 	switch (f.ft) {
@@ -1360,7 +1307,7 @@ function getFieldHtml(fn, ft, def) {
 	}
 	return tr;
 }
-
+*/
 ///////////////
 /*
 class TDomValue {
