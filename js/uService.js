@@ -232,8 +232,6 @@ function sqlOrmA(params, func, funcError, funcFinnaly){
 	return result;
 };
 
-//sqlOrm({f:"gT",p:[["Объект", "Земельные участки"],[],[],[],"*"," and `id Объект`=115"]})	
-
 function orm(query, type) {
 	return getOrmObject(sql(query), type)
 }
@@ -604,93 +602,6 @@ function splitObjectArray(obj1, obj2){
 	return result;
 }
 
-function iMap(opts, callback, dblclick, funcError, funcFinnaly){
-	var tu = objectlink.gOrm("gAnd",[[classes["ТУ"]],"n",true]);//orm("select n from ("+objectlink.gOCQ("ТУ")+")xx", "col2array");//getOrm("select name from "+territorialDepartmentTableName, "col2array"); //["УЭИ","СЗТП","СиДВ"]
-	var CAT_TERRITORIAL_DEPARTMENT = getOrmObject({columns:["n"],data:tu}, "col2array");
-	var whereCond = opts.whereCond || "";
-
-	var sel = objectlink.gOrm("gTq",[["Объект","Адрес","Кадастр","Широта","Долгота","Номер","ИК","ТУ","Ответственный"],[[7,6],[8,6]],[6,7],[],0]);
-	sel = "select * from (select номер rowid, ту tu, ик ik, ответственный manager, объект name, адрес address, кадастр cadastr, широта lat, долгота lon from ("+sel+")x)x where 1=1 "+whereCond+" order by rowid ";
-
-	var func = function(dataJSON) {
-		var data = dataJSON;//JSON.parse(dataJSON);
-		if (data.columns[0] == "result" && data.data[0][0] == false) {callback(undefined); return;};
-		var ObjectIcon = L.Icon.extend({
-			options: {
-				iconSize:     [40, 40],
-				iconAnchor:   [20, 40],
-				popupAnchor:  [0, -40]
-			}
-		});
-
-		var objectIcons = [
-			new ObjectIcon({iconUrl: 'images/marker20.png'}), 
-			new ObjectIcon({iconUrl: 'images/marker22.png'}), 
-			new ObjectIcon({iconUrl: 'images/marker23.png'}),
-			new ObjectIcon({iconUrl: 'images/marker21.png'}), 
-		];
-		
-		var getButtonCardHTML = function(id){
-			return "<button onclick=\"bCard('"+id+"');\" /><img src='images/bCard.png' width='32'/><br>карточка <br> объекта</button>";
-		}
-
-		var columns = data.columns;
-		var sysColumnsCount = 0;
-		var minLat = 1000, minLon = 1000, maxLat = 0, maxLon = 0;
-		
-		var markers = L.layerGroup();
-
-		$.each(data.data, function(ind, value) {
-			var lat = value[columns.indexOf("lat")];
-			var lon = value[columns.indexOf("lon")];
-			minLat = Math.min(lat, minLat);
-			minLon = Math.min(lon, minLon);
-			maxLat = Math.max(lat, maxLat);
-			maxLon = Math.max(lon, maxLon);
-			
-			var objectHTML = [];
-			objectHTML.push("<table width='300' style='background-color:#fff'>");
-			
-			$.each(columns, function(j) {
-				if (j>=sysColumnsCount)
-					objectHTML.push("<tr><td>"+ifnull(value[j])+"</td></tr>");
-			});
-			
-			var objectId = value[columns.indexOf("rowid")];
-			objectHTML.push("<tr><td colspan='1'>"+getButtonCardHTML(objectId)+"&nbsp;&nbsp;");
-			objectHTML.push("<button onclick=\"bDocDownload('"+objectId+"', '"+getPassportName(objectId)+"')\"><img src='images/pdf.png' width='32'/><br>паспорт <br> объекта</button>");
-			objectHTML.push("</td></tr></table>");
-
-			var icon = {icon:objectIcons[0]};
-			var ind = CAT_TERRITORIAL_DEPARTMENT.indexOf(value[columns.indexOf("tu")]);
-			if (~ind)
-				icon = {icon:objectIcons[ind+1]};
-			
-				L.marker([lat, lon], icon)
-					.addTo(markers)
-					.on("dblclick", function(){
-						dblclick( {"lat":lat, "lon":lon} )
-					})
-					.bindPopup(objectHTML.join(''));
-		});
-		
-		callback({
-			"rowsCount":data.data.length, 
-			"markers":markers, 
-			"bounds":{
-				"minLat":minLat, 
-				"minLon":minLon, 
-				"maxLat":maxLat, 
-				"maxLon":maxLon
-			}
-		});
-		
-	};
-	sqlAsync(sel, true, func, funcError, funcFinnaly);
-	
-}
-
-
 /*
 Return matrix array as [[1,2,3],[4,5,6]] from line array as [1,2,3,4,5,6]
 */
@@ -702,69 +613,16 @@ function lineArray2matrixArray(arr, rows, cols, fill){
 	for (var i=0; i < rows; i++) {
 		result[i] = [];
 		for (var j=0; j < cols; j++) {
-			if (arr[ind] || fill)
-				result[i].push(arr[ind++]);
+			if (arr[ind])
+				result[i].push(arr[ind++])
+			else
+				result[i].push(fill);
 		}
 	}
 	
 	return result;
 }
 
-/*
-Return html table menu from object as [{field1:val11, field2:val12}, {field1:val21, field2:val22}]
-*/
-function iMainMenu(interfaces){
-	var table = cDom("TABLE");
-	table.classList.add("tMenu");
-	for (var row=0; row < interfaces.length; row++) {
-		var tr = table.appendChild(cDom("TR"));
-		for (var col=0; col < interfaces[row].length; col++) {
-			var td = tr.appendChild(cDom("TD"));
-			var but = td.appendChild(cDom("TD"));
-			var img = but.appendChild(cDom("IMG"));
-			var lab = but.appendChild(cDom("LABEL"));
-
-			td.setAttribute("align","center");
-			but.classList.add("menubutton");
-			but.style.width = "200px";
-			but.style.height = "180px";
-			img.src = domain+interfaces[row][col]['Файлы'];
-			img.style.height = "130px";
-			img.style.width= "auto";
-			lab.innerHTML = interfaces[row][col]['Главное меню'];
-			
-			if (interfaces[row][col]['Ключи интерфейсов']){
-				but.interfaceKey = interfaces[row][col]['Ключи интерфейсов'];
-				but.id = "b"+but.interfaceKey;
-				but.hidden = true;
-				but.onclick = function(){
-					location.href = "?"+interfaceUrlKey+"="+this.interfaceKey+"&key="+userKey;
-				}
-			}
-		}
-	}
-	return table;
-}
-
-/*
-Return object as [{field1:val11, field2:val12}, {field1:val21, field2:val22}] from sql query table
-*/
-/*
-function getMainMenuJson() {
-	return getOrm("select * from "+mainMenuTableName, "rows2object");
-	
-}
-
-function getObjectPowerJson(id) {
-	return getOrm("select * from "+objectPowerTable+" where rowid = "+id, "row2object");
-	
-}
-
-function getObjectManagerJson(manager) {
-	return getOrm("select * from "+objectManagerTable+" where name = '"+manager+"'", "row2object");
-	
-}
-*/
 function slice(str, count) {
 	count = count ? count : 1;
 	return str.substr(0, str.length - count);
@@ -1061,50 +919,6 @@ function url2cp1251(str) {
 		return str;
 	}
 }
-/*
-function codenet_urlencode(str) {
-	$('#text_to_utf8').val(urlencode(str));
-	$('#text_to_cp1251').val(convert_to_cp1251(urlencode(str)));
-	$('#text_to_escape').val(escape(str));
-	}
-
-function codenet_unescape(str) {
-	$('#text_from').val(unescape(str));
-	$('#text_to_utf8').val(urlencode(unescape(str)));
-	$('#text_to_cp1251').val(convert_to_cp1251(urlencode(unescape(str))));
-	}
-
-function codenet_urldecode(str) {
-	$('#text_from').val(urldecode(str));
-	$('#text_to_escape').val(escape(urldecode(str)));
-	$('#text_to_cp1251').val(convert_to_cp1251(str));
-	}
-
-function codenet_urldecode_cp1251(str) {
-	$('#text_from').val(urldecode(convert_from_cp1251(str)));
-	$('#text_to_escape').val(escape(urldecode(convert_from_cp1251(str))));
-	$('#text_to_utf8').val(convert_from_cp1251(str));
-	}
-
-$(document).ready(function() {
-	$('#text_from').change(function() {codenet_urlencode($('#text_from').val());});
-	$('#text_from').click (function() {codenet_urlencode($('#text_from').val());});
-	$('#text_from').keyup (function() {codenet_urlencode($('#text_from').val());});
-
-	$('#text_to_escape').change(function() {codenet_unescape($('#text_to_escape').val());});
-	$('#text_to_escape').click (function() {codenet_unescape($('#text_to_escape').val());});
-	$('#text_to_escape').keyup (function() {codenet_unescape($('#text_to_escape').val());});
-
-	$('#text_to_utf8').change(function() {codenet_urldecode($('#text_to_utf8').val());});
-	$('#text_to_utf8').click (function() {codenet_urldecode($('#text_to_utf8').val());});
-	$('#text_to_utf8').keyup (function() {codenet_urldecode($('#text_to_utf8').val());});
-
-	$('#text_to_cp1251').change(function() {codenet_urldecode_cp1251($('#text_to_cp1251').val());});
-	$('#text_to_cp1251').click (function() {codenet_urldecode_cp1251($('#text_to_cp1251').val());});
-	$('#text_to_cp1251').keyup (function() {codenet_urldecode_cp1251($('#text_to_cp1251').val());});
-});
-*/
-
 
 function cDom(type, innerHTML, parentDom){
 	var ret = document.createElement(type);
@@ -1347,48 +1161,6 @@ function createObjectsFromObjectDir(oid){
 	return len;
 	
 }
-/*
-function fillCard(arr, oid, cont){
-	if (!cont || !arr || !arr.length) {
-		$(cont).append("<h3 style='color:#999'>Нет данных</h3>");
-		return;
-	}
-	var cn_ = arr[0];
-	$(cont).append("<tr><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
-	var arrC = arr;
-	var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,"*"," and `id_"+arr[arr.length-1]+"` = "+oid]);
-	var row = lineArray2matrixArray(rows[0], arrC.length, 2, true);
-	var txt = [];
-	var start = 1;
-	var end   = arrC.length-1;
-	var sliceNum = arrC.indexOf("Файлы")-arrC.length-1;
-	for (var i=start; i < end; i++){
-		var cellData = "";
-		if (row.length && row[i] && row[i].length && row[i][1]){
-			if (i < (end-1)){
-				cellData = row[i][1];
-				
-			} else {
-				if (rows.length == 1) {
-					cellData = getFileButtonHtml(row[i][1]);
-				} else {
-					for (var j=0; j < rows.length; j++) {
-						cellData = cellData + (rows.length < 3 ? "<td>" : "<tr><td align='center'>") + getFileButtonHtml(rows[j].slice(sliceNum)[0]) + (rows.length < 3 ? "</td>" : "</td></tr>");
-					}
-					cellData = "<table>"+(rows.length < 3 ? "<tr>" : "")+cellData+(rows.length < 3 ? "</tr>" : "")+"</table>"
-				}
-			}
-		} else {
-			var cellData = "<label style='color:#555'>нет данных</label>";
-		}
-		txt.push("<tr><td style='border-bottom:1px solid #333; color:#999'>"+arrC[i]+":</td><td style='border-bottom:1px solid #333; width:50%'>"+cellData+"</td></tr>");
-		
-	}
-	$(cont).append("<tr><td>"+txt.join("")+"</td></tr>");
-	$(cont).append("<tr height='10'><td colspan='2'></td></tr>");
-}	
-*/
-
 
 function fillSelectDom(dom, values) {
 	dom.appendChild(cDom("OPTION"));

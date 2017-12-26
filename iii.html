@@ -79,9 +79,7 @@
 <script>
 	var classes_;
 	var classes;
-	var arr = objectlink.gOrm("gAnd",[[1],"id"]);
 	var classes2 = [];
-	for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
 
 	var fs = 12;
 	var oid1 = "";
@@ -133,6 +131,8 @@
 		var openview = function() {
 			classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 			classes = hash4arr(classes_);
+			var arr = objectlink.gOrm("gAnd",[[1],"id"]);
+			for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
 			gDom("mainContainer").hidden = true;
 			gDom("tbData").hidden = false;
 		}
@@ -147,17 +147,11 @@
 			}, false);
 		}
 		
-		var u = objectlink.gOrm("gAnd",[[1576],"id",false,"and n='"+eUser+"'"]);
-		var p = objectlink.gOrm("gAnd",[[1579],"id",false,"and n='"+md5(password)+"'"]);
-		currentUser.oid = u && u.length && u[0][0] ? u[0][0] : 1;
-		if (u && p && u.length && p.length){
-			var key = objectlink.gOrm("gAnd", [[u[0][0], p[0][0], 1596]]);
-			if (key && key.length){
-				openview();
-			} else if (u && u.length) {
-				getLDAP();
-			}
-		} else if (u && u.length){
+		var auth = objectlink.gOrm("gLogin",[eUser, md5(password)]);
+		currentUser.oid = auth.u;
+		if (auth.key) {
+			openview();
+		} else {
 			getLDAP();
 		}
 		reload();

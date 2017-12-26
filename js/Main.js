@@ -1,6 +1,39 @@
 var mainHtmlPage = "";//"index.html";
 var cardPhotoOid = 0;
 
+function initMap(map){
+	L.tileLayer( '//mt{s}.googleapis.com/vt?lyrs=s,h&x={x}&y={y}&z={z}',
+	{
+	  maxZoom: 18,
+	  subdomains: [ 0, 1, 2, 3 ]
+	}
+	).addTo( map );
+	
+	var cont = map.getContainer();
+	cont.style.height = "100%";
+	cont.style.width = "100%";
+	
+	var markers = L.layerGroup();
+
+	var markerClick = function(val){
+		location.href = mainHtmlPage+"#oid="+val.oid;
+	}
+	
+	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота","Масштаб на карте"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`","`Масштаб на карте`"]]);
+	var mapObjects = mapLoad(arrObjects, {}, markerClick);
+
+	markers.clearLayers();
+	markers = mapObjects.markers;
+	markers.addTo(map);
+	map.fitBounds([
+		[mapObjects.bounds.minLat, mapObjects.bounds.minLon],
+		[mapObjects.bounds.maxLat, mapObjects.bounds.maxLon]
+	]);
+	return mapObjects;
+	
+	
+}
+
 function mapLoad(arrLatLon, opts, click){
 	var ObjectIcon = L.Icon.extend({
 		options: {
@@ -93,58 +126,12 @@ function mapPaint(coords, funcL, paramsL, map, cid){
 	}
 	function onmouseclick(){
 		if (isEditMode && this.options.opacity) {
-			if (selectedPoly /*&& selectedPoly.editPointLayer*/) {
-				//selectedPoly.editPointLayer.clearLayers();
+			if (selectedPoly) {
 				selectedPoly.disableEdit();
 			}
 			selectedPoly = this;
 			selectedPoly.enableEdit();
-		/*	
-			var editPointLayer = L.layerGroup();
-			var iconPoint = L.icon({
-				iconUrl: 'images/markerEditPointRed.png',
-				iconSize: [10, 10],
-				iconAnchor: [5, 5],
-			});
-			var arrCoord = this.getLatLngs();
-			if (arrCoord[0].length) arrCoord = arrCoord[0];
-			if (arrCoord && arrCoord.length) {
-				for (var i=0; i < arrCoord.length; i++) {
-					var coord = arrCoord[i];
-					var point = L.marker(coord, {radius:3, draggable:true, icon: iconPoint}).addTo(editPointLayer);
-					point.poly = this;
-					point.lat = coord.lat;
-					point.lng = coord.lng;
-					point.on('mousedown', function(){
-						selectedPoint = this;
-						//var draggable = new L.Draggable(this.getElement()); draggable.enable(); draggable.on('dragend', function(e){console.log(map.mouseEventToLatLng(e.originalEvent)); });						
-					});
-					point.on('dragend', function(e){
-						//console.log(this.lat, this.lng, this.getLatLng());	
-						var arrCoord = this.poly.getLatLngs();
-						var poly = [];
-						if (arrCoord[0].length) arrCoord = arrCoord[0];
-						if (arrCoord && arrCoord.length) {
-							for (var i=0; i < arrCoord.length; i++) {
-								var coord = arrCoord[i];
-								if (coord.lat == this.lat && coord.lng == this.lng){
-									poly.push(coord);
-								} else {
-									poly.push(this.getLatLng());
-								}
-							}
-							console.log(poly);
-							L.polygon(poly).addTo(map);
-						}
-					});
-					point.on('mouseup', function(){
-						selectedPoint = null;
-					});
-				}
-				editPointLayer.addTo(map);
-				this.editPointLayer = editPointLayer;
-			}
-		*/	
+
 		} else if (!isEditMode && !isPaintMode) {
 			var dom = gDom("but"+this.oid);
 			if (dom) dom.onclick();
@@ -231,50 +218,6 @@ function getCenterFromPoints(points){
 
 	return [centX, centY];
 }
-///////////
-
-function initMap(map){
-	L.tileLayer( '//mt{s}.googleapis.com/vt?lyrs=s,h&x={x}&y={y}&z={z}',
-	{
-	  maxZoom: 18,
-	  subdomains: [ 0, 1, 2, 3 ]
-	}
-	).addTo( map );
-/*
-	L.tileLayer( '//{s}.tile.osm.org/{z}/{x}/{y}.png',
-	{
-	  attribution: "&copy; <a href='http://osm.org/copyright'>OpenStreetMap</a> contributors",
-	  maxZoom: 18,
-	  subdomains: [ 0, 1, 2, 3 ]
-	}
-	).addTo( map );
-*/
-	
-	var cont = map.getContainer();
-	cont.style.height = "100%";
-	cont.style.width = "100%";
-	
-	var markers = L.layerGroup();
-
-	var markerClick = function(val){
-		location.href = mainHtmlPage+"#oid="+val.oid;
-	}
-	
-	var arrObjects = objectlink.gOrm("gT2",[["Объект","Широта","Долгота","Масштаб на карте"],[],[],false,["`Широта`", "`Долгота`", "`id_Объект`","`Масштаб на карте`"]]);
-	var mapObjects = mapLoad(arrObjects, {}, markerClick);
-
-	markers.clearLayers();
-	markers = mapObjects.markers;
-	markers.addTo(map);
-	map.fitBounds([
-		[mapObjects.bounds.minLat, mapObjects.bounds.minLon],
-		[mapObjects.bounds.maxLat, mapObjects.bounds.maxLon]
-	]);
-	
-	return mapObjects;
-	
-	
-}
 
 ////////////////load to panel
 function loadPanel(arr, container, idInd, valInd, funcClick, funcOver, funcOut, iconInd, cells2row, paramsInd, polylines){
@@ -325,13 +268,8 @@ function fillCard2(arr, oid, cont){
 	var cn_ = arr[0];
 	$(cont).append("<tr class='h3caption'><td colspan='2'><h3 style='color:#999'>"+cn_+"</h3></td></tr>");
 	var arrC = arr;
-	//var dt = new Date();
-	//var rows = objectlink.gOrm("gT",[arrC, [],[arrC.length-1],[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`")).join(","),
-	//	" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
 	var rows = objectlink.gOrm("gT2",[arrC, [],/*[arrC.length-1],*/[],false,decorateArr(arrC, "`").concat(decorateArr(arrC, "`id_", "`"))/*.join(",")*/,
 		" and `id_"+arr[arr.length-1]+"` = "+oid+" order by "+decorateArr(arrC, "`id_", "`").join(",")]);
-	//console.log(new Date()-dt);
-	//console.log(rows);
 	var tb = cont.appendChild(cDom("TABLE"));
 	var filesInd = arrC.indexOf("Файлы");
 
