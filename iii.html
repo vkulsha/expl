@@ -181,12 +181,11 @@
 			var cell = document.createElement("BUTTON");
 			cell.innerHTML = data[i][1];
 			cell.id = data[i][0];
-			data[i][3] = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
-			cell.isClass = data[i][3];
+			cell.isClass = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
 			cell.style.fontSize = fs+"px";
 			cell.style.width = "100%";
 			cell.style.textAlign = "left";
-			cell.style.fontWeight = data[i][3] ? "bold" : "";
+			cell.style.fontWeight = cell.isClass ? "bold" : "";
 			cell.style.color = data[i][4] == 'parent' ? "#aa0000" : "#000";
 			if (data[i][3]) { countClass++; } else { countObjects++; };
 			isFile = isFile || (data[i][1] == 'Файлы');

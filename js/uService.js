@@ -80,8 +80,8 @@ function getObjectUri(objectId) {
 
 function openWindow(url, title, params) {
 	var w = window.open(url, title, params);
-	w.onkeydown = function(event) {
-		if (event.keyCode == 27) {
+	w.onkeydown = function(e) {
+		if (e.keyCode == 27) {
 			w.close();
 		}
 	};

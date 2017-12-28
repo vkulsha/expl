@@ -22,7 +22,7 @@
 	var classes_;
 	var classes;
 	var classes2 = [];
-			
+	var frmMainMenu;
 ////////////documentReady
 	$(document).ready(function(){
 		var pMain = gDom("pMain");
@@ -162,7 +162,7 @@
 
 
 		function showMainMenu(){
-			var frmMainMenu = new TForm(null,null,null,null,20,200000,true);
+			frmMainMenu = new TForm(null,null,null,null,20,200000,true);
 			var div = cDom("DIV");
 			div.style.width = '100%';
 			var table = div.appendChild(cDom("TABLE"));
@@ -173,23 +173,26 @@
 			td.align = 'center';
 			var lMainMenu = td.appendChild(cDom("H3"))
 			lMainMenu.innerHTML = "Главное меню";
-
+			/*
 			var tr = table.appendChild(cDom("TR"));
 			var td = tr.appendChild(cDom("TD"));
 			var bStructure = createMainMenuButton('СТРУКТУРА УЭИ','images/usb.png', td);
-
+			*/
 			var tr = table.appendChild(cDom("TR"));
 			var td = tr.appendChild(cDom("TD"));
-			var bObjects = createMainMenuButton('ОБЪЕКТЫ','images/see.png', td);
+			var bObjects = createMainMenuButton('СТРУКТУРА УЭИ','images/see.png', td);
 			bObjects.onclick = function(){
-				//frmMainMenu.setVisible(false)
-				load(classes["Карточка объекта"]);
+				//load(1384, "ТУ");
+				load(1380, "Подразделения", frmMainMenu);
 			};
-
+			/*
 			var tr = table.appendChild(cDom("TR"));
 			var td = tr.appendChild(cDom("TD"));
 			var bMachines = createMainMenuButton('ТЕХНИКА','images/cars.png', td);
-
+			bMachines.onclick = function(){
+				load(0, "Автомобильный транспорт и строительные машины");
+			};
+			*/
 			var tr = table.appendChild(cDom("TR"));
 			var td = tr.appendChild(cDom("TD"));
 			var bCharts = createMainMenuButton('ОТЧЕТЫ','images/chart.png', td);
@@ -1483,7 +1486,7 @@
 function loadMainListOfObjects(){
 	pObjects.innerHTML = "";
 	var buttons = [];
-	var arrTu = [[1252,"УЭИ"],[1253,"СЗТП"],[1254,"СиДВ"]];
+	var arrTu = [[1252,"ЦТП"],[1253,"СЗТП"],[1254,"СиДВ"]];
 	for (var i=0; i < arrTu.length; i++){
 		if (i>0) pObjects.appendChild(cDom("BR"));
 		var div = pObjects.appendChild(cDom("DIV",arrTu[i][1]));
@@ -1636,16 +1639,18 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 	span.innerHTML = "&times";
 	span.onclick = function() {	that.setVisible(false);	}
 	
+	var domBody;
 	this.setBody = function(val) {
 		$(body).html("");
 		$(body).append(head);
 		$(body).append("<BR><BR>");
 		$(body).append(val);
+		domBody = val;
 	}
 	
 	this.setVisible = function(val) { dom.style.display = val ? "block" : "none"; }
 	this.getDom = function() { return dom; }
-	this.getBody = function() { return body; }
+	this.getBody = function() { return domBody; }
 	this.setWidth = function(val) {	body.style.width = val; }
 	this.setHeight = function(val) { body.style.height = val; }
 	this.setTop = function(val) { body.style.top = val; }
@@ -1657,91 +1662,89 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 function testindex(){
 }
 
-function load(oid_){
-	var txt = {value: objectlink.gOrm("gN",[oid_])};
-	var fs = 12;
+function load(oid_, cid_, form){
+	var txt = {value: objectlink.gOrm("gN",[cid_])};
+	var fs = 11;
 	var arrChbxs = [];
 	var isFile = false;
 	var isClass = false;
-	var result = getOrmObject({columns:["1","2","3","4","5"],data:objectlink.gOrm("iii", [" and o1 in (select o1 from link where o2=1) and o2 = "+oid_, " order by c desc, n asc "])}, "all2array");
-	var data = result;
-	if (!data.length) return false;
-	
+	var getClasses = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",false,"",false,true])};
+	var getObjects = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",true,"",false,false])};
+	var arrCls = parseInt(cid_) ? getClasses([cid_]) : [[classes[cid_], cid_]];
+	if (!arrCls.length) return false;
+
+	if (form) form = form.getBody();
 	var frm = new TForm(null,null,null,null,20,200001,true);
 	var div = cDom("DIV");
 	div.style.width = '100%';
 	var dom = div.appendChild(cDom("TABLE"));
 	dom.style.width = '100%';
-	countClass = 0;
-	countObjects = 0;
-	countAll = data.length;
 	
-	for (var i=0; i < data.length; i++){
-		if (data[i][4] == 'parent') continue;
-		var cell = document.createElement("BUTTON");
-		cell.innerHTML = data[i][1];
-		cell.id = data[i][0];
-		data[i][3] = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
-		cell.isClass = data[i][3];
-		cell.style.fontSize = fs+"px";
-		cell.style.width = "100%";
-		cell.style.textAlign = "left";
-		cell.style.fontWeight = data[i][3] ? "bold" : "";
-		cell.style.color = data[i][4] == 'parent' ? "#ffff00" : "#fff";
-		if (data[i][3]) { countClass++; } else { countObjects++; };
-		isFile = isFile || (data[i][1] == 'Файлы');
+	var fillCard = function(data, cell, cnt, cid){
+		cell.id = data[0];
+		cell.isClass = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
+		cell.innerHTML = cell.isClass ? data[1] : "&nbsp&nbsp&nbsp"+data[1];
+		cell.cid = cell.isClass ? cell.id : cid;
+		cell.style.width = "100%"; cell.style.textAlign = "left"; 
+		cell.style.fontWeight = cell.isClass ? "bold" : "";
+		cell.style.color = cell.isClass ? "#ffff00" : "#fff";
+		cell.style.fontSize = cell.isClass ? fs+1+"px" : fs+"px"; 
+		cell.isFile = (cell.cid == classes["Файлы"] || cell.cid == classes["Фото"]);
+		cell.onclick = function(){ 
+			if (this.cid == classes["Объект"]) {
+				location.href = mainHtmlPage+"#oid="+this.id;
+			}
+			load(this.id, this.cid, frm); 
+		}
+		cell.oncontextmenu = function(){
+			if (isEditMode) {
+				openWindow(domain+url2cp1251("add.html#cid="+this.cid+"&oid="+this.id+"&u="+currentUser.oid));
+			}
+		}
+		if (cell.isFile && !cell.isClass) {
+			var img = new Image();
+			var fn = txt.value;
+			var arr = fn.split(".");
+			var arrIm = ['jpg','bmp','png','gif','tif'];
+			var ext = arr[arr.length-1];
+			if (arr && arr.length && ~arrIm.indexOf(ext)) {
+				img.src = domain+url2cp1251(fn);
+			} else {
+				var iconFile = getIconFile(fn);
+				img.src = domain+iconFile;
+			}
 
-		cell.onclick = function(){
-			load(this.id);
-		};
+			img.width = 32;
 			
-		var ch = document.createElement("INPUT");
-		ch.setAttribute("type", "checkbox");
-		ch.hidden = true;
-		ch.id = cell.id;
-		arrChbxs.push(ch);
+			img.fn = fn;
+			img.style.cursor = "pointer";
+			img.onclick = function(){
+				openWindow(domain+url2cp1251(this.fn));
+			}
+			
+			cell.appendChild(img);
+		}
+			
+		var ch = document.createElement("INPUT"); ch.setAttribute("type", "checkbox"); ch.hidden = true; ch.id = cell.id; arrChbxs.push(ch);
+		var td = document.createElement("TD"); var tr = document.createElement("TR"); td.appendChild(cell);	td.style.width = "100%";
+		var td2 = document.createElement("TD");	td2.appendChild(ch); tr.appendChild(td2); tr.appendChild(td);
+		cnt.appendChild(tr);
+	}
 
-		var td = document.createElement("TD");
-		var tr = document.createElement("TR");
-		td.appendChild(cell);
-		td.style.width = "100%";
+	for (var i=0; i < arrCls.length; i++){
+		var cell1 = document.createElement("BUTTON");
+		fillCard(arrCls[i], cell1, dom, cid_);
 
-		var td2 = document.createElement("TD");
-		td2.appendChild(ch);
-
-		tr.appendChild(td2);
-		tr.appendChild(td);
-		dom.appendChild(tr);	
+		var arrObj = getObjects([oid_, cell1.id]);
+		var tb2 = div.appendChild(cDom("TABLE"));
+		tb2.style.width = '100%';
+		for (var j=0; j < arrObj.length; j++){
+			var cell2 = cDom("BUTTON");
+			fillCard(arrObj[j], cell2, dom, cell1.id);
+		
+		}
 	}
 	
-	if (isFile && !isClass) {
-		var img = new Image();
-		var fn = txt.value;
-		var arr = fn.split(".");
-		var arrIm = ['jpg','bmp','png','gif','tif'];
-		var ext = arr[arr.length-1];
-		if (arr && arr.length && ~arrIm.indexOf(ext)) {
-			img.src = domain+url2cp1251(fn);
-		} else {
-			var iconFile = getIconFile(fn);
-			img.src = domain+iconFile;
-		}
-
-		img.width = 128;
-		
-		img.fn = fn;
-		img.style.cursor = "pointer";
-		img.onclick = function(){
-			openWindow(domain+url2cp1251(this.fn));
-		}
-		
-		var td = document.createElement("TD");
-		var tr = document.createElement("TR");
-		td.setAttribute("colspan","2");
-		td.appendChild(img);
-		tr.appendChild(td);
-		dom.appendChild(tr);
-	}
 	frm.setBody(div);
 }
 
