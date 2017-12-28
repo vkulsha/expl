@@ -21,6 +21,7 @@
 ////////////policy
 	var classes_;
 	var classes;
+	var classes2 = [];
 			
 ////////////documentReady
 	$(document).ready(function(){
@@ -52,7 +53,9 @@
 		logo.onclick = function(){
 			eDopWidth.value=pDop.style.width;
 			eDopHeight.value=pDop.style.height;
-			showModalHtml(setup, true);
+			//showModalHtml(setup, true);
+			showMainMenu();
+
 		}
 		
 ////////////////modal
@@ -156,6 +159,76 @@
 		pLogin.style.top = Math.round(windowHeight()/2) - 60 + "px";
 
 		var bLogin = gDom("bLogin");
+
+
+		function showMainMenu(){
+			var frmMainMenu = new TForm(null,null,null,null,20,200000,true);
+			var div = cDom("DIV");
+			div.style.width = '100%';
+			var table = div.appendChild(cDom("TABLE"));
+			table.align = 'center';
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			td.align = 'center';
+			var lMainMenu = td.appendChild(cDom("H3"))
+			lMainMenu.innerHTML = "Главное меню";
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bStructure = createMainMenuButton('СТРУКТУРА УЭИ','images/usb.png', td);
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bObjects = createMainMenuButton('ОБЪЕКТЫ','images/see.png', td);
+			bObjects.onclick = function(){
+				//frmMainMenu.setVisible(false)
+				load(classes["Карточка объекта"]);
+			};
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bMachines = createMainMenuButton('ТЕХНИКА','images/cars.png', td);
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bCharts = createMainMenuButton('ОТЧЕТЫ','images/chart.png', td);
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bWorks = createMainMenuButton('ПОРУЧЕНИЯ','images/people.png', td);
+
+			var tr = table.appendChild(cDom("TR"));
+			var td = tr.appendChild(cDom("TD"));
+			var bSetup = createMainMenuButton('НАСТРОЙКИ','images/setup.png', td);
+			bSetup.onclick = function(){
+				var pSetup = gDom("setup"); 
+				div.appendChild(pSetup);
+			};
+
+			function createMainMenuButton(caption, imgSrc, parentCnt){
+				var but = cDom("BUTTON");
+				if (parentCnt) parentCnt.appendChild(but);
+
+				var table = but.appendChild(cDom("TABLE"));
+				var tr = table.appendChild(cDom("TR"));
+				var td = tr.appendChild(cDom("TD"));
+				var img = td.appendChild(cDom("IMG"));
+				img.src = imgSrc;
+				img.style.width = '32px';
+				var td = tr.appendChild(cDom("TD"));
+				var label = td.appendChild(cDom("LABEL"));
+				label.innerHTML = caption;
+				but.style.width = '200px';
+				return but;
+			}
+
+			frmMainMenu.setBody(div);
+			div.style.height = windowHeight()-50+'px';
+			return frmMainMenu;
+		}
+
+
 		
 ////////////////map init
 		var map = L.map('map', {editable: true});
@@ -353,6 +426,8 @@
 			var openview = function() {
 				classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 				classes = hash4arr(classes_);
+				var arr = objectlink.gOrm("gAnd",[[1],"id"]);
+				for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
 				console.log("classes count: "+classes_.length);
 
 				mapObjects = initMap(map);
@@ -361,11 +436,13 @@
 				zdzuPolygonsLayer.addTo(map);
 				if (oid) {
 					hashchange(mapObjects, arrLines)
+				} else {
+					//showMainMenu();
 				}
 
 				////////////////polygons communications
 				var arr = {
-					comm: ["Электроснабжение","Отопление","ХВС","Канализация"],
+					comm: ["Электроснабжение","Теплоснабжение","Водоснабжение","Водоотведение"],
 					color: ["#ff9900","#ffff00","#0000ff","#aa9900"],
 					width: [2,3,3,3]
 				};
@@ -427,7 +504,7 @@
 			$(pObject).append("Имущественный комплекс: <label style='color:#00ff00'>"+zd[0][7]+" ("+zd[0][9]+") </label><br>");
 ////////////object communications
 			var getCommVisible;
-			var comms = ["Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана"];
+			var comms = ["Электроснабжение","Теплоснабжение","Водоснабжение","Водоотведение","Интернет","Вывоз КГМ и ТБО","Охрана"];
 //console.time();
 			var getCommOnObject = objectlink.gOrm("gT2",[["Объект"].concat(comms),[]/*,[]*/,[],false,decorateArr(comms, "`id_", "`")/*.join(",")*/," and `id_Объект`="+oid+" order by "+decorateArr(comms, "`id_", "` desc ").join(",")+" limit 1"]);
 //console.timeEnd();
@@ -442,9 +519,9 @@
 			var securityId = getCommOnObject[0][6];
 			arrParamsComm = [
 				["Электроснабжение", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
-				["Отопление", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
-				["ХВС", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
-				["Канализация", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
+				["Теплоснабжение", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
+				["Водоснабжение", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
+				["Водоотведение", "Договоры"/*, "Счетчики", "Потребляемая мощность", "Расходы по счетчикам за год", "Потребление за год"*/, "Файлы", "Объект"],
 				["Интернет", "Договоры", "Файлы", "Объект"],
 				["Вывоз КГМ и ТБО", "Договоры", "Файлы", "Объект"],
 				["Охрана", "Договоры", "Вид охраны", "Количество постов", "Количество человек", "ФИО", "Файлы", "Объект"],
@@ -475,7 +552,7 @@
 				}
 
 				if (isPaintMode) {
-					var el = ["Электроснабжение","Отопление","ХВС","Канализация"];
+					var el = ["Электроснабжение","Теплоснабжение","Водоснабжение","Водоотведение"];
 					if (!currentCommOid) {
 						currentCommOid = objectlink.gOrm("cO", [el[this.ind]+" "+oid+" "+d2str(new Date()), classes[el[this.ind]]]);
 						objectlink.gOrm("cL", [currentCommOid, oid]);
@@ -615,7 +692,7 @@
 				}
 				
 				if (isEditMode) {
-					var arr = objectlink.gOrm("gT2",[["Объект", "Электроснабжение", "Отопление", "ХВС", "Канализация"],[],[],false,null,"and `id_Объект` = "+oid]);
+					var arr = objectlink.gOrm("gT2",[["Объект", "Электроснабжение", "Теплоснабжение", "Водоснабжение", "Водоотведение"],[],[],false,null,"and `id_Объект` = "+oid]);
 					for (var i=1; i<=4; i++) {
 						var br = cDom("BR", null, pDopData);
 						var ch = cInp("CHECKBOX", null, pDopData);
@@ -638,7 +715,6 @@
 					}
 				}
 				
-				//fillCard2(["Коммуникации на объекте", "Электроснабжение","Отопление","ХВС","Канализация","Интернет","Вывоз КГМ и ТБО","Охрана", "Здания и сооружения"], this.oid, pDopData)
 				fillCard2(["Правоустанавливающие документы", /*"Объект права", "Адрес", "Субъект права", "Вид права", "Документы-основания", "Кадастровый номер", "Обременения", "Номер записи регистрации в ЕГРП", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				fillCard2(["Технические данные", "Общая площадь", /*"Полезная площадь", "Площадь застройки",*/ "Число этажей", /*"Высота этажа", "Коммуникации в здании", "Стены", "Перегородки", "Перекрытия", "Фундамент",*/ "Год постройки", /*"Состояние", "Процент износа", "Литера", "Инвентарный номер", "Дата документа",*/ "Файлы", "Здания и сооружения"], this.oid, pDopData);
 				fillCard2(["Файлы", "Здания и сооружения"], this.oid, pDopData);
@@ -1579,6 +1655,94 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 }	
 
 function testindex(){
+}
+
+function load(oid_){
+	var txt = {value: objectlink.gOrm("gN",[oid_])};
+	var fs = 12;
+	var arrChbxs = [];
+	var isFile = false;
+	var isClass = false;
+	var result = getOrmObject({columns:["1","2","3","4","5"],data:objectlink.gOrm("iii", [" and o1 in (select o1 from link where o2=1) and o2 = "+oid_, " order by c desc, n asc "])}, "all2array");
+	var data = result;
+	if (!data.length) return false;
+	
+	var frm = new TForm(null,null,null,null,20,200001,true);
+	var div = cDom("DIV");
+	div.style.width = '100%';
+	var dom = div.appendChild(cDom("TABLE"));
+	dom.style.width = '100%';
+	countClass = 0;
+	countObjects = 0;
+	countAll = data.length;
+	
+	for (var i=0; i < data.length; i++){
+		if (data[i][4] == 'parent') continue;
+		var cell = document.createElement("BUTTON");
+		cell.innerHTML = data[i][1];
+		cell.id = data[i][0];
+		data[i][3] = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
+		cell.isClass = data[i][3];
+		cell.style.fontSize = fs+"px";
+		cell.style.width = "100%";
+		cell.style.textAlign = "left";
+		cell.style.fontWeight = data[i][3] ? "bold" : "";
+		cell.style.color = data[i][4] == 'parent' ? "#ffff00" : "#fff";
+		if (data[i][3]) { countClass++; } else { countObjects++; };
+		isFile = isFile || (data[i][1] == 'Файлы');
+
+		cell.onclick = function(){
+			load(this.id);
+		};
+			
+		var ch = document.createElement("INPUT");
+		ch.setAttribute("type", "checkbox");
+		ch.hidden = true;
+		ch.id = cell.id;
+		arrChbxs.push(ch);
+
+		var td = document.createElement("TD");
+		var tr = document.createElement("TR");
+		td.appendChild(cell);
+		td.style.width = "100%";
+
+		var td2 = document.createElement("TD");
+		td2.appendChild(ch);
+
+		tr.appendChild(td2);
+		tr.appendChild(td);
+		dom.appendChild(tr);	
+	}
+	
+	if (isFile && !isClass) {
+		var img = new Image();
+		var fn = txt.value;
+		var arr = fn.split(".");
+		var arrIm = ['jpg','bmp','png','gif','tif'];
+		var ext = arr[arr.length-1];
+		if (arr && arr.length && ~arrIm.indexOf(ext)) {
+			img.src = domain+url2cp1251(fn);
+		} else {
+			var iconFile = getIconFile(fn);
+			img.src = domain+iconFile;
+		}
+
+		img.width = 128;
+		
+		img.fn = fn;
+		img.style.cursor = "pointer";
+		img.onclick = function(){
+			openWindow(domain+url2cp1251(this.fn));
+		}
+		
+		var td = document.createElement("TD");
+		var tr = document.createElement("TR");
+		td.setAttribute("colspan","2");
+		td.appendChild(img);
+		tr.appendChild(td);
+		dom.appendChild(tr);
+	}
+	frm.setBody(div);
 }
 
 </script>

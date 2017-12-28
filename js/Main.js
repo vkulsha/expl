@@ -357,3 +357,14 @@ function fillCardEasy(arr, id, cont){
 		}
 	}
 }	
+
+
+
+
+
+
+
+
+
+
+

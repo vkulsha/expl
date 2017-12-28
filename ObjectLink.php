@@ -56,8 +56,8 @@ class ObjectLink {
 	}
 
 	public function cL($params){//link objects
-		$func = debug_backtrace()[0]['function'];
-		if (!$this->policy([$this->u, [$func, "iii"]])) return 0;
+		//$func = debug_backtrace()[0]['function'];
+		//if (!$this->policy([$this->u, [$func, "iii"]])) return 0;
 
 		$ret = 0;
 		try {
@@ -82,8 +82,8 @@ class ObjectLink {
 	}
 
 	public function gO($params){//get object id by name
-		$func = debug_backtrace()[0]['function'];
-		if (!$this->policy([$this->u, [$func, "iii"]])) return 0;
+//		$func = debug_backtrace()[0]['function'];
+//		if (!$this->policy([$this->u, [$func, "iii"]])) return 0;
 		try {
 			$n = $params[0];
 			$isClass = isset($params[1]) && $params[1] ? "and id in (select o1 from link where o2 = 1) " : "";

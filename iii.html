@@ -35,6 +35,7 @@
 					<button id='bEO'>eO</button>
 					<button id='bEL'>eL</button>
 					<input type='checkbox' id='chAdd2query'/>
+					<button id='bGC'>gC</button>
 					<!--<input type='checkbox' id='chQueryLinkParent'/>-->
 					<button id='bTable'>t</button>
 					<button id='bTable2'>T</button>
@@ -116,6 +117,7 @@
 
 	var ORDER = " order by c desc, o1 desc, t desc ";
 	var order = ORDER;
+	var dopcond = "";
 	divContainer.style.height = windowHeight()-105+"px";
 
 	var pLogin = gDom("pLogin");
@@ -258,7 +260,7 @@
 	};
 
 	function reload(){
-		return load(" and o2 = "+oid, order);
+		return load(dopcond+" and o2 = "+oid, order);
 	}
 	
 	function hashchange(){
@@ -358,6 +360,12 @@
 	bOrderBy.onclick = function(){
 		this.innerHTML = order == ORDER ? "id" : "n";
 		order = order == ORDER ? " order by c desc, n asc " : ORDER;
+		reload();
+	};
+
+	bGC = document.getElementById("bGC");
+	bGC.onclick = function(){
+		dopcond = " and o1 in (select o1 from link where o2=1) ";
 		reload();
 	};
 
@@ -467,9 +475,9 @@
 	function createClass(){
 		result = prompt("cC(n)", txt.value+" "+(countObjects+1));
 		if (result) {
-			var o1 = objectlink.gOrm("cO",[result, oid]);
+			var o1 = objectlink.gOrm("cO",[result, 1]);
 			//if (oid) objectlink.gOrm("cL",[o1, oid]);
-			if (oid) objectlink.gOrm("cL",[o1, 1]);
+			if (o1) objectlink.gOrm("cL",[o1, oid]);
 			reload();
 		} else {
 			alert("Недопустимое значение объекта!");
