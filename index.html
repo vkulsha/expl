@@ -183,7 +183,7 @@
 			var bObjects = createMainMenuButton('СТРУКТУРА УЭИ','images/see.png', td);
 			bObjects.onclick = function(){
 				//load(1384, "ТУ");
-				load(1380, "Подразделения", frmMainMenu);
+				load(1380, "Подразделения", frmMainMenu, polylines);
 			};
 			/*
 			var tr = table.appendChild(cDom("TR"));
@@ -391,18 +391,6 @@
 			}
 			arendPolygonsLayer.clearLayers();
 		}
-		function getPolylineByOid(oid_, polylines_){
-			if (polylines_) {
-				for (var i=0; i < polylines_.length; i++){
-					if (oid_ == polylines_[i].oid) {
-						return polylines_[i];
-					}
-				}
-			}
-		}
-		function setPolylineColor(polyline, color){
-			if (polyline) polyline.setStyle({"color" : color});
-		}
 		
 		var arrLines = [[], [], [], []];
 		var arendatorMarker0, arendatorMarker2, arendatorMarker3, arendatorMarker4, arendatorMarker5, arendatorMarker6, arendatorMarker7, arendatorMarker8, arendatorMarker9;
@@ -440,7 +428,7 @@
 				if (oid) {
 					hashchange(mapObjects, arrLines)
 				} else {
-					//showMainMenu();
+					showMainMenu();
 				}
 
 				////////////////polygons communications
@@ -1662,14 +1650,13 @@ function TForm (parentDom, width, height, left, top, zIndex, visible){
 function testindex(){
 }
 
-function load(oid_, cid_, form){
-	var txt = {value: objectlink.gOrm("gN",[cid_])};
+function load(oid_, cid_, form, polylines_){
 	var fs = 11;
 	var arrChbxs = [];
 	var isFile = false;
 	var isClass = false;
-	var getClasses = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",false,"",false,true])};
-	var getObjects = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",true,"",false,false])};
+	var getClasses = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",false," order by c desc, n ",false,true])};
+	var getObjects = function(ids){return objectlink.gOrm("gAnd",[ids,"id,n",true," order by c desc, n ",false,false])};
 	var arrCls = parseInt(cid_) ? getClasses([cid_]) : [[classes[cid_], cid_]];
 	if (!arrCls.length) return false;
 
@@ -1682,6 +1669,7 @@ function load(oid_, cid_, form){
 	
 	var fillCard = function(data, cell, cnt, cid){
 		cell.id = data[0];
+
 		cell.isClass = classes2.indexOf(cell.id) >= 0 || cell.id == 1;
 		cell.innerHTML = cell.isClass ? data[1] : "&nbsp&nbsp&nbsp"+data[1];
 		cell.cid = cell.isClass ? cell.id : cid;
@@ -1689,12 +1677,14 @@ function load(oid_, cid_, form){
 		cell.style.fontWeight = cell.isClass ? "bold" : "";
 		cell.style.color = cell.isClass ? "#ffff00" : "#fff";
 		cell.style.fontSize = cell.isClass ? fs+1+"px" : fs+"px"; 
-		cell.isFile = (cell.cid == classes["Файлы"] || cell.cid == classes["Фото"]);
+		cell.isFile = !cell.isClass && (cell.cid == classes["Файлы"] || cell.cid == classes["Фото"]);
+		if (!cell.isClass && cell.cid == classes["Здания и сооружения"] && !getPolylineByOid(cell.id, polylines_)) return;
+
 		cell.onclick = function(){ 
 			if (this.cid == classes["Объект"]) {
 				location.href = mainHtmlPage+"#oid="+this.id;
 			}
-			load(this.id, this.cid, frm); 
+			load(this.id, this.cid, frm, polylines_); 
 		}
 		cell.oncontextmenu = function(){
 			if (isEditMode) {
@@ -1702,27 +1692,36 @@ function load(oid_, cid_, form){
 			}
 		}
 		if (cell.isFile && !cell.isClass) {
+			var txt = {value: objectlink.gOrm("gN",[cell.id])};
 			var img = new Image();
 			var fn = txt.value;
+
 			var arr = fn.split(".");
 			var arrIm = ['jpg','bmp','png','gif','tif'];
 			var ext = arr[arr.length-1];
+
+			img.fn = fn;
+			cell.fn = fn;
+			var cap = (fn) ? fn.split("/")[fn.split("/").length-1] : "";
+
 			if (arr && arr.length && ~arrIm.indexOf(ext)) {
 				img.src = domain+url2cp1251(fn);
+				img.width = 32;
+				cap = "";
 			} else {
 				var iconFile = getIconFile(fn);
 				img.src = domain+iconFile;
+				img.width = 16;
 			}
 
-			img.width = 32;
 			
-			img.fn = fn;
+			cell.innerHTML = cap;
 			img.style.cursor = "pointer";
-			img.onclick = function(){
+			cell.onclick = function(){
 				openWindow(domain+url2cp1251(this.fn));
 			}
-			
 			cell.appendChild(img);
+			//$(cell).append(getFileButtonHtml(domain+url2cp1251(this.fn)));
 		}
 			
 		var ch = document.createElement("INPUT"); ch.setAttribute("type", "checkbox"); ch.hidden = true; ch.id = cell.id; arrChbxs.push(ch);
@@ -1746,6 +1745,19 @@ function load(oid_, cid_, form){
 	}
 	
 	frm.setBody(div);
+}
+
+function getPolylineByOid(oid_, polylines_){
+	if (polylines_) {
+		for (var i=0; i < polylines_.length; i++){
+			if (oid_ == polylines_[i].oid) {
+				return polylines_[i];
+			}
+		}
+	}
+}
+function setPolylineColor(polyline, color){
+	if (polyline) polyline.setStyle({"color" : color});
 }
 
 </script>

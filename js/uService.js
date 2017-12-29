@@ -751,10 +751,20 @@ function getIconFile(filename){
 	var iconFile = 
 		(~filename.indexOf(".pdf")) ? "pdf.png" : 
 		(~filename.indexOf(".doc")) ? "word.png" : 
+		(~filename.indexOf(".docx")) ? "word.png" : 
 		(~filename.indexOf(".xls")) ? "excel.png" : 
+		(~filename.indexOf(".xlsx")) ? "excel.png" : 
 		(~filename.indexOf(".jpg")) ? "jpg.png" : 
 		(~filename.indexOf(".png")) ? "jpg.png" : 
 		(~filename.indexOf(".bmp")) ? "jpg.png" : 
+		(~filename.indexOf(".PDF")) ? "pdf.png" : 
+		(~filename.indexOf(".DOC")) ? "word.png" : 
+		(~filename.indexOf(".DOCX")) ? "word.png" : 
+		(~filename.indexOf(".XLS")) ? "excel.png" : 
+		(~filename.indexOf(".XLSX")) ? "excel.png" : 
+		(~filename.indexOf(".JPG")) ? "jpg.png" : 
+		(~filename.indexOf(".PNG")) ? "jpg.png" : 
+		(~filename.indexOf(".BMP")) ? "jpg.png" : 
 		"file.png";
 	return "images/"+iconFile;
 }
