@@ -173,6 +173,7 @@
 			td.align = 'center';
 			var lMainMenu = td.appendChild(cDom("H3"))
 			lMainMenu.innerHTML = "Главное меню";
+			lMainMenu.style.color = "#ffdd00";
 			/*
 			var tr = table.appendChild(cDom("TR"));
 			var td = tr.appendChild(cDom("TD"));
@@ -1675,7 +1676,7 @@ function load(oid_, cid_, form, polylines_){
 		cell.cid = cell.isClass ? cell.id : cid;
 		cell.style.width = "100%"; cell.style.textAlign = "left"; 
 		cell.style.fontWeight = cell.isClass ? "bold" : "";
-		cell.style.color = cell.isClass ? "#ffff00" : "#fff";
+		cell.style.color = cell.isClass ? "#ffdd00" : "#fff";
 		cell.style.fontSize = cell.isClass ? fs+1+"px" : fs+"px"; 
 		cell.isFile = !cell.isClass && (cell.cid == classes["Файлы"] || cell.cid == classes["Фото"]);
 		if (!cell.isClass && cell.cid == classes["Здания и сооружения"] && !getPolylineByOid(cell.id, polylines_)) return;
