@@ -418,6 +418,8 @@
 			var openview = function() {
 				classes_ = objectlink.gOrm("gT2",[["Класс"],[],[0],false,["Класс","id_Класс"]]);
 				classes = hash4arr(classes_);
+				if (!objectlink.gOrm("policy",[currentUser.oid,["iii"]])) { chPaintMode.hidden = true; chEditMode.hidden = true; };
+
 				var arr = objectlink.gOrm("gAnd",[[1],"id"]);
 				for (var i=0; i < arr.length; i++) classes2.push(arr[i][0]);
 				console.log("classes count: "+classes_.length);
@@ -1688,7 +1690,7 @@ function load(oid_, cid_, form, polylines_){
 			load(this.id, this.cid, frm, polylines_); 
 		}
 		cell.oncontextmenu = function(){
-			if (isEditMode) {
+			if (isEditMode && objectlink.gOrm("policy",[currentUser.oid,["iii"]])) {
 				openWindow(domain+url2cp1251("add.html#cid="+this.cid+"&oid="+this.id+"&u="+currentUser.oid));
 			}
 		}

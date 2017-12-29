@@ -229,6 +229,7 @@
 		
 		bSave.onclick = function(){
 			//changedValues
+			if (!objectlink.gOrm("policy",[currentUser.oid,["iii"]])) {alert('Недостаточно прав!'); return};
 			var obj = oid ? oid : objectlink.gOrm("cO",[eValue.value, cid]);
 			
 			if (obj) {
