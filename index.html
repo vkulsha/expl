@@ -486,7 +486,7 @@
 			pDop.hidden = false;
 ////////////about object			
 //console.time();
-			var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","ТУ"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,null, "and `id_Объект` = "+oid+" order by `id_Здания и сооружения`"]);
+			var zd = objectlink.gOrm("gT2",[["Объект","Здания и сооружения","Адрес","ИК","Ответственный","Территориальные подразделения"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,null, "and `id_Объект` = "+oid+" order by `id_Здания и сооружения`"]);
 			var zu = objectlink.gOrm("gT2",[["Объект","Земельные участки"],[]/*,[]*/,[],false,null, "and `id_Объект` = "+oid+" order by `id_Земельные участки`"]);
 //console.timeEnd();
 			$(pObject).append("Объект: <label style='color:#00ff00'>"+zd[0][1]+"</label><br>");
@@ -1445,8 +1445,8 @@
 				
 				pObject.style.display = "table";
 				pObjects.style.display = "none";
-				var objects = objectlink.gOrm("gT2",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","ТУ","Широта","Долгота"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,["distinct `id_Объект`", "`Объект`", "`Широта`", "`Долгота`"],
-				"and (`Объект` like '%"+this.value+"%' or `Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `ТУ` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
+				var objects = objectlink.gOrm("gT2",[["Объект","Адрес","Здания и сооружения","ИК","Ответственный","Территориальные подразделения","Широта","Долгота"],[[3,0],[4,3],[5,3]]/*,[3,5]*/,[],false,["distinct `id_Объект`", "`Объект`", "`Широта`", "`Долгота`"],
+				"and (`Объект` like '%"+this.value+"%' or `Адрес` like '%"+this.value+"%' or `Здания и сооружения` like '%"+this.value+"%' or `Территориальные подразделения` like '%"+this.value+"%' or `ИК` like '%"+this.value+"%' or `Ответственный` like '%"+this.value+"%')"]);
 				if (objects.length) {
 					pObject.innerHTML = "";
 
@@ -1482,7 +1482,7 @@ function loadMainListOfObjects(){
 		div.style.fontWeight = "bold";
 		var arrIk = objectlink.gOrm("gAnd",[[arrTu[i][0],1331/*classes["ИК"]*/]]);
 		for (var j=0; j < arrIk.length; j++){
-			if (arrIk[j][1] == "ТУ") continue;
+			if (arrIk[j][1] == "Территориальные подразделения") continue;
 			var div = pObjects.appendChild(cDom("DIV",arrIk[j][1]));
 			div.style.textAlign = "center";
 			div.style.fontWeight = "bold";
