@@ -10,8 +10,6 @@ function getDbPrefix($arr, $host){
 };
 
 $arr = array(
-	"kulsha.ru" => "c5553_",
-	"explguov.ru" => "ih162624_",
 	"localhost" => ""
 );
 
