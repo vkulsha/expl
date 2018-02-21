@@ -1700,7 +1700,7 @@ function load(oid_, cid_, form, polylines_){
 			var fn = txt.value;
 
 			var arr = fn.split(".");
-			var arrIm = ['jpg','bmp','png','gif','tif'];
+			var arrIm = ['jpg','bmp','png','gif','tif','JPG','BMP','PNG','GIF','TIF'];
 			var ext = arr[arr.length-1];
 
 			img.fn = fn;
@@ -1731,6 +1731,18 @@ function load(oid_, cid_, form, polylines_){
 		var td = document.createElement("TD"); var tr = document.createElement("TR"); td.appendChild(cell);	td.style.width = "100%";
 		var td2 = document.createElement("TD");	td2.appendChild(ch); tr.appendChild(td2); tr.appendChild(td);
 		cnt.appendChild(tr);
+		
+		cell.oncontextmenu = function(e){
+			if (this.isClass) {
+				var n = prompt("Добавить запись в класс: ["+this.innerHTML+"]?","");
+				console.log("link",this.id,oid_);
+				var newoid = n ? objectlink.gOrm("cO",[n, this.id]) : 0;
+				var newlink = newoid ? objectlink.gOrm("cL",[newoid, oid_]) : 0;
+				if (newlink) load(oid_, cid_, frm, polylines_);	
+				return false;
+			}
+		}
+		
 	}
 
 	for (var i=0; i < arrCls.length; i++){
@@ -1748,6 +1760,7 @@ function load(oid_, cid_, form, polylines_){
 	}
 	
 	frm.setBody(div);
+
 }
 
 function getPolylineByOid(oid_, polylines_){

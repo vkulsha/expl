@@ -501,6 +501,12 @@
 			terminal.focus();
 
 		}
+		
+		if (event.keyCode == 113 && event.shiftKey) {
+			var n = prompt("gO(n) and open","");
+			var oid_ = objectlink.gOrm("gO",[n, true]);
+			if (oid_) location.href = "#."+oid_+".class";
+		} else 
 		if (event.keyCode == 113) {
 			var n = prompt("gO(n)","");
 			if (n) window.alert(n+" oid: "+objectlink.gOrm("gO",[n]));
